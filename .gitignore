@@ -123,3 +123,6 @@ reqs/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# LLM interactions, resources, and guilines
+cvs_db_checklist.txt
