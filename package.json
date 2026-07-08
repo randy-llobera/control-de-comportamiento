@@ -1,5 +1,5 @@
 {
-  "name": "control-comportamiento",
+  "name": "control-de-comportamiento",
   "version": "0.1.0",
   "private": true,
   "packageManager": "npm@10.9.4",
@@ -12,32 +12,32 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "types": "supabase gen types typescript --project-id ztnpeivtdpvzaeptwrib --schema public > src/types/supabase.ts",
+    "types": "sh -c 'if [ -n \"$SUPABASE_PROJECT_REF\" ]; then supabase gen types typescript --project-id \"$SUPABASE_PROJECT_REF\" --schema public > src/types/supabase.ts; else supabase gen types typescript --linked --schema public > src/types/supabase.ts; fi'",
     "prebuild": "sh -c 'if [ -n \"$SUPABASE_ACCESS_TOKEN\" ] && [ -n \"$SUPABASE_PROJECT_REF\" ]; then npm run types; else echo Skipping Supabase typegen; fi'",
     "db:ensure-admin": "node scripts/ensure-local-admin.js",
     "db:seed:local": "node scripts/run-seed.js",
     "db:reset:local": "supabase db reset && npm run db:ensure-admin && npm run db:seed:local"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.57.4",
-    "@tailwindcss/vite": "^4.0.0",
-    "next": "15.5.9",
-    "pg": "^8.16.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.110.1",
+    "@tailwindcss/postcss": "^4.3.2",
+    "next": "^16.2.10",
+    "pg": "^8.22.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "dotenv": "^17.2.3",
-    "eslint": "^8",
-    "eslint-config-next": "15.1.0",
-    "postcss": "^8",
-    "prettier": "^3.6.2",
-    "supabase": "^2.45.5",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "dotenv": "^17.4.2",
+    "eslint": "^10.6.0",
+    "eslint-config-next": "^16.2.10",
+    "postcss": "^8.5.16",
+    "prettier": "^3.9.4",
+    "supabase": "^2.109.1",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^6.0.3"
   }
 }

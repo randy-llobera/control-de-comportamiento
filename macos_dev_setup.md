@@ -102,8 +102,8 @@ Set up package management, clone the repository, and install dependencies.
    ```bash
    mkdir -p ~/Projects
    cd ~/Projects
-   git clone git@github.com:randy-llobera/control-incidencias.git
-   cd control-incidencias
+   git clone git@github.com:randy-llobera/control-de-comportamiento.git
+   cd control-de-comportamiento
    ```
 5. **Install dependencies:**
    ```bash
@@ -265,12 +265,12 @@ Automate generation of strongly typed database definitions.
 2. **Generate types:**
    ```bash
    supabase gen types typescript \
-     --project-id ztnpeivtdpvzaeptwrib \
+     --project-id $SUPABASE_PROJECT_REF \
      --schema public > src/types/supabase.ts
    ```
 3. **Automate generation before builds:**
    ```bash
-   npm pkg set scripts.types="supabase gen types typescript --project-id ztnpeivtdpvzaeptwrib --schema public > src/types/supabase.ts"
+   npm pkg set scripts.types="supabase gen types typescript --project-id $SUPABASE_PROJECT_REF --schema public > src/types/supabase.ts"
    npm pkg set scripts.prebuild="npm run types"
    ```
 4. **Format:** `npm run format`
