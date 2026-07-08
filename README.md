@@ -1,4 +1,4 @@
-# Student Behavior Management System
+# Control de Comportamiento
 
 A comprehensive student incident management system with role-based user access (Teacher, Coordinator, Administrator). The application interface is in Spanish but all code, documentation, and configuration are in English.
 
@@ -15,8 +15,8 @@ A comprehensive student incident management system with role-based user access (
 
 ## Technology Stack
 
-- **Frontend**: Next.js 15 (App Router), React 19, TypeScript
-- **Styling**: Tailwind CSS v3.4.1
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS v4
 - **Backend**: Supabase (PostgreSQL, Auth, Row Level Security)
 - **Development**: ESLint, PostCSS
 - **Deployment**: Vercel (frontend) + Supabase (backend)
@@ -27,7 +27,7 @@ A comprehensive student incident management system with role-based user access (
 
 ```bash
 git clone <repository-url>
-cd control-comportamiento
+cd control-de-comportamiento
 ```
 
 ### 2. Install dependencies
