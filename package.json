@@ -2,15 +2,16 @@
   "name": "control-de-comportamiento",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@10.9.4",
+  "packageManager": "npm@12.0.0",
   "engines": {
-    "node": "22.x"
+    "node": "26.x"
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "types": "sh -c 'if [ -n \"$SUPABASE_PROJECT_REF\" ]; then supabase gen types typescript --project-id \"$SUPABASE_PROJECT_REF\" --schema public > src/types/supabase.ts; else supabase gen types typescript --linked --schema public > src/types/supabase.ts; fi'",
     "prebuild": "sh -c 'if [ -n \"$SUPABASE_ACCESS_TOKEN\" ] && [ -n \"$SUPABASE_PROJECT_REF\" ]; then npm run types; else echo Skipping Supabase typegen; fi'",
@@ -32,12 +33,12 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "dotenv": "^17.4.2",
-    "eslint": "^10.6.0",
+    "eslint": "9.39.4",
     "eslint-config-next": "^16.2.10",
     "postcss": "^8.5.16",
     "prettier": "^3.9.4",
     "supabase": "^2.109.1",
     "tailwindcss": "^4.3.2",
-    "typescript": "^6.0.3"
+    "typescript": "6.0.3"
   }
 }
