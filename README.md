@@ -1,6 +1,6 @@
 # Control de Comportamiento
 
-A comprehensive student incident management system with role-based user access (Teacher, Coordinator, Administrator). The application interface is in Spanish but all code, documentation, and configuration are in English.
+A comprehensive student incident management system with role-based user access (Teacher, Coordinator, Administrator).
 
 ## Features
 
@@ -39,13 +39,15 @@ npm install
 ### 3. Configure Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Copy `env.local.example` to `.env.local`
+2. Copy `env.example` to `.env`
 3. Fill in the environment variables with your Supabase credentials:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_PROJECT_REF=
+RESEND_API_KEY=
 ```
 
 ### 4. Configure the database
