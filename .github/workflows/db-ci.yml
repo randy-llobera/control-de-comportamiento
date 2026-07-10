@@ -4,15 +4,15 @@ on:
   pull_request:
     branches: [main] # validate PRs targeting main
     paths:
-      - "supabase/**"
-      - "scripts/**"
-      - ".github/workflows/db-ci.yml"
+      - 'supabase/**'
+      - 'scripts/**'
+      - '.github/workflows/db-ci.yml'
   push:
     branches: [working] # validate direct pushes to working
     paths:
-      - "supabase/**"
-      - "scripts/**"
-      - ".github/workflows/db-ci.yml"
+      - 'supabase/**'
+      - 'scripts/**'
+      - '.github/workflows/db-ci.yml'
   workflow_dispatch: {} # allow manual runs when needed
 
 jobs:
@@ -26,8 +26,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -59,10 +59,10 @@ jobs:
             echo "LOCAL_DB_URL=$DB_URL"
             echo "LOCAL_ADMIN_EMAIL=${{ secrets.LOCAL_ADMIN_EMAIL || 'admin.local@example.com' }}"
             echo "LOCAL_ADMIN_PASSWORD=${{ secrets.LOCAL_ADMIN_PASSWORD || 'Passw0rd!-local' }}"
-          } > .env.local
+          } > .env
 
-          echo "Wrote .env.local (masked):"
-          sed 's/SUPABASE_SERVICE_ROLE_KEY=.*/SUPABASE_SERVICE_ROLE_KEY=****/; s/LOCAL_ADMIN_PASSWORD=.*/LOCAL_ADMIN_PASSWORD=****/' .env.local
+          echo "Wrote .env (masked):"
+          sed 's/SUPABASE_SERVICE_ROLE_KEY=.*/SUPABASE_SERVICE_ROLE_KEY=****/; s/LOCAL_ADMIN_PASSWORD=.*/LOCAL_ADMIN_PASSWORD=****/' .env
 
       # 1) First pass: ensure base data (roles, etc.)
       - name: Seed (base) – idempotent

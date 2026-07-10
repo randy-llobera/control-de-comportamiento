@@ -116,12 +116,5 @@ backups/
 # Documentation and requirements
 reqs/
 
-# Local development
-.env.local
-.env.local.legacy-*
-.env.development.local
-.env.test.local
-.env.production.local
-
 # LLM interactions, resources, and guilines
 cvs_db_checklist.txt

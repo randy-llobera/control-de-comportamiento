@@ -229,7 +229,7 @@ CREATE TRIGGER on_auth_user_created
 
 ## 3. Environment Variables
 
-Copy `env.local.example` to `.env.local` and fill in your Supabase credentials:
+Copy `env.example` to `.env` and fill in your Supabase credentials:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url

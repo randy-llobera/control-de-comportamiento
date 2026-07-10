@@ -221,10 +221,6 @@ The database is fully managed through Supabase. Schema changes are applied by ru
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## Changelog
-
-For detailed information about changes, fixes, and updates, see [CHANGELOG.md](./CHANGELOG.md).
-
 ## License
 
 This project is under the MIT License. See the `LICENSE` file for more details.

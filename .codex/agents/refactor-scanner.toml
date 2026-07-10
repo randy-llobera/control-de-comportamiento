@@ -1,6 +1,6 @@
 name = "refactor_scanner"
 description = "Read-only duplicate-code scanner. Pass a folder such as actions, components, lib, api, hooks, or any repo path to find repeated logic that can be extracted into utilities, hooks, components, or other local abstractions."
-model = "gpt-5.5"
+model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 developer_instructions = """
