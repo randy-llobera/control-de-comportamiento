@@ -1,57 +1,44 @@
-begin;
-
--- NOTE: keep names consistently cased (or lowercased) to avoid duplicates by casing.
--- If you later want case-insensitive uniqueness, we can switch to citext or normalize inputs.
-
--- ---- ROLES (ensure canonical roles exist) ----
-insert into public.roles (name)
-values ('admin'), ('coordinator'), ('teacher')
-on conflict (name) do nothing;
-
--- ---- GROUPS (parents) ----
-insert into public.groups (name, created_by)
-select g.name, u.id
-from (values
-  ('ESO1'),
-  ('ESO2'),
-  ('ESO3'),
-  ('ESO4')
-) as g(name)
--- resolve created_by to some existing user; fallback to the first admin if present
-join public.users u
-  on u.role_id = (select id from public.roles where name = 'admin' limit 1)
-on conflict (name) do nothing;
-
--- If you don't have an admin user yet locally, the above JOIN will insert 0 rows.
--- That's fine for now; once you create a local admin in Studio, re-run the seed and groups will insert.
-
--- ---- CATEGORIES (parents) ----
-insert into public.categories (name, created_by)
-select c.name, u.id
-from (values
-  ('Behavior'),
-  ('Attendance'),
-  ('Achievement')
-) as c(name)
-join public.users u
-  on u.role_id = (select id from public.roles where name = 'admin' limit 1)
-on conflict (name) do nothing;
-
--- ---- STUDENTS (children) ----
--- Example of resolving FK by group name via CTE
-with target_groups as (
-  select id as group_id, name
-  from public.groups
-  where name in ('ESO1','ESO2')
-)
+-- Local-only fixtures. Run after db:bootstrap-admin; never apply to production.
+with
+  admin_user as (
+    select u.id
+    from public.users u
+    join public.roles r on r.id = u.role_id
+    where r.name = 'admin'
+    limit 1
+  ),
+  seed_groups(name) as (
+    values ('ESO1'), ('ESO2'), ('ESO3'), ('ESO4')
+  ),
+  inserted_groups as (
+    insert into public.groups (name, created_by)
+    select seed_groups.name, admin_user.id
+    from seed_groups
+    cross join admin_user
+    on conflict (name) do nothing
+    returning id, name
+  ),
+  seed_categories(name) as (
+    values ('Behavior'), ('Attendance'), ('Achievement')
+  ),
+  inserted_categories as (
+    insert into public.categories (name, created_by)
+    select seed_categories.name, admin_user.id
+    from seed_categories
+    cross join admin_user
+    on conflict (name) do nothing
+    returning id
+  ),
+  available_groups as (
+    select id, name from inserted_groups
+    union all
+    select id, name from public.groups
+  ),
+  seed_students(name, group_name) as (
+    values ('Alice', 'ESO1'), ('Bob', 'ESO1'), ('Chloe', 'ESO2')
+  )
 insert into public.students (name, group_id)
-select s.name, tg.group_id
-from (values
-  ('Alice', 'ESO1'),
-  ('Bob',   'ESO1'),
-  ('Chloe', 'ESO2')
-) as s(name, group_name)
-join target_groups tg on tg.name = s.group_name
+select seed_students.name, groups.id
+from seed_students
+join available_groups groups on groups.name = seed_students.group_name
 on conflict (name, group_id) do nothing;
-
-commit;

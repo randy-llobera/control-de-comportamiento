@@ -111,7 +111,7 @@ temp/
 # Supabase
 .supabase/
 supabase/.temp/
-backups/
+supabase/.branches/
 
 # Documentation and requirements
 reqs/

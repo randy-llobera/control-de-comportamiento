@@ -13,18 +13,18 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "types": "sh -c 'if [ -n \"$SUPABASE_PROJECT_REF\" ]; then supabase gen types typescript --project-id \"$SUPABASE_PROJECT_REF\" --schema public > src/types/supabase.ts; else supabase gen types typescript --linked --schema public > src/types/supabase.ts; fi'",
-    "prebuild": "sh -c 'if [ -n \"$SUPABASE_ACCESS_TOKEN\" ] && [ -n \"$SUPABASE_PROJECT_REF\" ]; then npm run types; else echo Skipping Supabase typegen; fi'",
-    "db:ensure-admin": "node scripts/ensure-local-admin.js",
-    "db:seed:local": "node scripts/run-seed.js",
-    "db:reset:local": "supabase db reset && npm run db:ensure-admin && npm run db:seed:local"
+    "types:local": "supabase gen types typescript --local --schema public > src/types/supabase.ts",
+    "db:bootstrap-admin": "node scripts/bootstrap-admin.js",
+    "db:start:local": "supabase start",
+    "db:reset:local": "supabase db reset --no-seed && npm run types:local",
+    "db:seed:local": "supabase db query --local --file supabase/seed/seed.sql",
+    "db:migrate:production": "supabase migration up --linked"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.110.1",
     "@tailwindcss/postcss": "^4.3.2",
     "next": "^16.2.10",
-    "pg": "^8.22.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
