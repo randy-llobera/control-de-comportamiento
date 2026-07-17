@@ -1,13 +1,17 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase-server";
+import {
+  createClient,
+  type ServerSupabaseClient,
+} from "@/lib/supabase-server";
 import type { UserWithRole } from "@/types/database";
 
 export type AuthResult =
   | { profile: UserWithRole; reason: null }
   | { profile: null; reason: "missing-session" | "missing-profile" };
 
-export const getCurrentUserWithRole = cache(async (): Promise<AuthResult> => {
-  const supabase = await createClient();
+export const loadCurrentUserWithRole = async (
+  supabase: ServerSupabaseClient,
+): Promise<AuthResult> => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -27,4 +31,8 @@ export const getCurrentUserWithRole = cache(async (): Promise<AuthResult> => {
   }
 
   return { profile, reason: null };
-});
+};
+
+export const getCurrentUserWithRole = cache(async (): Promise<AuthResult> =>
+  loadCurrentUserWithRole(await createClient()),
+);

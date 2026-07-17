@@ -1,7 +1,7 @@
 'use server';
 
-import { getCurrentUserWithRole } from '@/lib/auth';
-import { createClient } from '@/lib/supabase-server';
+import { loadCurrentUserWithRole } from '@/lib/auth';
+import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
 import type { Severity } from '@/types/database';
 
 type ActionResult = { success: true } | { success: false; error: string };
@@ -25,11 +25,12 @@ const hasCoordinatorRole = (role: string | undefined) =>
 const runMutation = async (
   roles: 'authenticated' | 'coordinator' | 'admin',
   operation: (
-    supabase: Awaited<ReturnType<typeof createClient>>,
+    supabase: ServerSupabaseClient,
     userId: string,
   ) => PromiseLike<{ error: { message: string } | null }>,
 ): Promise<ActionResult> => {
-  const auth = await getCurrentUserWithRole();
+  const supabase = await createClient();
+  const auth = await loadCurrentUserWithRole(supabase);
   const role = auth.profile?.roles?.name;
   if (
     !auth.profile ||
@@ -38,7 +39,7 @@ const runMutation = async (
   )
     return unauthorized();
 
-  const { error } = await operation(await createClient(), auth.profile.id);
+  const { error } = await operation(supabase, auth.profile.id);
   return error ? { success: false, error: error.message } : { success: true };
 };
 
