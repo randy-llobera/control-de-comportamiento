@@ -10,6 +10,9 @@ export default function CategoriasPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [deleteError, setDeleteError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,9 +46,15 @@ export default function CategoriasPage() {
     e.preventDefault();
     try {
       const result = await saveCategory(editingCategory?.id ?? null, formData.name);
-      if (!result.success) throw new Error(result.error);
+      if (!result.success) {
+        setFormError(result.error);
+        setFieldErrors(result.fieldErrors ?? {});
+        return;
+      }
 
       setShowForm(false);
+      setFormError("");
+      setFieldErrors({});
       setEditingCategory(null);
       setFormData({ name: "" });
       loadData();
@@ -68,10 +77,16 @@ export default function CategoriasPage() {
 
     try {
       const result = await deleteCategory(id);
-      if (!result.success) throw new Error(result.error);
+      if (!result.success) {
+        setDeleteError(result.error);
+        return;
+      }
+
+      setDeleteError("");
       loadData();
     } catch (error) {
       console.error("Error deleting category:", error);
+      setDeleteError("No se pudo eliminar la categoría. Inténtalo de nuevo.");
     }
   };
 
@@ -79,6 +94,8 @@ export default function CategoriasPage() {
     setShowForm(false);
     setEditingCategory(null);
     setFormData({ name: "" });
+    setFormError("");
+    setFieldErrors({});
   };
 
   if (loading) {
@@ -110,6 +127,7 @@ export default function CategoriasPage() {
                 {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {formError && <p className="text-sm text-red-600">{formError}</p>}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Nombre de la Categoría
@@ -124,6 +142,9 @@ export default function CategoriasPage() {
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Nombre de la categoría"
                   />
+                  {fieldErrors.name?.map((error) => (
+                    <p key={error} className="mt-1 text-sm text-red-600">{error}</p>
+                  ))}
                 </div>
                 <div className="flex justify-end space-x-4">
                   <button
@@ -146,6 +167,7 @@ export default function CategoriasPage() {
 
           {/* Categories List */}
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
+            {deleteError && <p role="alert" className="px-6 pt-4 text-sm text-red-600">{deleteError}</p>}
             <ul className="divide-y divide-gray-200">
               {categories.map((category) => (
                 <li key={category.id} className="px-6 py-4">
