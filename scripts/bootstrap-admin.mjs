@@ -1,6 +1,7 @@
-require("dotenv").config({ path: process.env.ENV_FILE || ".env" });
+import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
 
-const { createClient } = require("@supabase/supabase-js");
+dotenv.config({ path: process.env.ENV_FILE || ".env" });
 
 const requiredEnvironment = [
   "NEXT_PUBLIC_SUPABASE_URL",
