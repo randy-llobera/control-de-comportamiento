@@ -12,6 +12,8 @@ export default function IncidentesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [filters, setFilters] = useState({
     category: "",
     severity: "",
@@ -74,9 +76,15 @@ export default function IncidentesPage() {
         description: formData.description,
         date: formData.date,
       });
-      if (!result.success) throw new Error(result.error);
+      if (!result.success) {
+        setFormError(result.error);
+        setFieldErrors(result.fieldErrors ?? {});
+        return;
+      }
 
       setShowForm(false);
+      setFormError("");
+      setFieldErrors({});
       setFormData({
         student_id: "",
         category_id: "",
@@ -286,6 +294,7 @@ export default function IncidentesPage() {
             <div className="bg-white p-6 rounded-lg shadow mb-6">
               <h3 className="text-lg font-medium mb-4">Nuevo Incidente</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {formError && <p className="text-sm text-red-600">{formError}</p>}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -306,6 +315,9 @@ export default function IncidentesPage() {
                         </option>
                       ))}
                     </select>
+                    {fieldErrors.studentId?.map((error) => (
+                      <p key={error} className="mt-1 text-sm text-red-600">{error}</p>
+                    ))}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -329,6 +341,9 @@ export default function IncidentesPage() {
                         </option>
                       ))}
                     </select>
+                    {fieldErrors.categoryId?.map((error) => (
+                      <p key={error} className="mt-1 text-sm text-red-600">{error}</p>
+                    ))}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -349,6 +364,9 @@ export default function IncidentesPage() {
                       <option value="medium">Media</option>
                       <option value="high">Alta</option>
                     </select>
+                    {fieldErrors.severity?.map((error) => (
+                      <p key={error} className="mt-1 text-sm text-red-600">{error}</p>
+                    ))}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -363,6 +381,9 @@ export default function IncidentesPage() {
                       }
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
+                    {fieldErrors.date?.map((error) => (
+                      <p key={error} className="mt-1 text-sm text-red-600">{error}</p>
+                    ))}
                   </div>
                 </div>
                 <div>
@@ -379,6 +400,9 @@ export default function IncidentesPage() {
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Describe el incidente..."
                   />
+                  {fieldErrors.description?.map((error) => (
+                    <p key={error} className="mt-1 text-sm text-red-600">{error}</p>
+                  ))}
                 </div>
                 <div className="flex justify-end space-x-4">
                   <button

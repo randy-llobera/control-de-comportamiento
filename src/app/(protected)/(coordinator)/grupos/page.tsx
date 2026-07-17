@@ -10,6 +10,9 @@ export default function GruposPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
+  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [deleteError, setDeleteError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,9 +46,15 @@ export default function GruposPage() {
     e.preventDefault();
     try {
       const result = await saveGroup(editingGroup?.id ?? null, formData.name);
-      if (!result.success) throw new Error(result.error);
+      if (!result.success) {
+        setFormError(result.error);
+        setFieldErrors(result.fieldErrors ?? {});
+        return;
+      }
 
       setShowForm(false);
+      setFormError("");
+      setFieldErrors({});
       setEditingGroup(null);
       setFormData({ name: "" });
       loadData();
@@ -67,10 +76,16 @@ export default function GruposPage() {
 
     try {
       const result = await deleteGroup(id);
-      if (!result.success) throw new Error(result.error);
+      if (!result.success) {
+        setDeleteError(result.error);
+        return;
+      }
+
+      setDeleteError("");
       loadData();
     } catch (error) {
       console.error("Error deleting group:", error);
+      setDeleteError("No se pudo eliminar el grupo. Inténtalo de nuevo.");
     }
   };
 
@@ -78,6 +93,8 @@ export default function GruposPage() {
     setShowForm(false);
     setEditingGroup(null);
     setFormData({ name: "" });
+    setFormError("");
+    setFieldErrors({});
   };
 
   if (loading) {
@@ -109,6 +126,7 @@ export default function GruposPage() {
                 {editingGroup ? "Editar Grupo" : "Nuevo Grupo"}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {formError && <p className="text-sm text-red-600">{formError}</p>}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Nombre del Grupo
@@ -123,6 +141,9 @@ export default function GruposPage() {
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Nombre del grupo"
                   />
+                  {fieldErrors.name?.map((error) => (
+                    <p key={error} className="mt-1 text-sm text-red-600">{error}</p>
+                  ))}
                 </div>
                 <div className="flex justify-end space-x-4">
                   <button
@@ -145,6 +166,7 @@ export default function GruposPage() {
 
           {/* Groups List */}
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
+            {deleteError && <p role="alert" className="px-6 pt-4 text-sm text-red-600">{deleteError}</p>}
             <ul className="divide-y divide-gray-200">
               {groups.map((group) => (
                 <li key={group.id} className="px-6 py-4">

@@ -9,6 +9,7 @@ export default function UsuariosPage() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
+  const [roleErrors, setRoleErrors] = useState<Record<string, string>>({});
   async function loadData() {
     try {
       const [usersRes, rolesRes] = await Promise.all([
@@ -40,7 +41,19 @@ export default function UsuariosPage() {
   const handleRoleChange = async (userId: string, newRoleId: string) => {
     try {
       const result = await updateUserRole(userId, newRoleId);
-      if (!result.success) throw new Error(result.error);
+      if (!result.success) {
+        setRoleErrors((currentErrors) => ({
+          ...currentErrors,
+          [userId]: result.fieldErrors?.roleId?.[0] ?? result.error,
+        }));
+        return;
+      }
+
+      setRoleErrors((currentErrors) => {
+        const remainingErrors = { ...currentErrors };
+        delete remainingErrors[userId];
+        return remainingErrors;
+      });
       loadData();
     } catch (error) {
       console.error("Error updating user role:", error);
@@ -117,6 +130,9 @@ export default function UsuariosPage() {
                           </option>
                         ))}
                       </select>
+                      {roleErrors[user.id] && (
+                        <p className="text-sm text-red-600">{roleErrors[user.id]}</p>
+                      )}
                     </div>
                   </div>
                 </li>
