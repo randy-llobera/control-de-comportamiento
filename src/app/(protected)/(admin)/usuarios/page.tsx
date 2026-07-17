@@ -2,47 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { updateUserRole } from "@/actions/mutations";
 import { Role, UserWithRole } from "@/types/database";
-import { useRouter } from "next/navigation";
 
 export default function UsuariosPage() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    checkUser();
-    loadData();
-  }, []);
-
-  const checkUser = async () => {
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-    if (!authUser) {
-      router.push("/auth");
-      return;
-    }
-
-    const { data: userData } = await supabase
-      .from("users")
-      .select(
-        `
-        *,
-        roles(name)
-      `,
-      )
-      .eq("id", authUser.id)
-      .single();
-
-    // Check if user has permission (admin only)
-    if (userData?.roles?.name !== "admin") {
-      router.push("/incidentes");
-    }
-  };
-
-  const loadData = async () => {
+  async function loadData() {
     try {
       const [usersRes, rolesRes] = await Promise.all([
         supabase
@@ -64,16 +31,16 @@ export default function UsuariosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    void Promise.resolve().then(loadData);
+  }, []);
 
   const handleRoleChange = async (userId: string, newRoleId: string) => {
     try {
-      const { error } = await supabase
-        .from("users")
-        .update({ role_id: newRoleId })
-        .eq("id", userId);
-
-      if (error) throw error;
+      const result = await updateUserRole(userId, newRoleId);
+      if (!result.success) throw new Error(result.error);
       loadData();
     } catch (error) {
       console.error("Error updating user role:", error);

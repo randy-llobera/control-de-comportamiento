@@ -26,7 +26,7 @@ export default function AuthPage() {
           password,
         });
         if (error) throw error;
-        router.push("/incidentes");
+        router.replace("/incidentes");
       } else {
         const { error } = await supabase.auth.signUp({
           email,

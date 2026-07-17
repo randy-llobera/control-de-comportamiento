@@ -17,7 +17,7 @@ export default function Navigation({ user }: NavigationProps) {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/auth");
+    router.replace("/auth");
   };
 
   const getNavigationItems = () => {

@@ -2,58 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Group, UserWithRole, GroupWithUser } from "@/types/database";
-import { useRouter } from "next/navigation";
+import { deleteGroup, saveGroup } from "@/actions/mutations";
+import { Group, GroupWithUser } from "@/types/database";
 
 export default function GruposPage() {
   const [groups, setGroups] = useState<GroupWithUser[]>([]);
-  const [user, setUser] = useState<UserWithRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
-  const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: "",
   });
 
   useEffect(() => {
-    checkUser();
     loadData();
   }, []);
 
-  const checkUser = async () => {
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-    if (!authUser) {
-      router.push("/auth");
-      return;
-    }
-
-    const { data: userData } = await supabase
-      .from("users")
-      .select(
-        `
-        *,
-        roles(name)
-      `,
-      )
-      .eq("id", authUser.id)
-      .single();
-
-    setUser(userData);
-
-    // Check if user has permission (coordinator or admin)
-    if (
-      userData?.roles?.name !== "coordinator" &&
-      userData?.roles?.name !== "admin"
-    ) {
-      router.push("/incidentes");
-    }
-  };
-
-  const loadData = async () => {
+  async function loadData() {
     try {
       const { data } = await supabase
         .from("groups")
@@ -71,28 +37,13 @@ export default function GruposPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     try {
-      if (editingGroup) {
-        const { error } = await supabase
-          .from("groups")
-          .update(formData)
-          .eq("id", editingGroup.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("groups").insert({
-          ...formData,
-          created_by: user.id,
-        });
-
-        if (error) throw error;
-      }
+      const result = await saveGroup(editingGroup?.id ?? null, formData.name);
+      if (!result.success) throw new Error(result.error);
 
       setShowForm(false);
       setEditingGroup(null);
@@ -115,9 +66,8 @@ export default function GruposPage() {
     if (!confirm("¿Estás seguro de que quieres eliminar este grupo?")) return;
 
     try {
-      const { error } = await supabase.from("groups").delete().eq("id", id);
-
-      if (error) throw error;
+      const result = await deleteGroup(id);
+      if (!result.success) throw new Error(result.error);
       loadData();
     } catch (error) {
       console.error("Error deleting group:", error);

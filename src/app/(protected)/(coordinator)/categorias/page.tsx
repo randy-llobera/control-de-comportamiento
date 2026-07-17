@@ -2,58 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Category, UserWithRole, CategoryWithUser } from "@/types/database";
-import { useRouter } from "next/navigation";
+import { deleteCategory, saveCategory } from "@/actions/mutations";
+import { Category, CategoryWithUser } from "@/types/database";
 
 export default function CategoriasPage() {
   const [categories, setCategories] = useState<CategoryWithUser[]>([]);
-  const [user, setUser] = useState<UserWithRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: "",
   });
 
   useEffect(() => {
-    checkUser();
     loadData();
   }, []);
 
-  const checkUser = async () => {
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-    if (!authUser) {
-      router.push("/auth");
-      return;
-    }
-
-    const { data: userData } = await supabase
-      .from("users")
-      .select(
-        `
-        *,
-        roles(name)
-      `,
-      )
-      .eq("id", authUser.id)
-      .single();
-
-    setUser(userData);
-
-    // Check if user has permission (coordinator or admin)
-    if (
-      userData?.roles?.name !== "coordinator" &&
-      userData?.roles?.name !== "admin"
-    ) {
-      router.push("/incidentes");
-    }
-  };
-
-  const loadData = async () => {
+  async function loadData() {
     try {
       const { data } = await supabase
         .from("categories")
@@ -71,28 +37,13 @@ export default function CategoriasPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     try {
-      if (editingCategory) {
-        const { error } = await supabase
-          .from("categories")
-          .update(formData)
-          .eq("id", editingCategory.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("categories").insert({
-          ...formData,
-          created_by: user.id,
-        });
-
-        if (error) throw error;
-      }
+      const result = await saveCategory(editingCategory?.id ?? null, formData.name);
+      if (!result.success) throw new Error(result.error);
 
       setShowForm(false);
       setEditingCategory(null);
@@ -116,9 +67,8 @@ export default function CategoriasPage() {
       return;
 
     try {
-      const { error } = await supabase.from("categories").delete().eq("id", id);
-
-      if (error) throw error;
+      const result = await deleteCategory(id);
+      if (!result.success) throw new Error(result.error);
       loadData();
     } catch (error) {
       console.error("Error deleting category:", error);
