@@ -3,43 +3,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { IncidentWithDetails } from "@/types/database";
-import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const [incidents, setIncidents] = useState<IncidentWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-      if (!authUser) {
-        router.push("/auth");
-        return;
-      }
-
-      const { data: userData } = await supabase
-        .from("users")
-        .select(
-          `
-          *,
-          roles(name)
-        `,
-        )
-        .eq("id", authUser.id)
-        .single();
-
-      // Check if user has permission (coordinator or admin)
-      if (
-        userData?.roles?.name !== "coordinator" &&
-        userData?.roles?.name !== "admin"
-      ) {
-        router.push("/incidentes");
-      }
-    };
-
     const loadData = async () => {
       try {
         const { data } = await supabase
@@ -61,9 +29,8 @@ export default function DashboardPage() {
       }
     };
 
-    checkUser();
     loadData();
-  }, [router]);
+  }, []);
 
   const getStats = () => {
     const total = incidents.length;

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { deleteStudent, saveStudent } from "@/actions/mutations";
 import { Student, Group } from "@/types/database";
-import { useRouter } from "next/navigation";
 
 export default function EstudiantesPage() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -11,7 +11,6 @@ export default function EstudiantesPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,23 +18,10 @@ export default function EstudiantesPage() {
   });
 
   useEffect(() => {
-    checkUser();
     loadData();
   }, []);
 
-  const checkUser = async () => {
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-    if (!authUser) {
-      router.push("/auth");
-      return;
-    }
-
-    await supabase.from("users").select("*").eq("id", authUser.id).single();
-  };
-
-  const loadData = async () => {
+  async function loadData() {
     try {
       const [studentsRes, groupsRes] = await Promise.all([
         supabase
@@ -57,24 +43,17 @@ export default function EstudiantesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      if (editingStudent) {
-        const { error } = await supabase
-          .from("students")
-          .update(formData)
-          .eq("id", editingStudent.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("students").insert(formData);
-
-        if (error) throw error;
-      }
+      const result = await saveStudent(editingStudent?.id ?? null, {
+        name: formData.name,
+        groupId: formData.group_id,
+      });
+      if (!result.success) throw new Error(result.error);
 
       setShowForm(false);
       setEditingStudent(null);
@@ -99,9 +78,8 @@ export default function EstudiantesPage() {
       return;
 
     try {
-      const { error } = await supabase.from("students").delete().eq("id", id);
-
-      if (error) throw error;
+      const result = await deleteStudent(id);
+      if (!result.success) throw new Error(result.error);
       loadData();
     } catch (error) {
       console.error("Error deleting student:", error);

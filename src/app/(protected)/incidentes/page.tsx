@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Incident, Student, Group, Category, User } from "@/types/database";
-import { useRouter } from "next/navigation";
+import { createIncident } from "@/actions/mutations";
+import { IncidentWithDetails, Student, Group, Category } from "@/types/database";
 
 export default function IncidentesPage() {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [incidents, setIncidents] = useState<IncidentWithDetails[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filters, setFilters] = useState({
@@ -20,7 +19,6 @@ export default function IncidentesPage() {
     dateFrom: "",
     dateTo: "",
   });
-  const router = useRouter();
 
   // Form state for new incident
   const [formData, setFormData] = useState({
@@ -32,29 +30,10 @@ export default function IncidentesPage() {
   });
 
   useEffect(() => {
-    checkUser();
     loadData();
   }, []);
 
-  const checkUser = async () => {
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-    if (!authUser) {
-      router.push("/auth");
-      return;
-    }
-
-    const { data: userData } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", authUser.id)
-      .single();
-
-    setUser(userData);
-  };
-
-  const loadData = async () => {
+  async function loadData() {
     try {
       const [incidentsRes, studentsRes, groupsRes, categoriesRes] =
         await Promise.all([
@@ -83,19 +62,19 @@ export default function IncidentesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     try {
-      const { error } = await supabase.from("incidents").insert({
-        ...formData,
-        teacher_id: user.id,
+      const result = await createIncident({
+        studentId: formData.student_id,
+        categoryId: formData.category_id,
+        severity: formData.severity,
+        description: formData.description,
+        date: formData.date,
       });
-
-      if (error) throw error;
+      if (!result.success) throw new Error(result.error);
 
       setShowForm(false);
       setFormData({
@@ -140,8 +119,6 @@ export default function IncidentesPage() {
         const student = students.find((s) => s.id === incident.student_id);
         const group = groups.find((g) => g.id === student?.group_id);
         const category = categories.find((c) => c.id === incident.category_id);
-        const teacher = user;
-
         return [
           incident.date,
           student?.name || "",
@@ -149,7 +126,7 @@ export default function IncidentesPage() {
           category?.name || "",
           incident.severity,
           incident.description,
-          teacher?.display_name || "",
+          "",
         ];
       }),
     ]
@@ -433,8 +410,6 @@ export default function IncidentesPage() {
                 const category = categories.find(
                   (c) => c.id === incident.category_id,
                 );
-                const teacher = user;
-
                 return (
                   <li key={incident.id} className="px-6 py-4">
                     <div className="flex items-center justify-between">
@@ -459,7 +434,7 @@ export default function IncidentesPage() {
                           {incident.description}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Registrado por: {teacher?.display_name}
+                          Registrado por: {incident.users?.display_name}
                         </p>
                       </div>
                     </div>
