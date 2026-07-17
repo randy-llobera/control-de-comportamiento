@@ -1,16 +1,23 @@
-# Current Feature
+# Current Feature: Auth Helper Client Reuse
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Use one request-scoped Supabase server client for each Server Action.
+- Preserve a cached, zero-argument auth helper for Server Components and nested layouts.
+- Keep authentication, authorization, SSR cookie handling, RLS enforcement, and action-result behavior unchanged.
 
 ## Notes
 
-<!-- Add notes here -->
+- Extract `loadCurrentUserWithRole(supabase)` for callers that already own a typed request-scoped server client.
+- Keep `getCurrentUserWithRole()` as a React `cache()` wrapper that creates a request-scoped client and delegates to the lower-level helper.
+- Update `runMutation()` to use the same client for the verified identity/profile lookup and mutation callback.
+- Retain `auth.getUser()` and the existing `users` plus `roles(name)` lookup; do not introduce global clients or cross-request role caching.
+- This depends on Server-Side Authentication and Authorization. Server Action Input Validation and Server Mutation Cache Invalidation depend on it.
+- Before implementation, use Context7 to confirm current React server `cache()` and Supabase SSR request-client guidance.
 
 ## History
 
