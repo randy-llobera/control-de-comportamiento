@@ -16,7 +16,7 @@ This feature centralizes route invalidation alongside the mutation that changes 
 
 ## Dependency
 
-Complete Server-Side Authentication and Authorization first. This feature modifies its authorized Server Actions in `src/actions/mutations.ts`.
+Complete Server-Side Authentication and Authorization, Auth Helper Client Reuse, and Server Action Input Validation first. This feature modifies the finalized, validated Server Actions in `src/actions/mutations.ts`.
 
 Server-Rendered Protected Page Data depends on this feature.
 

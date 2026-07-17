@@ -16,7 +16,7 @@ This feature adds Zod as a direct production dependency and establishes one cons
 
 ## Dependency
 
-Complete Server-Side Authentication and Authorization first. This feature validates the Server Actions in `src/actions/mutations.ts` after that feature has established server-derived identity and role checks.
+Complete Server-Side Authentication and Authorization and Auth Helper Client Reuse first. This feature validates the Server Actions in `src/actions/mutations.ts` after they use one explicit request-scoped client for profile lookup and mutation execution.
 
 Server Mutation Cache Invalidation should run after this feature so invalidation applies only to a mutation that has passed validation, authorization, and the database write.
 
