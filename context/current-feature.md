@@ -1,16 +1,22 @@
-# Current Feature
+# Current Feature: Server Mutation Cache Invalidation
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Invalidate every server-rendered route affected by a successful Server Action.
+- Keep route invalidation explicit and targeted for incidents, students, groups, categories, and user-role changes.
+- Preserve existing mutation return shapes, authorization behavior, and current client-side data refreshes.
+- Ensure failed mutations never invalidate routes.
 
 ## Notes
 
-<!-- Add notes here -->
+- Source spec: `context/features/server-mutation-cache-invalidation.md`.
+- Dependencies are complete: server-side authentication and authorization, auth helper client reuse, and Server Action input validation.
+- Server-Rendered Protected Page Data depends on this feature.
+- Do not convert pages to Server Components, add client caching or optimistic updates, or change authorization, validation, RLS, schema, or URLs.
 
 ## History
 

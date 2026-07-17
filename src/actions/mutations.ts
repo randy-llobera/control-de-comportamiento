@@ -2,6 +2,7 @@
 
 import { loadCurrentUserWithRole } from '@/lib/auth';
 import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 export type ActionResult =
@@ -46,6 +47,27 @@ type MutationOperationResult = {
   fieldErrors?: Record<string, string[]>;
 };
 
+type MutationName =
+  | 'createIncident'
+  | 'saveStudent'
+  | 'deleteStudent'
+  | 'saveGroup'
+  | 'deleteGroup'
+  | 'saveCategory'
+  | 'deleteCategory'
+  | 'updateUserRole';
+
+const MUTATION_PATHS = {
+  createIncident: ['/incidentes', '/dashboard'],
+  saveStudent: ['/estudiantes', '/incidentes', '/dashboard'],
+  deleteStudent: ['/estudiantes', '/incidentes', '/dashboard'],
+  saveGroup: ['/grupos', '/estudiantes', '/incidentes', '/dashboard'],
+  deleteGroup: ['/grupos', '/estudiantes', '/incidentes', '/dashboard'],
+  saveCategory: ['/categorias', '/incidentes', '/dashboard'],
+  deleteCategory: ['/categorias', '/incidentes', '/dashboard'],
+  updateUserRole: ['/usuarios'],
+} as const satisfies Record<MutationName, readonly string[]>;
+
 const validationFailed = (error: z.ZodError): ActionResult => ({
   success: false,
   error: 'Revisa los campos marcados.',
@@ -66,6 +88,7 @@ const hasCoordinatorRole = (role: string | undefined) =>
 
 const runMutation = async (
   roles: 'authenticated' | 'coordinator' | 'admin',
+  mutation: MutationName,
   operation: (
     supabase: ServerSupabaseClient,
     userId: string,
@@ -90,6 +113,8 @@ const runMutation = async (
     return { success: false, error: 'No se pudo guardar el cambio. Inténtalo de nuevo.' };
   }
 
+  MUTATION_PATHS[mutation].forEach((path) => revalidatePath(path));
+
   return { success: true };
 };
 
@@ -97,7 +122,7 @@ export const createIncident = async (input: unknown): Promise<ActionResult> => {
   const parsed = incidentSchema.safeParse(input);
   if (!parsed.success) return validationFailed(parsed.error);
 
-  return runMutation('authenticated', (supabase, userId) =>
+  return runMutation('authenticated', 'createIncident', (supabase, userId) =>
     supabase.from('incidents').insert({
       student_id: parsed.data.studentId,
       category_id: parsed.data.categoryId,
@@ -115,7 +140,7 @@ export const saveStudent = async (id: unknown, input: unknown): Promise<ActionRe
   );
   if (!parsed.success) return validationFailed(parsed.error);
 
-  return runMutation('authenticated', (supabase) =>
+  return runMutation('authenticated', 'saveStudent', (supabase) =>
     parsed.data.id
       ? supabase
           .from('students')
@@ -131,25 +156,29 @@ const deleteRecord = async (
   table: 'students' | 'groups' | 'categories',
   id: unknown,
   roles: 'authenticated' | 'coordinator',
+  mutation: 'deleteStudent' | 'deleteGroup' | 'deleteCategory',
 ): Promise<ActionResult> => {
   const parsed = uuidSchema.safeParse(id);
   if (!parsed.success) return validationFailed(parsed.error);
 
-  return runMutation(roles, (supabase) => supabase.from(table).delete().eq('id', parsed.data));
+  return runMutation(roles, mutation, (supabase) =>
+    supabase.from(table).delete().eq('id', parsed.data),
+  );
 };
 
 export const deleteStudent = async (id: unknown) =>
-  await deleteRecord('students', id, 'authenticated');
+  await deleteRecord('students', id, 'authenticated', 'deleteStudent');
 
 const saveNamedRecord = async (
   table: 'groups' | 'categories',
   id: unknown,
   name: unknown,
+  mutation: 'saveGroup' | 'saveCategory',
 ): Promise<ActionResult> => {
   const parsed = namedRecordSchema.safeParse({ id, name });
   if (!parsed.success) return validationFailed(parsed.error);
 
-  return runMutation('coordinator', (supabase, userId) =>
+  return runMutation('coordinator', mutation, (supabase, userId) =>
     parsed.data.id
       ? supabase.from(table).update({ name: parsed.data.name }).eq('id', parsed.data.id)
       : supabase.from(table).insert({ name: parsed.data.name, created_by: userId }),
@@ -157,19 +186,19 @@ const saveNamedRecord = async (
 };
 
 export const saveGroup = async (id: unknown, name: unknown) =>
-  await saveNamedRecord('groups', id, name);
+  await saveNamedRecord('groups', id, name, 'saveGroup');
 export const deleteGroup = async (id: unknown) =>
-  await deleteRecord('groups', id, 'coordinator');
+  await deleteRecord('groups', id, 'coordinator', 'deleteGroup');
 export const saveCategory = async (id: unknown, name: unknown) =>
-  await saveNamedRecord('categories', id, name);
+  await saveNamedRecord('categories', id, name, 'saveCategory');
 export const deleteCategory = async (id: unknown) =>
-  await deleteRecord('categories', id, 'coordinator');
+  await deleteRecord('categories', id, 'coordinator', 'deleteCategory');
 
 export const updateUserRole = async (userId: unknown, roleId: unknown): Promise<ActionResult> => {
   const parsed = userRoleSchema.safeParse({ userId, roleId });
   if (!parsed.success) return validationFailed(parsed.error);
 
-  return runMutation('admin', async (supabase) => {
+  return runMutation('admin', 'updateUserRole', async (supabase) => {
     const { data: role, error: roleError } = await supabase
       .from('roles')
       .select('id')
