@@ -77,14 +77,17 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 
 - Coordinators and admins can create/edit incident categories.
 
-### Dashboard (Admin Only)
+### Dashboard (Admin and Coordinators Only)
 
-- User management (assign/remove roles).
 - Overview of incidents by:
   - Category
   - Severity
   - Group/class
   - Timeline trends (basic charts).
+
+### Users Management
+
+- Manage user role (assign/remove roles).
 
 ### CSV Export
 
@@ -176,7 +179,7 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 ## 7. Role-Based Access (Supabase Policies)
 
 - Teachers: Insert `incidents`, insert `students`, select/filter `incidents`.
-- Coordinators: Teacher permissions + insert/update `categories` and `groups`.
+- Coordinators: Teacher permissions + insert/update `categories` and `groups` + Dashboard.
 - Admins: Full access to all tables, including updating user roles.
 
 ---
