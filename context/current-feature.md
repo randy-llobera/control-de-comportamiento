@@ -1,16 +1,26 @@
 # Current Feature
 
+Proxy Session Boundary
+
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Separate Supabase Proxy session infrastructure from the Next.js Proxy entry point without changing route behavior.
+- Preserve refreshed cookies and required response headers across normal responses and redirects.
+- Keep Proxy free of profile, role, and application-table queries.
+- Keep the existing public paths, protected-route behavior, and static-asset matcher unchanged.
 
 ## Notes
 
-<!-- Add notes here -->
+- Spec: `context/features/refactor-02-proxy-session-boundary.md`
+- Dependency: Feature 01 is complete.
+- Files: `src/lib/supabase-proxy.ts`, `src/proxy.ts`, and this workflow file.
+- Approach: Use Context7 to get the most up to date docs and adhere to Next.js and Supabase best practices and standards. Extract the typed client, cookie synchronization, and identity verification into `updateSession(request)`; leave redirect decisions and matcher configuration in `src/proxy.ts`; copy refreshed cookies and auth response headers to redirects.
+- Risks: refreshed sessions can break if redirect cookies or cache-control headers are dropped; the installed `@supabase/ssr` API may differ from current documentation; matcher changes could alter route behavior.
+- Done: client construction is absent from `src/proxy.ts`; the helper owns Proxy session behavior; route behavior and matcher remain unchanged; lint, typecheck, build, and route smoke tests pass.
 
 ## History
 
