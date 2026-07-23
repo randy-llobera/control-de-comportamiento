@@ -2,12 +2,9 @@
 
 import { loadCurrentUserWithRole } from '@/lib/auth';
 import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
+import type { ActionResult } from '@/types/actions';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-
-export type ActionResult =
-  | { success: true }
-  | { success: false; error: string; fieldErrors?: Record<string, string[]> };
 
 const UUID_ERROR = 'Selecciona una opción válida.';
 const REQUIRED_ERROR = 'Este campo es obligatorio.';
@@ -115,7 +112,7 @@ const runMutation = async (
 
   MUTATION_PATHS[mutation].forEach((path) => revalidatePath(path));
 
-  return { success: true };
+  return { success: true, data: undefined };
 };
 
 export const createIncident = async (input: unknown): Promise<ActionResult> => {

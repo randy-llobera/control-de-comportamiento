@@ -1,16 +1,28 @@
-# Current Feature
+# Current Feature: Shared Server Contracts
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Move the generic `ActionResult<T>` contract into `src/types/actions.ts` while preserving existing form behavior and narrowing.
+- Add known application errors for unauthenticated, forbidden, not-found, and conflict outcomes.
+- Share safe Spanish known-error messages across Server Actions and Route Handlers while rethrowing unexpected errors.
+- Distinguish Supabase Auth/profile query failures from valid missing-session and missing-profile states.
+- Pass lint, typecheck, and production build checks.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Spec: `context/features/refactor-03-shared-server-contracts.md`.
+- Depends on completed Feature 02: Proxy Session Boundary.
+- Preserve the cached no-argument actor helper and explicit-client helper.
+- Do not change permission rules, mutation behavior, UI messages, or caching.
+- Do not blanket-catch unexpected errors.
 
 ## History
 

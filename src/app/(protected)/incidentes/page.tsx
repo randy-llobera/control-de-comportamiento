@@ -13,7 +13,7 @@ export default function IncidentesPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[] | undefined>>({});
   const [filters, setFilters] = useState({
     category: "",
     severity: "",

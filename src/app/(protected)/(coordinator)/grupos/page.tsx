@@ -11,7 +11,7 @@ export default function GruposPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [formError, setFormError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[] | undefined>>({});
   const [deleteError, setDeleteError] = useState("");
 
   const [formData, setFormData] = useState({

@@ -268,12 +268,6 @@ lib/users.ts
 lib/auth.ts
 ```
 
-They are server-only:
-
-```ts
-import 'server-only';
-```
-
 They own:
 
 - Creating a request-scoped server client.
@@ -387,7 +381,7 @@ export async function createIncidentAction(
 }
 ```
 
-The Action is the selected internal adapter for UI mutations because a Client Component cannot call a server-only `lib/incidents.ts` function directly. Use a Route Handler instead when an actual HTTP client needs the mutation endpoint.
+The Action is the selected internal adapter for UI mutations because a Client Component cannot call a server-side `lib/incidents.ts` function directly. Use a Route Handler instead when an actual HTTP client needs the mutation endpoint.
 
 The Action is an internal transport adapter, not an extra database abstraction.
 

@@ -12,7 +12,7 @@ export default function EstudiantesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [formError, setFormError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[] | undefined>>({});
   const [deleteError, setDeleteError] = useState("");
 
   const [formData, setFormData] = useState({

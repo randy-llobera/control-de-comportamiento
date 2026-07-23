@@ -63,7 +63,6 @@ Standards: `Database and code quality`; `Architecture Contract > 10, 11, 12, 13,
 - Keep `supabase-server.ts` request-scoped and typed.
 - Rename `src/lib/supabase.ts` to `supabase-browser.ts` as its consumers migrate.
 - Restrict the browser client to browser-owned Auth behavior unless Realtime, Presence, or Storage is later required.
-- Add `server-only` to server-only auth and feature modules.
 - Keep the service-role client limited to the explicit admin bootstrap script.
 - Dependency: coordinate the rename with Categories 3-6.
 
@@ -76,14 +75,14 @@ Standards: `TypeScript`; `Architecture Contract > 6, 9, 14, 17`.
 #### 2.1 Action result contract
 
 - Move a generic discriminated `ActionResult<T>` to `src/types/actions.ts`.
-- Keep field and safe Spanish UI errors at the Action boundary.
+- Keep field errors at the Action boundary and share safe Spanish known-error messages across server boundaries.
 - Do not make feature modules import from a `"use server"` file.
 - Dependency: none.
 
 #### 2.2 Known application errors
 
 - Define only errors needed for authentication, authorization, missing resources, and conflicts.
-- Feature modules map expected database failures; Actions map known errors to UI results.
+- Feature modules map expected database failures; boundary adapters map known errors to transport results.
 - Log unexpected server failures without returning raw database/provider messages.
 - Let Pages handle redirects, empty states, `notFound()`, and framework errors.
 - Dependency: 2.1.
