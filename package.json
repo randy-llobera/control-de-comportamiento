@@ -10,6 +10,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
@@ -40,6 +42,7 @@
     "prettier": "^3.9.4",
     "supabase": "^2.109.1",
     "tailwindcss": "^4.3.2",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "^4.1.6"
   }
 }

@@ -8,7 +8,7 @@ Planned
 
 Introduce the smallest test setup needed to verify server-boundary and pure feature behavior throughout the remaining refactor.
 
-## Standards References
+## Standards References ('/context/coding-standards.md')
 
 - `Architecture Contract > 19. Testing contract`
 - `Coding Standards > Core conventions > Database and code quality`
