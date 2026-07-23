@@ -22,7 +22,12 @@ const ROLE_ID = "33333333-3333-4333-8333-333333333333";
 
 const setActorRole = (role: "admin" | "coordinator" | "teacher") => {
   mocks.loadCurrentUserWithRole.mockResolvedValue({
-    profile: { id: ACTOR_ID, roles: { name: role } },
+    profile: {
+      id: ACTOR_ID,
+      displayName: "Admin",
+      schoolRole: "Administración",
+      role,
+    },
     reason: null,
   });
 };

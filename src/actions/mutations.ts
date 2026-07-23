@@ -89,7 +89,7 @@ const runMutation = async (
 ): Promise<ActionResult> => {
   const supabase = await createClient();
   const auth = await loadCurrentUserWithRole(supabase);
-  const role = auth.profile?.roles?.name;
+  const role = auth.profile?.role;
   if (
     !auth.profile ||
     (roles === 'coordinator' && !hasCoordinatorRole(role)) ||

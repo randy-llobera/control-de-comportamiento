@@ -1,16 +1,62 @@
-# Current Feature
+# Current Feature: Navigation Boundary
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Make navigation consume a serializable, neutral current-user contract.
+- Derive role-visible navigation items from the trusted server-provided role.
+- Keep the component focused on navigation rendering and responsive interaction.
+- Preserve current URLs, Spanish labels, role visibility, and sign-out behavior.
+
 ## Notes
 
 <!-- Add notes here -->
+
+### Dependency
+
+- Complete Feature 05 first so navigation can reuse the stable user/actor contract.
+
+### Scope
+
+- Replace `UserWithRole` and generated database dependencies with the neutral current-user contract.
+- Update the protected layout and Navigation props.
+- Move immutable navigation definitions outside render and clearly derive role-visible items.
+- Keep responsive sidebar state local to the Client Component.
+- Extract shared account or navigation markup only where mobile and desktop variants have the same responsibility.
+- Use English component and identifier names.
+- Consult current documentation through Context7 for relevant library changes.
+
+### Out of Scope
+
+- Changing route authorization or adding navigation items.
+- Moving Auth to Server Actions; Feature 14 covers that work.
+- Introducing a navigation store or component library.
+
+### Risks
+
+- Link visibility is UX only; layouts, feature operations, and RLS remain authoritative.
+- Over-extraction could make the navigation harder to follow.
+- Sign-out remains a temporary browser-client consumer until Feature 14.
+
+### Verification
+
+- Teacher sees only incidents and students.
+- Coordinator also sees groups, categories, and dashboard.
+- Admin also sees users.
+- Mobile sidebar opens, closes, and closes after navigation.
+- `npm test`, lint, typecheck, build, and browser role checks pass.
+
+### Done Checklist
+
+- [x] Navigation imports no generated or database row type.
+- [x] Navigation items match the role model exactly.
+- [x] Responsive state remains local.
+- [x] No new state dependency or security assumption was introduced.
 
 ## History
 

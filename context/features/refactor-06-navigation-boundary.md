@@ -8,7 +8,7 @@ Planned
 
 Make navigation consume a neutral current-user contract and reduce the component to navigation rendering and responsive interaction.
 
-## Standards References
+## Standards References ('/context/coding-standards.md')
 
 - `Coding Standards > Core conventions > React and Next.js`
 - `Coding Standards > Core conventions > Naming and styling`
@@ -28,6 +28,7 @@ Complete Feature 05 first so navigation can reuse the stable user/actor contract
 - Extract shared account/navigation markup only where mobile and desktop variants have the same responsibility.
 - Preserve current URLs, Spanish labels, role visibility, and sign-out behavior until Feature 14 replaces it with a Server Action.
 - Use English component and identifier names.
+- Use Context7 to consult the most up to date docs for the changes your are making.
 
 ## Out of Scope
 
@@ -64,4 +65,3 @@ Complete Feature 05 first so navigation can reuse the stable user/actor contract
 - [ ] Responsive state remains local.
 - [ ] No new state dependency or security assumption was introduced.
 - [ ] `npm test`, lint, typecheck, build, and browser role checks pass.
-

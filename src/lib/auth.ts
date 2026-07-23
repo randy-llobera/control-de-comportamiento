@@ -1,10 +1,11 @@
 import { cache } from 'react';
 import { isAuthSessionMissingError } from '@supabase/supabase-js';
 import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
-import type { UserWithRole } from '@/types/database';
+import { isValidRole } from '@/types/users';
+import type { CurrentUser } from '@/types/users';
 
 export type AuthResult =
-  | { profile: UserWithRole; reason: null }
+  | { profile: CurrentUser; reason: null }
   | { profile: null; reason: 'missing-session' | 'missing-profile' };
 
 export const loadCurrentUserWithRole = async (
@@ -38,11 +39,19 @@ export const loadCurrentUserWithRole = async (
     throw profileError;
   }
 
-  if (!profile?.roles?.name) {
+  if (!profile?.roles?.name || !isValidRole(profile.roles.name)) {
     return { profile: null, reason: 'missing-profile' };
   }
 
-  return { profile, reason: null };
+  return {
+    profile: {
+      id: profile.id,
+      displayName: profile.display_name,
+      schoolRole: profile.school_role,
+      role: profile.roles.name,
+    },
+    reason: null,
+  };
 };
 
 export const getCurrentUserWithRole = cache(async (): Promise<AuthResult> =>

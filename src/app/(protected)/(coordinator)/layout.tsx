@@ -7,7 +7,7 @@ export default async function CoordinatorLayout({
   const auth = await getCurrentUserWithRole();
 
   if (!auth.profile) redirect("/auth");
-  if (auth.profile.roles?.name !== "coordinator" && auth.profile.roles?.name !== "admin") {
+  if (auth.profile.role !== "coordinator" && auth.profile.role !== "admin") {
     redirect("/incidentes");
   }
 

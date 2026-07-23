@@ -3,17 +3,13 @@ import type { QueryData } from '@supabase/supabase-js';
 import { ApplicationError } from '@/lib/application-error';
 import { loadCurrentUserWithRole } from '@/lib/auth';
 import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
-import { USER_ROLE_NAMES } from '@/types/users';
+import { isValidRole } from '@/types/users';
 import type {
   RoleOption,
   UpdateUserRoleInput,
   UserListItem,
   UserPageData,
-  UserRoleName,
 } from '@/types/users';
-
-const isUserRoleName = (name: string): name is UserRoleName =>
-  USER_ROLE_NAMES.some((roleName) => roleName === name);
 
 const requireAdmin = async (supabase: ServerSupabaseClient) => {
   const auth = await loadCurrentUserWithRole(supabase);
@@ -24,13 +20,13 @@ const requireAdmin = async (supabase: ServerSupabaseClient) => {
     );
   }
 
-  if (auth.profile.roles?.name !== 'admin') {
+  if (auth.profile.role !== 'admin') {
     throw new ApplicationError('forbidden');
   }
 };
 
 const mapRole = (role: { id: string; name: string }): RoleOption => {
-  if (!isUserRoleName(role.name)) {
+  if (!isValidRole(role.name)) {
     const error = new Error(`Unexpected user role: ${role.name}`);
     console.error('Failed to map a user role:', error.message);
     throw error;
