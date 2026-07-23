@@ -37,8 +37,6 @@ const studentSchema = z.object({
   groupId: uuidSchema,
 });
 const namedRecordSchema = z.object({ id: uuidSchema.nullable(), name: nameSchema });
-const userRoleSchema = z.object({ userId: uuidSchema, roleId: uuidSchema });
-
 type MutationOperationResult = {
   error: { message: string } | null;
   fieldErrors?: Record<string, string[]>;
@@ -51,8 +49,7 @@ type MutationName =
   | 'saveGroup'
   | 'deleteGroup'
   | 'saveCategory'
-  | 'deleteCategory'
-  | 'updateUserRole';
+  | 'deleteCategory';
 
 const MUTATION_PATHS = {
   createIncident: ['/incidentes', '/dashboard'],
@@ -62,7 +59,6 @@ const MUTATION_PATHS = {
   deleteGroup: ['/grupos', '/estudiantes', '/incidentes', '/dashboard'],
   saveCategory: ['/categorias', '/incidentes', '/dashboard'],
   deleteCategory: ['/categorias', '/incidentes', '/dashboard'],
-  updateUserRole: ['/usuarios'],
 } as const satisfies Record<MutationName, readonly string[]>;
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
@@ -190,21 +186,3 @@ export const saveCategory = async (id: unknown, name: unknown) =>
   await saveNamedRecord('categories', id, name, 'saveCategory');
 export const deleteCategory = async (id: unknown) =>
   await deleteRecord('categories', id, 'coordinator', 'deleteCategory');
-
-export const updateUserRole = async (userId: unknown, roleId: unknown): Promise<ActionResult> => {
-  const parsed = userRoleSchema.safeParse({ userId, roleId });
-  if (!parsed.success) return validationFailed(parsed.error);
-
-  return runMutation('admin', 'updateUserRole', async (supabase) => {
-    const { data: role, error: roleError } = await supabase
-      .from('roles')
-      .select('id')
-      .eq('id', parsed.data.roleId)
-      .maybeSingle();
-    if (roleError) return { error: roleError };
-    if (!role)
-      return { error: null, fieldErrors: { roleId: ['El rol seleccionado no es válido.'] } };
-
-    return supabase.from('users').update({ role_id: parsed.data.roleId }).eq('id', parsed.data.userId);
-  });
-};

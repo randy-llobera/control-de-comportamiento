@@ -6,9 +6,9 @@ Planned
 
 ## Goal
 
-Move user-management reads, role assignment, authorization, and mapping behind a server-only users feature module.
+Move user-management reads, role assignment, authorization, and mapping behind a users feature module.
 
-## Standards References
+## Standards References ('/context/coding-standards.md')
 
 - `Architecture Contract > 1. Layer model`
 - `Architecture Contract > 3. Server Pages`
@@ -30,7 +30,7 @@ Complete Feature 04 first.
 
 ## Scope
 
-- Add `src/types/users.ts` and server-only `src/lib/users.ts`.
+- Add `src/types/users.ts` and `src/lib/users.ts`.
 - Add `getUserPageData()` with admin authorization and mapped serializable output.
 - Add `updateUserRole(input)` with admin authorization and role existence validation.
 - Add a thin `actions/users.ts` boundary with Zod validation, known-error mapping, and `/usuarios` invalidation.
@@ -74,4 +74,3 @@ Complete Feature 04 first.
 - [ ] The page is a Server Component and the interactive child uses neutral contracts.
 - [ ] Role changes invalidate `/usuarios` only.
 - [ ] Targeted tests and `npm test`, lint, typecheck, and build pass.
-

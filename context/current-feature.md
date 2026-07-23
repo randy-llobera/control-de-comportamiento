@@ -1,16 +1,30 @@
-# Current Feature
+# Current Feature: Users Feature Boundary
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Move user-management reads, role assignment, authorization, and mapping behind a users feature module.
+- Define neutral `UserListItem`, `RoleOption`, `UserPageData`, and `UpdateUserRoleInput` contracts.
+- Add admin-authorized, mapped user reads and validated role updates.
+- Convert `/usuarios` to a Server Component with focused client-side role controls.
+- Remove users/roles browser queries and the role operation from `actions/mutations.ts`.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Dependency: Complete Feature 04 first.
+- Add `src/types/users.ts`, `src/lib/users.ts`, and a thin `actions/users.ts` boundary.
+- Validate Action input with Zod, map known errors, and invalidate `/usuarios` only.
+- Keep user-management table access in `lib/users.ts` and use one request-scoped Supabase client per operation.
+- Test mapping, authorization, invalid user/role failures, Action results, and the absence of browser Supabase queries on the page.
+- Out of scope: Auth account creation/deletion, role definition changes, user RLS changes, navigation refactoring, optimistic updates, and client caching.
+- Key risks: operation-level authorization must remain explicit; browser input must not supply acting-user identity or trusted role names; invalidation must keep the page current.
 
 ## History
 
