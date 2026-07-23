@@ -1,16 +1,28 @@
-# Current Feature
+# Current Feature: Vitest Foundation
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Add a compatible Vitest development dependency and lockfile update.
+- Add `test` and `test:watch` npm scripts.
+- Configure Node-based `*.test.ts` discovery with TypeScript path aliases.
+- Co-locate focused tests with server and pure modules.
+- Test known application-error and Action-boundary mapping behavior.
+- Verify tests are discovered and repository checks pass.
 
 ## Notes
 
 <!-- Add notes here -->
+
+- Dependency: Feature 03 must be complete so tests target stable shared contracts.
+- Follow `Architecture Contract > 19. Testing contract` and the database/code-quality conventions in `context/coding-standards.md`.
+- Use Context7 to confirm current Vitest configuration before implementation.
+- Keep the setup minimal: no component tests, jsdom, Testing Library, browser automation, snapshots, coverage thresholds, or Supabase integration/RLS tests.
+- Ensure the test command cannot silently pass when no tests are found.
+- Unknown errors must remain rethrown or unmapped according to the existing boundary design.
 
 ## History
 
