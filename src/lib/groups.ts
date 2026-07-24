@@ -1,33 +1,17 @@
 import type { QueryData } from '@supabase/supabase-js';
 
 import { ApplicationError } from '@/lib/application-error';
-import { loadCurrentUserWithRole } from '@/lib/auth';
-import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
+import { requirePermission } from '@/lib/auth';
+import { createClient } from '@/lib/supabase-server';
 import type {
   CreateGroupInput,
   GroupListItem,
   UpdateGroupInput,
 } from '@/types/groups';
 
-const isUserAllowed = async (supabase: ServerSupabaseClient) => {
-  const auth = await loadCurrentUserWithRole(supabase);
-
-  if (!auth.profile) {
-    throw new ApplicationError(
-      auth.reason === 'missing-session' ? 'unauthenticated' : 'forbidden',
-    );
-  }
-
-  if (auth.profile.role !== 'admin' && auth.profile.role !== 'coordinator') {
-    throw new ApplicationError('forbidden');
-  }
-
-  return auth.profile;
-};
-
 export const getGroupList = async (): Promise<GroupListItem[]> => {
   const supabase = await createClient();
-  await isUserAllowed(supabase);
+  await requirePermission(supabase, 'groups:manage');
 
   const groupsQuery = supabase
     .from('groups')
@@ -53,7 +37,7 @@ export const getGroupList = async (): Promise<GroupListItem[]> => {
 
 export const createGroup = async (input: CreateGroupInput): Promise<void> => {
   const supabase = await createClient();
-  const actor = await isUserAllowed(supabase);
+  const actor = await requirePermission(supabase, 'groups:manage');
 
   const { data: existingGroup, error: existingGroupError } = await supabase
     .from('groups')
@@ -81,7 +65,7 @@ export const createGroup = async (input: CreateGroupInput): Promise<void> => {
 
 export const updateGroup = async (input: UpdateGroupInput): Promise<void> => {
   const supabase = await createClient();
-  await isUserAllowed(supabase);
+  await requirePermission(supabase, 'groups:manage');
 
   const { data: existingGroup, error: existingGroupError } = await supabase
     .from('groups')
@@ -116,7 +100,7 @@ export const updateGroup = async (input: UpdateGroupInput): Promise<void> => {
 
 export const deleteGroup = async (groupId: string): Promise<void> => {
   const supabase = await createClient();
-  await isUserAllowed(supabase);
+  await requirePermission(supabase, 'groups:manage');
 
   const { data: students, error: studentsError } = await supabase
     .from('students')

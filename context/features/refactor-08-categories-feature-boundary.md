@@ -6,9 +6,9 @@ Planned
 
 ## Goal
 
-Move all category reads and writes into a server-only feature module and server-render the category page's initial data.
+Move all category reads and writes into a feature module and server-render the category page's initial data.
 
-## Standards References
+## Standards References ('/context/coding-standards.md')
 
 - `Architecture Contract > 1. Layer model`
 - `Architecture Contract > 3. Server Pages`
@@ -30,9 +30,11 @@ Complete Feature 07 first.
 
 ## Scope
 
-- Add `types/categories.ts`, server-only `lib/categories.ts`, and `actions/categories.ts`.
+- Follow the same pattern as with 'groups' in `context/features/refactor-07-groups-feature-boundary.md`.
+- Add `types/categories.ts`, `lib/categories.ts`, and `actions/categories.ts`.
 - Implement coordinator/admin-authorized list, create, update, and delete operations.
-- Convert `categorias/page.tsx` to a Server Component with a focused interactive child.
+- Convert `categorias/page.tsx` to a Server Component with a focused interactive child. Child components start with Categorie(s) suffix.
+- Use existing shadcn primitives in `/src/components/ui`. Only add new primitives when the existing is insufficient.
 - Remove category operations from `actions/mutations.ts` and browser category queries from this page.
 - Map uniqueness and referenced-delete conflicts to known safe failures.
 - Invalidate `/categorias`, `/incidentes`, and `/dashboard` after successful category writes.
