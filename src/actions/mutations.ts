@@ -46,8 +46,6 @@ type MutationName =
   | 'createIncident'
   | 'saveStudent'
   | 'deleteStudent'
-  | 'saveGroup'
-  | 'deleteGroup'
   | 'saveCategory'
   | 'deleteCategory';
 
@@ -55,8 +53,6 @@ const MUTATION_PATHS = {
   createIncident: ['/incidentes', '/dashboard'],
   saveStudent: ['/estudiantes', '/incidentes', '/dashboard'],
   deleteStudent: ['/estudiantes', '/incidentes', '/dashboard'],
-  saveGroup: ['/grupos', '/estudiantes', '/incidentes', '/dashboard'],
-  deleteGroup: ['/grupos', '/estudiantes', '/incidentes', '/dashboard'],
   saveCategory: ['/categorias', '/incidentes', '/dashboard'],
   deleteCategory: ['/categorias', '/incidentes', '/dashboard'],
 } as const satisfies Record<MutationName, readonly string[]>;
@@ -146,10 +142,10 @@ export const saveStudent = async (id: unknown, input: unknown): Promise<ActionRe
 };
 
 const deleteRecord = async (
-  table: 'students' | 'groups' | 'categories',
+  table: 'students' | 'categories',
   id: unknown,
   roles: 'authenticated' | 'coordinator',
-  mutation: 'deleteStudent' | 'deleteGroup' | 'deleteCategory',
+  mutation: 'deleteStudent' | 'deleteCategory',
 ): Promise<ActionResult> => {
   const parsed = uuidSchema.safeParse(id);
   if (!parsed.success) return validationFailed(parsed.error);
@@ -163,10 +159,10 @@ export const deleteStudent = async (id: unknown) =>
   await deleteRecord('students', id, 'authenticated', 'deleteStudent');
 
 const saveNamedRecord = async (
-  table: 'groups' | 'categories',
+  table: 'categories',
   id: unknown,
   name: unknown,
-  mutation: 'saveGroup' | 'saveCategory',
+  mutation: 'saveCategory',
 ): Promise<ActionResult> => {
   const parsed = namedRecordSchema.safeParse({ id, name });
   if (!parsed.success) return validationFailed(parsed.error);
@@ -178,10 +174,6 @@ const saveNamedRecord = async (
   );
 };
 
-export const saveGroup = async (id: unknown, name: unknown) =>
-  await saveNamedRecord('groups', id, name, 'saveGroup');
-export const deleteGroup = async (id: unknown) =>
-  await deleteRecord('groups', id, 'coordinator', 'deleteGroup');
 export const saveCategory = async (id: unknown, name: unknown) =>
   await saveNamedRecord('categories', id, name, 'saveCategory');
 export const deleteCategory = async (id: unknown) =>
