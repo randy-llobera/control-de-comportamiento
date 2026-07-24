@@ -6,9 +6,9 @@ Planned
 
 ## Goal
 
-Move all group reads and writes into a server-only feature module and server-render the group page's initial data.
+Move all group reads and writes into a feature module and server-render the group page's initial data.
 
-## Standards References
+## Standards References ('/context/coding-standards.md')
 
 - `Architecture Contract > 1. Layer model`
 - `Architecture Contract > 3. Server Pages`
@@ -30,7 +30,7 @@ Complete Feature 06 first.
 
 ## Scope
 
-- Add `types/groups.ts`, server-only `lib/groups.ts`, and `actions/groups.ts`.
+- Add `types/groups.ts`, `lib/groups.ts`, and `actions/groups.ts`.
 - Implement coordinator/admin-authorized list, create, update, and delete operations.
 - Validate uniqueness/conflicts and map database results into neutral contracts.
 - Convert `grupos/page.tsx` to a Server Component.
@@ -69,7 +69,7 @@ Complete Feature 06 first.
 
 ## Done Checklist
 
-- [ ] All group table access is in `lib/groups.ts`.
+- [ ] All `/grupos` reads and group-management writes are in `lib/groups.ts`.
 - [ ] Actions are thin and input is structurally validated.
 - [ ] The page is server-rendered with a focused interactive child.
 - [ ] Only affected routes are invalidated after successful writes.
