@@ -5,7 +5,7 @@ import { getUserPageData, updateUserRole } from "@/lib/users";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
-  loadCurrentUserWithRole: vi.fn(),
+  requirePermission: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase-server", () => ({
@@ -13,7 +13,7 @@ vi.mock("@/lib/supabase-server", () => ({
 }));
 
 vi.mock("@/lib/auth", () => ({
-  loadCurrentUserWithRole: mocks.loadCurrentUserWithRole,
+  requirePermission: mocks.requirePermission,
 }));
 
 const ACTOR_ID = "11111111-1111-4111-8111-111111111111";
@@ -21,14 +21,18 @@ const USER_ID = "22222222-2222-4222-8222-222222222222";
 const ROLE_ID = "33333333-3333-4333-8333-333333333333";
 
 const setActorRole = (role: "admin" | "coordinator" | "teacher") => {
-  mocks.loadCurrentUserWithRole.mockResolvedValue({
-    profile: {
-      id: ACTOR_ID,
-      displayName: "Admin",
-      schoolRole: "Administración",
-      role,
-    },
-    reason: null,
+  if (role !== "admin") {
+    mocks.requirePermission.mockRejectedValue(
+      new ApplicationError("forbidden"),
+    );
+    return;
+  }
+
+  mocks.requirePermission.mockResolvedValue({
+    id: ACTOR_ID,
+    displayName: "Admin",
+    schoolRole: "Administración",
+    role,
   });
 };
 
@@ -82,6 +86,10 @@ describe("getUserPageData", () => {
       ],
       roles: [{ id: ROLE_ID, name: "teacher" }],
     });
+    expect(mocks.requirePermission).toHaveBeenCalledWith(
+      expect.objectContaining({ from }),
+      "users:manage",
+    );
   });
 
   it.each(["teacher", "coordinator"] as const)(

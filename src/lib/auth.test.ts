@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { loadCurrentUserWithRole } from '@/lib/auth';
+import { ApplicationError } from '@/lib/application-error';
+import {
+  loadCurrentUserWithRole,
+  requirePermission,
+  type Permission,
+} from '@/lib/auth';
 import type { ServerSupabaseClient } from '@/lib/supabase-server';
+import type { UserRoleName } from '@/types/users';
 
 const USER_ID = '11111111-1111-4111-8111-111111111111';
 
@@ -79,5 +85,79 @@ describe('loadCurrentUserWithRole', () => {
       profile: null,
       reason: 'missing-profile',
     });
+  });
+});
+
+describe('requirePermission', () => {
+  const allowedCases = [
+    ['users:manage', 'admin'],
+    ['groups:manage', 'admin'],
+    ['groups:manage', 'coordinator'],
+    ['categories:manage', 'admin'],
+    ['categories:manage', 'coordinator'],
+  ] as const satisfies ReadonlyArray<readonly [Permission, UserRoleName]>;
+
+  it.each(allowedCases)(
+    'allows %s for the %s role',
+    async (permission, role) => {
+      const { client } = createSupabase({
+        user: { id: USER_ID },
+        profile: {
+          id: USER_ID,
+          display_name: 'Ada Lovelace',
+          school_role: 'Tecnología',
+          roles: { name: role },
+        },
+      });
+
+      await expect(requirePermission(client, permission)).resolves.toMatchObject(
+        { id: USER_ID, role },
+      );
+    },
+  );
+
+  const forbiddenCases = [
+    ['users:manage', 'coordinator'],
+    ['users:manage', 'teacher'],
+    ['groups:manage', 'teacher'],
+    ['categories:manage', 'teacher'],
+  ] as const satisfies ReadonlyArray<readonly [Permission, UserRoleName]>;
+
+  it.each(forbiddenCases)(
+    'rejects %s for the %s role',
+    async (permission, role) => {
+      const { client } = createSupabase({
+        user: { id: USER_ID },
+        profile: {
+          id: USER_ID,
+          display_name: 'Ada Lovelace',
+          school_role: 'Tecnología',
+          roles: { name: role },
+        },
+      });
+
+      await expect(requirePermission(client, permission)).rejects.toEqual(
+        new ApplicationError('forbidden'),
+      );
+    },
+  );
+
+  it('maps a missing session to an unauthenticated error', async () => {
+    const { client } = createSupabase({ user: null });
+
+    await expect(
+      requirePermission(client, 'categories:manage'),
+    ).rejects.toEqual(new ApplicationError('unauthenticated'));
+  });
+
+  it('maps a missing profile to a forbidden error', async () => {
+    const { client } = createSupabase({
+      user: { id: USER_ID },
+      profile: null,
+    });
+
+    await expect(
+      requirePermission(client, 'categories:manage'),
+    ).rejects.toEqual(new ApplicationError('forbidden'));
   });
 });

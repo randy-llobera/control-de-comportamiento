@@ -1,16 +1,32 @@
-# Current Feature
+# Current Feature: Categories Feature Boundary
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Move all category reads and writes into a dedicated feature module.
+- Implement coordinator/admin-authorized category list, create, update, and delete operations while denying teachers.
+- Server-render the category page's initial data and keep client interaction in focused components.
+- Return safe Spanish failures for duplicate names and referenced-category deletion conflicts.
+- Invalidate only `/categorias`, `/incidentes`, and `/dashboard` after successful category writes.
+- Add coverage for mapping, authorization, validation, conflicts, Actions, and category CRUD behavior.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Depends on Feature 07, which is recorded as complete in History.
+- Follow the groups feature-boundary pattern without introducing a generic named-record abstraction.
+- Add `types/categories.ts`, `lib/categories.ts`, and `actions/categories.ts`; remove category operations from `actions/mutations.ts`.
+- Public contracts: `CategoryListItem` exposes `id`, `name`, and creator display name; `CreateCategoryInput` contains `name`; `UpdateCategoryInput` contains `id` and `name`; `createdBy` remains server-derived.
+- Convert `categorias/page.tsx` to a Server Component and remove browser category table reads and post-Action reloads.
+- Category child component names must start with `Category` or `Categories`.
+- Reuse existing shadcn primitives. Do not add schema or permission changes, incident-page migration, or new component/state libraries.
+- Source spec: `context/features/refactor-08-categories-feature-boundary.md`.
 
 ## History
 

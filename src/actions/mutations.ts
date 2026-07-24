@@ -36,7 +36,6 @@ const studentSchema = z.object({
   name: nameSchema,
   groupId: uuidSchema,
 });
-const namedRecordSchema = z.object({ id: uuidSchema.nullable(), name: nameSchema });
 type MutationOperationResult = {
   error: { message: string } | null;
   fieldErrors?: Record<string, string[]>;
@@ -45,16 +44,12 @@ type MutationOperationResult = {
 type MutationName =
   | 'createIncident'
   | 'saveStudent'
-  | 'deleteStudent'
-  | 'saveCategory'
-  | 'deleteCategory';
+  | 'deleteStudent';
 
 const MUTATION_PATHS = {
   createIncident: ['/incidentes', '/dashboard'],
   saveStudent: ['/estudiantes', '/incidentes', '/dashboard'],
   deleteStudent: ['/estudiantes', '/incidentes', '/dashboard'],
-  saveCategory: ['/categorias', '/incidentes', '/dashboard'],
-  deleteCategory: ['/categorias', '/incidentes', '/dashboard'],
 } as const satisfies Record<MutationName, readonly string[]>;
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
@@ -141,40 +136,11 @@ export const saveStudent = async (id: unknown, input: unknown): Promise<ActionRe
   );
 };
 
-const deleteRecord = async (
-  table: 'students' | 'categories',
-  id: unknown,
-  roles: 'authenticated' | 'coordinator',
-  mutation: 'deleteStudent' | 'deleteCategory',
-): Promise<ActionResult> => {
+export const deleteStudent = async (id: unknown): Promise<ActionResult> => {
   const parsed = uuidSchema.safeParse(id);
   if (!parsed.success) return validationFailed(parsed.error);
 
-  return runMutation(roles, mutation, (supabase) =>
-    supabase.from(table).delete().eq('id', parsed.data),
+  return runMutation('authenticated', 'deleteStudent', (supabase) =>
+    supabase.from('students').delete().eq('id', parsed.data),
   );
 };
-
-export const deleteStudent = async (id: unknown) =>
-  await deleteRecord('students', id, 'authenticated', 'deleteStudent');
-
-const saveNamedRecord = async (
-  table: 'categories',
-  id: unknown,
-  name: unknown,
-  mutation: 'saveCategory',
-): Promise<ActionResult> => {
-  const parsed = namedRecordSchema.safeParse({ id, name });
-  if (!parsed.success) return validationFailed(parsed.error);
-
-  return runMutation('coordinator', mutation, (supabase, userId) =>
-    parsed.data.id
-      ? supabase.from(table).update({ name: parsed.data.name }).eq('id', parsed.data.id)
-      : supabase.from(table).insert({ name: parsed.data.name, created_by: userId }),
-  );
-};
-
-export const saveCategory = async (id: unknown, name: unknown) =>
-  await saveNamedRecord('categories', id, name, 'saveCategory');
-export const deleteCategory = async (id: unknown) =>
-  await deleteRecord('categories', id, 'coordinator', 'deleteCategory');

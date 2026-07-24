@@ -1,8 +1,20 @@
 import { cache } from 'react';
 import { isAuthSessionMissingError } from '@supabase/supabase-js';
+import { ApplicationError } from '@/lib/application-error';
 import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
 import { isValidRole } from '@/types/users';
-import type { CurrentUser } from '@/types/users';
+import type { CurrentUser, UserRoleName } from '@/types/users';
+
+export type Permission =
+  | 'users:manage'
+  | 'groups:manage'
+  | 'categories:manage';
+
+const PERMISSION_ROLES: Record<Permission, readonly UserRoleName[]> = {
+  'users:manage': ['admin'],
+  'groups:manage': ['admin', 'coordinator'],
+  'categories:manage': ['admin', 'coordinator'],
+};
 
 export type AuthResult =
   | { profile: CurrentUser; reason: null }
@@ -52,6 +64,25 @@ export const loadCurrentUserWithRole = async (
     },
     reason: null,
   };
+};
+
+export const requirePermission = async (
+  supabase: ServerSupabaseClient,
+  permission: Permission,
+): Promise<CurrentUser> => {
+  const auth = await loadCurrentUserWithRole(supabase);
+
+  if (!auth.profile) {
+    throw new ApplicationError(
+      auth.reason === 'missing-session' ? 'unauthenticated' : 'forbidden',
+    );
+  }
+
+  if (!PERMISSION_ROLES[permission].includes(auth.profile.role)) {
+    throw new ApplicationError('forbidden');
+  }
+
+  return auth.profile;
 };
 
 export const getCurrentUserWithRole = cache(async (): Promise<AuthResult> =>

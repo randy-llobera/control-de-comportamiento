@@ -1,12 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApplicationError } from "@/lib/application-error";
 import {
-  createGroup,
-  deleteGroup,
-  getGroupList,
-  updateGroup,
-} from "@/lib/groups";
+  createCategory,
+  deleteCategory,
+  getCategoryList,
+  updateCategory,
+} from "@/lib/categories";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 const ACTOR_ID = "11111111-1111-4111-8111-111111111111";
-const GROUP_ID = "22222222-2222-4222-8222-222222222222";
+const CATEGORY_ID = "22222222-2222-4222-8222-222222222222";
 
 const setActorRole = (role: "admin" | "coordinator" | "teacher") => {
   if (role === "teacher") {
@@ -44,14 +44,18 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("getGroupList", () => {
-  it("maps group rows into neutral contracts", async () => {
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("getCategoryList", () => {
+  it("maps category rows into neutral contracts", async () => {
     setActorRole("coordinator");
     const order = vi.fn().mockResolvedValue({
       data: [
         {
-          id: GROUP_ID,
-          name: "1º A",
+          id: CATEGORY_ID,
+          name: "Convivencia",
           users: { display_name: "Ada Lovelace" },
         },
       ],
@@ -62,16 +66,16 @@ describe("getGroupList", () => {
     }));
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(getGroupList()).resolves.toEqual([
+    await expect(getCategoryList()).resolves.toEqual([
       {
-        id: GROUP_ID,
-        name: "1º A",
+        id: CATEGORY_ID,
+        name: "Convivencia",
         createdByDisplayName: "Ada Lovelace",
       },
     ]);
     expect(mocks.requirePermission).toHaveBeenCalledWith(
       expect.objectContaining({ from }),
-      "groups:manage",
+      "categories:manage",
     );
   });
 
@@ -80,50 +84,54 @@ describe("getGroupList", () => {
     const from = vi.fn(() => ({
       select: vi.fn(() => ({
         order: vi.fn().mockResolvedValue({
-          data: [{ id: GROUP_ID, name: "1º A", users: null }],
+          data: [{ id: CATEGORY_ID, name: "Convivencia", users: null }],
           error: null,
         }),
       })),
     }));
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(getGroupList()).resolves.toEqual([
-      { id: GROUP_ID, name: "1º A", createdByDisplayName: "" },
+    await expect(getCategoryList()).resolves.toEqual([
+      {
+        id: CATEGORY_ID,
+        name: "Convivencia",
+        createdByDisplayName: "",
+      },
     ]);
   });
 
-  it("rejects teachers before querying groups", async () => {
+  it("rejects teachers before querying categories", async () => {
     setActorRole("teacher");
     const from = vi.fn();
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(getGroupList()).rejects.toEqual(
+    await expect(getCategoryList()).rejects.toEqual(
       new ApplicationError("forbidden"),
     );
     expect(from).not.toHaveBeenCalled();
   });
 
-  it("rejects unauthenticated requests before querying groups", async () => {
+  it("rejects unauthenticated requests before querying categories", async () => {
     mocks.requirePermission.mockRejectedValue(
       new ApplicationError("unauthenticated"),
     );
     const from = vi.fn();
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(getGroupList()).rejects.toEqual(
+    await expect(getCategoryList()).rejects.toEqual(
       new ApplicationError("unauthenticated"),
     );
     expect(from).not.toHaveBeenCalled();
   });
 });
 
-describe("group mutations", () => {
+describe("category mutations", () => {
   it.each([
-    ["create", () => createGroup({ name: "1º A" })],
-    ["update", () => updateGroup({ id: GROUP_ID, name: "1º A" })],
-    ["delete", () => deleteGroup(GROUP_ID)],
+    ["create", () => createCategory({ name: "Convivencia" })],
+    ["update", () => updateCategory({ id: CATEGORY_ID, name: "Convivencia" })],
+    ["delete", () => deleteCategory(CATEGORY_ID)],
   ])(
-    "rejects teacher %s operations before querying groups",
+    "rejects teacher %s operations before querying categories",
     async (_operation, run) => {
       setActorRole("teacher");
       const from = vi.fn();
@@ -151,17 +159,22 @@ describe("group mutations", () => {
       .mockReturnValueOnce({ insert });
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(createGroup({ name: "1º A" })).resolves.toBeUndefined();
-    expect(insert).toHaveBeenCalledWith({ name: "1º A", created_by: ACTOR_ID });
+    await expect(
+      createCategory({ name: "Convivencia" }),
+    ).resolves.toBeUndefined();
+    expect(insert).toHaveBeenCalledWith({
+      name: "Convivencia",
+      created_by: ACTOR_ID,
+    });
   });
 
-  it("maps duplicate group names to a conflict", async () => {
+  it("maps duplicate category names to a conflict", async () => {
     setActorRole("admin");
     const from = vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           maybeSingle: vi.fn().mockResolvedValue({
-            data: { id: GROUP_ID },
+            data: { id: CATEGORY_ID },
             error: null,
           }),
         })),
@@ -169,19 +182,40 @@ describe("group mutations", () => {
     }));
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(createGroup({ name: "1º A" })).rejects.toEqual(
+    await expect(createCategory({ name: "Convivencia" })).rejects.toEqual(
       new ApplicationError("conflict"),
     );
   });
 
-  it("renames an available existing group", async () => {
+  it("rethrows unexpected category creation failures", async () => {
+    setActorRole("admin");
+    const error = new Error("unexpected create failure");
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const from = vi
+      .fn()
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({
+        insert: vi.fn().mockResolvedValue({ error }),
+      });
+    mocks.createClient.mockResolvedValue({ from });
+
+    await expect(createCategory({ name: "Convivencia" })).rejects.toBe(error);
+  });
+
+  it("renames an available existing category", async () => {
     setActorRole("admin");
     const nameMaybeSingle = vi.fn().mockResolvedValue({
       data: null,
       error: null,
     });
     const updateMaybeSingle = vi.fn().mockResolvedValue({
-      data: { id: GROUP_ID },
+      data: { id: CATEGORY_ID },
       error: null,
     });
     const neq = vi.fn(() => ({ maybeSingle: nameMaybeSingle }));
@@ -200,12 +234,12 @@ describe("group mutations", () => {
     mocks.createClient.mockResolvedValue({ from });
 
     await expect(
-      updateGroup({ id: GROUP_ID, name: "1º B" }),
+      updateCategory({ id: CATEGORY_ID, name: "Respeto" }),
     ).resolves.toBeUndefined();
-    expect(neq).toHaveBeenCalledWith("id", GROUP_ID);
+    expect(neq).toHaveBeenCalledWith("id", CATEGORY_ID);
   });
 
-  it("rejects a rename when another group has the requested name", async () => {
+  it("rejects a rename when another category has the requested name", async () => {
     setActorRole("admin");
     const update = vi.fn();
     const from = vi.fn(() => ({
@@ -213,7 +247,7 @@ describe("group mutations", () => {
         eq: vi.fn(() => ({
           neq: vi.fn(() => ({
             maybeSingle: vi.fn().mockResolvedValue({
-              data: { id: "33333333-3333-4333-8333-333333333333" },
+              data: "33333333-3333-4333-8333-333333333333",
               error: null,
             }),
           })),
@@ -224,46 +258,46 @@ describe("group mutations", () => {
     mocks.createClient.mockResolvedValue({ from });
 
     await expect(
-      updateGroup({ id: GROUP_ID, name: "1º B" }),
+      updateCategory({ id: CATEGORY_ID, name: "Respeto" }),
     ).rejects.toEqual(new ApplicationError("conflict"));
     expect(from).toHaveBeenCalledOnce();
     expect(update).not.toHaveBeenCalled();
   });
 
-  it("returns not-found when the group to rename does not exist", async () => {
+  it("returns not-found when the category to rename does not exist", async () => {
     setActorRole("admin");
-    const nameMaybeSingle = vi.fn().mockResolvedValue({
-      data: null,
-      error: null,
-    });
-    const updateMaybeSingle = vi.fn().mockResolvedValue({
-      data: null,
-      error: null,
-    });
     const from = vi
       .fn()
       .mockReturnValueOnce({
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
-            neq: vi.fn(() => ({ maybeSingle: nameMaybeSingle })),
+            neq: vi.fn(() => ({
+              maybeSingle: vi
+                .fn()
+                .mockResolvedValue({ data: null, error: null }),
+            })),
           })),
         })),
       })
       .mockReturnValueOnce({
         update: vi.fn(() => ({
           eq: vi.fn(() => ({
-            select: vi.fn(() => ({ maybeSingle: updateMaybeSingle })),
+            select: vi.fn(() => ({
+              maybeSingle: vi
+                .fn()
+                .mockResolvedValue({ data: null, error: null }),
+            })),
           })),
         })),
       });
     mocks.createClient.mockResolvedValue({ from });
 
     await expect(
-      updateGroup({ id: GROUP_ID, name: "1º B" }),
+      updateCategory({ id: CATEGORY_ID, name: "Respeto" }),
     ).rejects.toEqual(new ApplicationError("not-found"));
   });
 
-  it("rejects deletion when students reference the group", async () => {
+  it("rejects deletion when incidents reference the category", async () => {
     setActorRole("coordinator");
     const from = vi.fn(() => ({
       select: vi.fn(() => ({
@@ -277,46 +311,17 @@ describe("group mutations", () => {
     }));
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(deleteGroup(GROUP_ID)).rejects.toEqual(
+    await expect(deleteCategory(CATEGORY_ID)).rejects.toEqual(
       new ApplicationError("conflict"),
     );
     expect(from).toHaveBeenCalledOnce();
-    expect(from).toHaveBeenCalledWith("students");
+    expect(from).toHaveBeenCalledWith("incidents");
   });
 
-  it("deletes an unused existing group", async () => {
+  it("rethrows unexpected category deletion failures", async () => {
     setActorRole("coordinator");
-    const deleteMaybeSingle = vi.fn().mockResolvedValue({
-      data: { id: GROUP_ID },
-      error: null,
-    });
-    const deleteGroupRow = vi.fn(() => ({
-      eq: vi.fn(() => ({
-        select: vi.fn(() => ({ maybeSingle: deleteMaybeSingle })),
-      })),
-    }));
-    const from = vi
-      .fn()
-      .mockReturnValueOnce({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            limit: vi.fn().mockResolvedValue({ data: [], error: null }),
-          })),
-        })),
-      })
-      .mockReturnValueOnce({ delete: deleteGroupRow });
-    mocks.createClient.mockResolvedValue({ from });
-
-    await expect(deleteGroup(GROUP_ID)).resolves.toBeUndefined();
-    expect(from.mock.calls.map(([table]) => table)).toEqual([
-      "students",
-      "groups",
-    ]);
-    expect(deleteGroupRow).toHaveBeenCalledOnce();
-  });
-
-  it("returns not-found when the unused group to delete does not exist", async () => {
-    setActorRole("admin");
+    const error = new Error("unexpected delete failure");
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
     const from = vi
       .fn()
       .mockReturnValueOnce({
@@ -332,7 +337,7 @@ describe("group mutations", () => {
             select: vi.fn(() => ({
               maybeSingle: vi.fn().mockResolvedValue({
                 data: null,
-                error: null,
+                error,
               }),
             })),
           })),
@@ -340,8 +345,37 @@ describe("group mutations", () => {
       });
     mocks.createClient.mockResolvedValue({ from });
 
-    await expect(deleteGroup(GROUP_ID)).rejects.toEqual(
-      new ApplicationError("not-found"),
-    );
+    await expect(deleteCategory(CATEGORY_ID)).rejects.toBe(error);
+  });
+
+  it("deletes an unused existing category", async () => {
+    setActorRole("coordinator");
+    const deleteCategoryRow = vi.fn(() => ({
+      eq: vi.fn(() => ({
+        select: vi.fn(() => ({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { id: CATEGORY_ID },
+            error: null,
+          }),
+        })),
+      })),
+    }));
+    const from = vi
+      .fn()
+      .mockReturnValueOnce({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+          })),
+        })),
+      })
+      .mockReturnValueOnce({ delete: deleteCategoryRow });
+    mocks.createClient.mockResolvedValue({ from });
+
+    await expect(deleteCategory(CATEGORY_ID)).resolves.toBeUndefined();
+    expect(from.mock.calls.map(([table]) => table)).toEqual([
+      "incidents",
+      "categories",
+    ]);
   });
 });

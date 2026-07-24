@@ -1,8 +1,8 @@
 import type { QueryData } from '@supabase/supabase-js';
 
 import { ApplicationError } from '@/lib/application-error';
-import { loadCurrentUserWithRole } from '@/lib/auth';
-import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
+import { requirePermission } from '@/lib/auth';
+import { createClient } from '@/lib/supabase-server';
 import { isValidRole } from '@/types/users';
 import type {
   RoleOption,
@@ -10,20 +10,6 @@ import type {
   UserListItem,
   UserPageData,
 } from '@/types/users';
-
-const requireAdmin = async (supabase: ServerSupabaseClient) => {
-  const auth = await loadCurrentUserWithRole(supabase);
-
-  if (!auth.profile) {
-    throw new ApplicationError(
-      auth.reason === 'missing-session' ? 'unauthenticated' : 'forbidden',
-    );
-  }
-
-  if (auth.profile.role !== 'admin') {
-    throw new ApplicationError('forbidden');
-  }
-};
 
 const mapRole = (role: { id: string; name: string }): RoleOption => {
   if (!isValidRole(role.name)) {
@@ -45,7 +31,7 @@ const handleUnexpectedError = (
 
 export const getUserPageData = async (): Promise<UserPageData> => {
   const supabase = await createClient();
-  await requireAdmin(supabase);
+  await requirePermission(supabase, 'users:manage');
 
   const usersQuery = supabase
     .from('users')
@@ -85,7 +71,7 @@ export const updateUserRole = async (
   input: UpdateUserRoleInput,
 ): Promise<void> => {
   const supabase = await createClient();
-  await requireAdmin(supabase);
+  await requirePermission(supabase, 'users:manage');
 
   const { data: role, error: roleError } = await supabase
     .from('roles')
