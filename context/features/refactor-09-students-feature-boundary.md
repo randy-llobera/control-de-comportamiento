@@ -8,7 +8,7 @@ Planned
 
 Move student data access behind a feature module while enforcing authenticated creation and admin-only update/delete in the application boundary and UI.
 
-## Standards References
+## Standards References ('/context/coding-standards.md')
 
 - `Architecture Contract > 3. Server Pages`
 - `Architecture Contract > 5. Feature modules`
@@ -30,11 +30,14 @@ Complete Feature 08 first. Feature 01 must already enforce the same rule through
 
 ## Scope
 
-- Add `types/students.ts`, server-only `lib/students.ts`, and `actions/students.ts`.
+- Follow the same pattern as with 'groups' and 'categories' in `context/features/refactor-07-groups-feature-boundary.md` and `/context/features/refactor-08-categories-feature-boundary.md`
+- Add `types/students.ts`, `lib/students.ts`, and `actions/students.ts`.
 - Allow every authenticated role to list/create students.
 - Require admin for update/delete in feature operations and UI controls.
+- requirePermission() function is available in `/src/lib/auth.ts`. Make sure you add the required entries to the permission matrix.
 - Validate group existence and map unique/foreign-key conflicts.
-- Convert `estudiantes/page.tsx` to a Server Component with focused interaction UI.
+- Convert `estudiantes/page.tsx` to a Server Component with focused interaction UI. Child components start with Student(s) suffix.
+- Use existing shadcn primitives in `/src/components/ui`. Only add new primitives when the existing is insufficient.
 - Remove student operations from `actions/mutations.ts` and browser student/group reads from this page.
 - Invalidate `/estudiantes`, `/incidentes`, and `/dashboard` after successful student writes.
 

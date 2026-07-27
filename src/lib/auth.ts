@@ -8,12 +8,18 @@ import type { CurrentUser, UserRoleName } from '@/types/users';
 export type Permission =
   | 'users:manage'
   | 'groups:manage'
-  | 'categories:manage';
+  | 'categories:manage'
+  | 'students:read'
+  | 'students:create'
+  | 'students:manage';
 
 const PERMISSION_ROLES: Record<Permission, readonly UserRoleName[]> = {
   'users:manage': ['admin'],
   'groups:manage': ['admin', 'coordinator'],
   'categories:manage': ['admin', 'coordinator'],
+  'students:read': ['admin', 'coordinator', 'teacher'],
+  'students:create': ['admin', 'coordinator', 'teacher'],
+  'students:manage': ['admin'],
 };
 
 export type AuthResult =
