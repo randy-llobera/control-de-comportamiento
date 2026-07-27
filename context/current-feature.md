@@ -1,16 +1,30 @@
-# Current Feature
+# Current Feature: Incidents Data Boundary
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Move authenticated incident page reads behind a server-only feature module that returns neutral, serializable contracts.
+- Move incident creation behind a validated thin Server Action with permission checks, business validation, and server-derived teacher identity.
+- Convert `incidentes/page.tsx` to a Server Component and preserve the existing interactive screen in an English-named `IncidentsView` Client Component.
+- Remove incident creation from `actions/mutations.ts`, browser-side incident table reads, and the post-create reload query.
+- Add focused tests for query mapping, authorization, validation, actor identity, and route invalidation.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Depends on Feature 09 and follows the established groups, categories, and students feature-boundary pattern.
+- Add `types/incidents.ts`, `lib/incidents.ts`, and `actions/incidents.ts`, including `getIncidentPageData()` and `createIncident(input)`.
+- Define `IncidentListItem`, `IncidentFormOptions`, `IncidentPageData`, `CreateIncidentInput`, and related severity/option contracts without exposing database rows.
+- Add the required incident permissions to the matrix used by `requirePermission()`.
+- Preserve the current UI behavior and use existing shadcn primitives.
+- Out of scope: incident edit/delete, splitting the large Client Component, filtering or CSV rewrites, deferred modal reads, and Route Handlers.
+- Key risks: nullable joined rows, Server-to-Client serialization, and accidental visual refactoring during the page/view move.
 
 ## History
 

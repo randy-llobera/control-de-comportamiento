@@ -6,9 +6,9 @@ Planned
 
 ## Goal
 
-Move incident initial reads and creation behind a server-only feature module while preserving the current incident screen behavior.
+Move incident initial reads and creation behind a feature module while preserving the current incident screen behavior.
 
-## Standards References
+## Standards References ('/context/coding-standards.md')
 
 - `Architecture Contract > 3. Server Pages`
 - `Architecture Contract > 5. Feature modules`
@@ -30,12 +30,15 @@ Complete Feature 09 first so all incident dependencies expose stable feature con
 
 ## Scope
 
+- Follow the same pattern as with 'groups', 'categories' and 'students' in `context/features/refactor-07-groups-feature-boundary.md`, `/context/features/refactor-08-categories-feature-boundary.md` and `/context/features/refactor-09-students-feature-boundary.md`
 - Add `types/incidents.ts`, server-only `lib/incidents.ts`, and `actions/incidents.ts`.
 - Add `getIncidentPageData()` for authenticated initial reads.
 - Add `createIncident(input)` with server-derived actor identity and business validation for referenced records.
+- requirePermission() function is available in `/src/lib/auth.ts`. Make sure you add the required entries to the permission matrix.
 - Infer the joined query shape and map it to neutral serialized contracts.
 - Convert `incidentes/page.tsx` to a Server Component.
 - Move the existing interactive screen intact into an English-named Client Component receiving initial data.
+- Use existing shadcn primitives in `/src/components/ui`. Only add new primitives when the existing is insufficient.
 - Remove incident creation from `actions/mutations.ts` and all browser table reads from the incident screen.
 
 ## Out of Scope
@@ -75,4 +78,3 @@ Complete Feature 09 first so all incident dependencies expose stable feature con
 - [ ] `IncidentsView` starts from mapped initial props.
 - [ ] The create Action contains no Supabase query or authorization rule.
 - [ ] Tests and all repository/browser checks pass.
-
