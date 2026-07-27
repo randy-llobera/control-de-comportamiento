@@ -11,7 +11,6 @@ const REQUIRED_ERROR = 'Este campo es obligatorio.';
 const INVALID_DATE_ERROR = 'Introduce una fecha válida.';
 
 const uuidSchema = z.string({ error: UUID_ERROR }).uuid({ error: UUID_ERROR });
-const nameSchema = z.string({ error: REQUIRED_ERROR }).trim().min(1, { error: REQUIRED_ERROR });
 const dateSchema = z
   .string({ error: INVALID_DATE_ERROR })
   .trim()
@@ -31,25 +30,15 @@ const incidentSchema = z.object({
   description: z.string({ error: REQUIRED_ERROR }).trim().min(1, { error: REQUIRED_ERROR }),
   date: dateSchema,
 });
-const studentSchema = z.object({
-  id: uuidSchema.nullable(),
-  name: nameSchema,
-  groupId: uuidSchema,
-});
 type MutationOperationResult = {
   error: { message: string } | null;
   fieldErrors?: Record<string, string[]>;
 };
 
-type MutationName =
-  | 'createIncident'
-  | 'saveStudent'
-  | 'deleteStudent';
+type MutationName = 'createIncident';
 
 const MUTATION_PATHS = {
   createIncident: ['/incidentes', '/dashboard'],
-  saveStudent: ['/estudiantes', '/incidentes', '/dashboard'],
-  deleteStudent: ['/estudiantes', '/incidentes', '/dashboard'],
 } as const satisfies Record<MutationName, readonly string[]>;
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
@@ -115,32 +104,5 @@ export const createIncident = async (input: unknown): Promise<ActionResult> => {
       date: parsed.data.date,
       teacher_id: userId,
     }),
-  );
-};
-
-export const saveStudent = async (id: unknown, input: unknown): Promise<ActionResult> => {
-  const parsed = studentSchema.safeParse(
-    typeof input === 'object' && input !== null ? { id, ...input } : { id, input },
-  );
-  if (!parsed.success) return validationFailed(parsed.error);
-
-  return runMutation('authenticated', 'saveStudent', (supabase) =>
-    parsed.data.id
-      ? supabase
-          .from('students')
-          .update({ name: parsed.data.name, group_id: parsed.data.groupId })
-          .eq('id', parsed.data.id)
-      : supabase
-          .from('students')
-          .insert({ name: parsed.data.name, group_id: parsed.data.groupId }),
-  );
-};
-
-export const deleteStudent = async (id: unknown): Promise<ActionResult> => {
-  const parsed = uuidSchema.safeParse(id);
-  if (!parsed.success) return validationFailed(parsed.error);
-
-  return runMutation('authenticated', 'deleteStudent', (supabase) =>
-    supabase.from('students').delete().eq('id', parsed.data),
   );
 };

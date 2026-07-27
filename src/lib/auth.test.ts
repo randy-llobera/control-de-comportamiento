@@ -95,6 +95,13 @@ describe('requirePermission', () => {
     ['groups:manage', 'coordinator'],
     ['categories:manage', 'admin'],
     ['categories:manage', 'coordinator'],
+    ['students:read', 'admin'],
+    ['students:read', 'coordinator'],
+    ['students:read', 'teacher'],
+    ['students:create', 'admin'],
+    ['students:create', 'coordinator'],
+    ['students:create', 'teacher'],
+    ['students:manage', 'admin'],
   ] as const satisfies ReadonlyArray<readonly [Permission, UserRoleName]>;
 
   it.each(allowedCases)(
@@ -121,6 +128,8 @@ describe('requirePermission', () => {
     ['users:manage', 'teacher'],
     ['groups:manage', 'teacher'],
     ['categories:manage', 'teacher'],
+    ['students:manage', 'coordinator'],
+    ['students:manage', 'teacher'],
   ] as const satisfies ReadonlyArray<readonly [Permission, UserRoleName]>;
 
   it.each(forbiddenCases)(
