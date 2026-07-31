@@ -13,7 +13,8 @@ export type Permission =
   | 'students:create'
   | 'students:manage'
   | 'incidents:read'
-  | 'incidents:create';
+  | 'incidents:create'
+  | 'incidents:manage';
 
 const PERMISSION_ROLES: Record<Permission, readonly UserRoleName[]> = {
   'users:manage': ['admin'],
@@ -24,6 +25,7 @@ const PERMISSION_ROLES: Record<Permission, readonly UserRoleName[]> = {
   'students:manage': ['admin'],
   'incidents:read': ['admin', 'coordinator', 'teacher'],
   'incidents:create': ['admin', 'coordinator', 'teacher'],
+  'incidents:manage': ['admin', 'coordinator', 'teacher'],
 };
 
 export type AuthResult =

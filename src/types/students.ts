@@ -3,9 +3,12 @@ export type StudentGroupOption = {
   name: string;
 };
 
-export type StudentListItem = {
+export type StudentSummary = {
   id: string;
   name: string;
+};
+
+export type StudentListItem = StudentSummary & {
   group: StudentGroupOption;
 };
 

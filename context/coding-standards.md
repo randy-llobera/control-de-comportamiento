@@ -42,7 +42,8 @@
 
 - Components, types, and interfaces: PascalCase.
 - Component files: match the exported component name.
-- Other files: kebab-case.
+- Hook files: camelCase and begin with `use`, matching the exported hook name.
+- Other non-component files: kebab-case.
 - Functions and variables: camelCase.
 - Constants that are truly immutable configuration values: SCREAMING_SNAKE_CASE.
 - Use Tailwind CSS for normal styling and shadcn/ui where it fits the interface. Add shadcn components through its CLI.
@@ -205,13 +206,19 @@ For incidents:
 
 ```text
 IncidentsView
-  -> coordinates client-side incident screen state and renders incident rows/cards
+  -> coordinates client-side filters, dialog selection, and visible incidents
 
 IncidentFilters
   -> renders and updates filters
 
-CreateIncidentForm
-  -> collects incident form input
+IncidentList
+  -> renders incident rows and invokes edit/delete callbacks
+
+IncidentFormDialog
+  -> owns create/edit form state and mutation feedback
+
+IncidentDeleteDialog
+  -> owns destructive confirmation and mutation feedback
 ```
 
 `IncidentsView` may coordinate its children, but it must not contain:
@@ -221,7 +228,7 @@ CreateIncidentForm
 - All form markup.
 - Every mutation implementation.
 
-`IncidentsView` owns shared filter state and derives the filtered collection. `IncidentFilters` renders and updates the controls. Extract the filtering algorithm into a pure utility only if it becomes substantial or reusable.
+`IncidentsView` owns shared filter state, derives the visible collection, and mounts at most one active incident dialog. `IncidentList` does not mount a dialog per row. `IncidentFilters` renders and updates the controls. Extract the filtering algorithm into a pure utility only if it becomes substantial or reusable.
 
 Reusability does not require a component to appear on several pages. A component is worth extracting when it has a clear, independent responsibility.
 

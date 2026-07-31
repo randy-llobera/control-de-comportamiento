@@ -7,6 +7,7 @@ import type {
   CreateIncidentInput,
   IncidentPageData,
   IncidentSeverity,
+  UpdateIncidentInput,
 } from '@/types/incidents';
 
 const isIncidentSeverity = (value: string): value is IncidentSeverity =>
@@ -50,9 +51,32 @@ const validateCategoryExists = async (
   }
 };
 
+const authorizeManageIncident = async (
+  supabase: ServerSupabaseClient,
+  incidentId: string,
+): Promise<void> => {
+  const actor = await requirePermission(supabase, 'incidents:manage');
+  const { data, error } = await supabase
+    .from('incidents')
+    .select('teacher_id')
+    .eq('id', incidentId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Failed to authorize incident management:', error.message);
+    throw error;
+  }
+  if (!data) {
+    throw new ApplicationError('not-found');
+  }
+  if (actor.role === 'teacher' && data.teacher_id !== actor.id) {
+    throw new ApplicationError('forbidden');
+  }
+};
+
 export const getIncidentPageData = async (): Promise<IncidentPageData> => {
   const supabase = await createClient();
-  await requirePermission(supabase, 'incidents:read');
+  const actor = await requirePermission(supabase, 'incidents:read');
 
   const incidentsQuery = supabase
     .from('incidents')
@@ -60,28 +84,21 @@ export const getIncidentPageData = async (): Promise<IncidentPageData> => {
       'id, student_id, category_id, teacher_id, severity, description, date, students(name, group_id, groups(name)), categories(name), users(display_name)',
     )
     .order('created_at', { ascending: false });
-  const studentsQuery = supabase
-    .from('students')
-    .select('id, name, group_id, groups(name)')
-    .order('name');
   const categoriesQuery = supabase
     .from('categories')
     .select('id, name')
     .order('name');
   const groupsQuery = supabase.from('groups').select('id, name').order('name');
   type IncidentRows = QueryData<typeof incidentsQuery>;
-  type StudentRows = QueryData<typeof studentsQuery>;
   type CategoryRows = QueryData<typeof categoriesQuery>;
   type GroupRows = QueryData<typeof groupsQuery>;
 
   const [
     { data: incidentData, error: incidentsError },
-    { data: studentData, error: studentsError },
     { data: categoryData, error: categoriesError },
     { data: groupData, error: groupsError },
   ] = await Promise.all([
     incidentsQuery,
-    studentsQuery,
     categoriesQuery,
     groupsQuery,
   ]);
@@ -89,13 +106,6 @@ export const getIncidentPageData = async (): Promise<IncidentPageData> => {
   if (incidentsError) {
     console.error('Failed to load incidents:', incidentsError.message);
     throw incidentsError;
-  }
-  if (studentsError) {
-    console.error(
-      'Failed to load incident student options:',
-      studentsError.message,
-    );
-    throw studentsError;
   }
   if (categoriesError) {
     console.error(
@@ -113,7 +123,6 @@ export const getIncidentPageData = async (): Promise<IncidentPageData> => {
   }
 
   const incidents: IncidentRows = incidentData ?? [];
-  const students: StudentRows = studentData ?? [];
   const categories: CategoryRows = categoryData ?? [];
   const groups: GroupRows = groupData ?? [];
 
@@ -128,6 +137,8 @@ export const getIncidentPageData = async (): Promise<IncidentPageData> => {
         date: incident.date,
         severity: incident.severity,
         description: incident.description,
+        canManage:
+          actor.role !== 'teacher' || incident.teacher_id === actor.id,
         student: {
           id: incident.student_id,
           name: incident.students?.name ?? '',
@@ -147,14 +158,6 @@ export const getIncidentPageData = async (): Promise<IncidentPageData> => {
       };
     }),
     formOptions: {
-      students: students.map((student) => ({
-        id: student.id,
-        name: student.name,
-        group: {
-          id: student.group_id,
-          name: student.groups?.name ?? '',
-        },
-      })),
       categories: categories.map((category) => ({
         id: category.id,
         name: category.name,
@@ -165,6 +168,54 @@ export const getIncidentPageData = async (): Promise<IncidentPageData> => {
       })),
     },
   };
+};
+
+export const updateIncident = async (
+  input: UpdateIncidentInput,
+): Promise<void> => {
+  const supabase = await createClient();
+  await authorizeManageIncident(supabase, input.id);
+  await validateCategoryExists(supabase, input.categoryId);
+
+  const { data, error } = await supabase
+    .from('incidents')
+    .update({
+      category_id: input.categoryId,
+      severity: input.severity,
+      description: input.description,
+      date: input.date,
+    })
+    .eq('id', input.id)
+    .select('id')
+    .maybeSingle();
+
+  if (error) {
+    console.error('Failed to update incident:', error.message);
+    throw error;
+  }
+  if (!data) {
+    throw new ApplicationError('not-found');
+  }
+};
+
+export const deleteIncident = async (incidentId: string): Promise<void> => {
+  const supabase = await createClient();
+  await authorizeManageIncident(supabase, incidentId);
+
+  const { data, error } = await supabase
+    .from('incidents')
+    .delete()
+    .eq('id', incidentId)
+    .select('id')
+    .maybeSingle();
+
+  if (error) {
+    console.error('Failed to delete incident:', error.message);
+    throw error;
+  }
+  if (!data) {
+    throw new ApplicationError('not-found');
+  }
 };
 
 export const createIncident = async (

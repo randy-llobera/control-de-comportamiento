@@ -26,7 +26,7 @@ Complete Feature 14 first so structural migrations and browser-client consumer r
 - Map tokens to the current palette so this remains a consistency refactor, not a redesign.
 - Replace repeated semantic color utilities where the token clearly represents the existing intent.
 - Audit all implementation identifiers for English while preserving Spanish URLs and visible text.
-- Enforce PascalCase component filenames, kebab-case non-component files, and type-only component contract imports.
+- Enforce PascalCase component filenames, camelCase hook filenames beginning with `use`, kebab-case for other non-component files, and type-only component contract imports.
 - Rename the unused browser client module to `supabase-browser.ts` to make its optional scope explicit, while preserving its implementation and zero consumers.
 - Remove obsolete `types/database.ts`, `actions/mutations.ts`, comments, imports, or variables only when no consumers remain.
 
@@ -66,4 +66,3 @@ Complete Feature 14 first so structural migrations and browser-client consumer r
 - [ ] Code is English while public URLs/content remain Spanish.
 - [ ] Obsolete legacy modules are removed only after zero-reference checks.
 - [ ] Tests, lint, typecheck, build, and responsive browser checks pass.
-

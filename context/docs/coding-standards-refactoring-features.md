@@ -36,7 +36,7 @@ Starting with Feature 04, run `npm test` for affected unit tests. UI features al
 | 08 | [Categories feature boundary](../features/refactor-08-categories-feature-boundary.md) | 07 | Planned |
 | 09 | [Students feature boundary](../features/refactor-09-students-feature-boundary.md) | 08 | Planned |
 | 10 | [Incidents data boundary](../features/refactor-10-incidents-data-boundary.md) | 09 | Planned |
-| 11 | [Incidents UI boundary](../features/refactor-11-incidents-ui-boundary.md) | 10 | Planned |
+| 11 | [Incident CRUD and UI boundary](../features/refactor-11-incidents-ui-boundary.md) | 10 | Planned |
 | 12 | [Incident filtering and CSV](../features/refactor-12-incident-filtering-csv.md) | 11 | Planned |
 | 13 | [Dashboard feature boundary](../features/refactor-13-dashboard-feature-boundary.md) | 12 | Planned |
 | 14 | [Auth Server Actions](../features/refactor-14-auth-server-actions.md) | 13 | Planned |

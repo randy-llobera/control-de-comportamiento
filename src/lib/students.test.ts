@@ -4,6 +4,7 @@ import { ApplicationError } from '@/lib/application-error';
 import {
   createStudent,
   deleteStudent,
+  getGroupStudents,
   getStudentPageData,
   updateStudent,
 } from '@/lib/students';
@@ -124,6 +125,48 @@ describe('getStudentPageData', () => {
       new ApplicationError('unauthenticated'),
     );
     expect(from).not.toHaveBeenCalled();
+  });
+});
+
+describe('getGroupStudents', () => {
+  it.each(['teacher', 'coordinator', 'admin'] as const)(
+    'returns only the selected group students for %s',
+    async (role) => {
+      setActorRole(role);
+      const order = vi.fn().mockResolvedValue({
+        data: [{ id: STUDENT_ID, name: 'Ada' }],
+        error: null,
+      });
+      const from = vi
+        .fn()
+        .mockReturnValueOnce(groupValidationResult())
+        .mockReturnValueOnce({
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({ order })),
+          })),
+        });
+      mocks.createClient.mockResolvedValue({ from });
+
+      await expect(getGroupStudents(GROUP_ID)).resolves.toEqual([
+        { id: STUDENT_ID, name: 'Ada' },
+      ]);
+      expect(mocks.requirePermission).toHaveBeenCalledWith(
+        expect.objectContaining({ from }),
+        'students:read',
+      );
+      expect(order).toHaveBeenCalledWith('name');
+    },
+  );
+
+  it('returns not-found for a missing group', async () => {
+    setActorRole('teacher');
+    const from = vi.fn().mockReturnValueOnce(groupValidationResult(null));
+    mocks.createClient.mockResolvedValue({ from });
+
+    await expect(getGroupStudents(GROUP_ID)).rejects.toEqual(
+      new ApplicationError('not-found'),
+    );
+    expect(from).toHaveBeenCalledOnce();
   });
 });
 

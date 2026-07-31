@@ -108,6 +108,9 @@ describe('requirePermission', () => {
     ['incidents:create', 'admin'],
     ['incidents:create', 'coordinator'],
     ['incidents:create', 'teacher'],
+    ['incidents:manage', 'admin'],
+    ['incidents:manage', 'coordinator'],
+    ['incidents:manage', 'teacher'],
   ] as const satisfies ReadonlyArray<readonly [Permission, UserRoleName]>;
 
   it.each(allowedCases)(

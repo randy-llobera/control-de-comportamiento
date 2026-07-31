@@ -20,19 +20,19 @@ Passing checks do not prove architectural compliance. The current tooling does n
 
 ## Findings
 
-| Area | Evidence | Standards reference |
-| --- | --- | --- |
-| Server/Client boundary | All six protected feature pages use `"use client"`, `useEffect`, and browser Supabase table queries. | `React and Next.js`; `Architecture Contract > 1, 3, 4, 11` |
-| Feature layer | No feature modules such as `lib/incidents.ts` or `lib/students.ts` exist. | `Architecture Contract > 1, 2, 5` |
-| Server Actions | `src/actions/mutations.ts` owns validation, client creation, actor loading, authorization, queries, mutations, errors, and invalidation. | `Architecture Contract > 6` |
-| Contracts | Components import database rows and manual join types from `src/types/database.ts`; no feature contracts exist. | `Architecture Contract > 14` |
-| Component scope | Pages combine loading, forms, filters, CSV/statistics, mutations, and rendering. `incidentes/page.tsx` is 479 lines. | `React and Next.js`; `Architecture Contract > 4` |
-| Proxy | `src/proxy.ts` contains both the framework entry point and Proxy-specific Supabase cookie/session code. | `Architecture Contract > 12` |
-| Cache/refresh | Client pages repeat browser queries after successful Actions even though the Action invalidates affected paths. | `Architecture Contract > 15` |
-| Errors | Browser reads only log failures; Auth can expose raw provider text; `lib/auth.ts` does not distinguish query failure from missing profile. | `Architecture Contract > 17` |
-| Authorization/RLS | Any authenticated user can currently update or delete any incident. The approved rule limits teachers to their own incidents while coordinators and admins may update/delete all incidents. | `Architecture Contract > 13, 18` |
-| Styling | `globals.css` has no project `@theme` tokens; raw color choices repeat across large components. | `Tailwind CSS v4`; `Naming and styling` |
-| Tests | Vitest is not installed and no boundary, business-rule, mapping, authorization, RLS, filtering, or CSV tests exist. | `Architecture Contract > 19` |
+| Area                   | Evidence                                                                                                                                                                                    | Standards reference                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Server/Client boundary | All six protected feature pages use `"use client"`, `useEffect`, and browser Supabase table queries.                                                                                        | `React and Next.js`; `Architecture Contract > 1, 3, 4, 11` |
+| Feature layer          | No feature modules such as `lib/incidents.ts` or `lib/students.ts` exist.                                                                                                                   | `Architecture Contract > 1, 2, 5`                          |
+| Server Actions         | `src/actions/mutations.ts` owns validation, client creation, actor loading, authorization, queries, mutations, errors, and invalidation.                                                    | `Architecture Contract > 6`                                |
+| Contracts              | Components import database rows and manual join types from `src/types/database.ts`; no feature contracts exist.                                                                             | `Architecture Contract > 14`                               |
+| Component scope        | Pages combine loading, forms, filters, CSV/statistics, mutations, and rendering. `incidentes/page.tsx` is 479 lines.                                                                        | `React and Next.js`; `Architecture Contract > 4`           |
+| Proxy                  | `src/proxy.ts` contains both the framework entry point and Proxy-specific Supabase cookie/session code.                                                                                     | `Architecture Contract > 12`                               |
+| Cache/refresh          | Client pages repeat browser queries after successful Actions even though the Action invalidates affected paths.                                                                             | `Architecture Contract > 15`                               |
+| Errors                 | Browser reads only log failures; Auth can expose raw provider text; `lib/auth.ts` does not distinguish query failure from missing profile.                                                  | `Architecture Contract > 17`                               |
+| Authorization/RLS      | Any authenticated user can currently update or delete any incident. The approved rule limits teachers to their own incidents while coordinators and admins may update/delete all incidents. | `Architecture Contract > 13, 18`                           |
+| Styling                | `globals.css` has no project `@theme` tokens; raw color choices repeat across large components.                                                                                             | `Tailwind CSS v4`; `Naming and styling`                    |
+| Tests                  | Vitest is not installed and no boundary, business-rule, mapping, authorization, RLS, filtering, or CSV tests exist.                                                                         | `Architecture Contract > 19`                               |
 
 ## Ordered roadmap
 
@@ -188,18 +188,20 @@ Standards: `Architecture Contract > 3, 4, 5, 9, 14, 15, 19`.
 
 #### 6.1 Incident feature
 
-- Add list, option, filter, and create-input contracts.
-- Add `lib/incidents.ts` with joined reads, actor-derived `teacherId`, authorization, business validation, and mapping.
+- Add list, option, filter, create-input, update-input, and per-row capability contracts.
+- Add `lib/incidents.ts` with joined reads, actor-derived `teacherId`, ownership-aware update/delete authorization, business validation, and mapping.
 - Infer joined query results rather than manually recreating them.
 - Keep the module cohesive; do not add service/repository layers.
 - Dependency: Categories 1-5.
 
 #### 6.2 Incident page and Action
 
-- Move mutation validation/result mapping to `actions/incidents.ts`.
+- Move create/update/delete validation and result mapping to `actions/incidents.ts`.
 - Make `incidentes/page.tsx` a Server Component that calls `lib/incidents.ts` directly.
 - Add an `IncidentsView` Client Component for shared filter/modal state.
-- Extract `IncidentFilters` and `CreateIncidentForm` as independent visible responsibilities.
+- Extract `IncidentFilters`, `IncidentList`, `IncidentFormDialog`, and `IncidentDeleteDialog` as independent visible responsibilities.
+- Load create-form students by selected group through a validated Route Handler that calls a feature read.
+- Hide edit/delete controls when the server-derived row capability is false.
 - Remove browser table queries and the post-Action reload.
 - Dependency: 6.1.
 
@@ -227,7 +229,7 @@ Standards: `React and Next.js`; `Tailwind CSS v4`; `Naming and styling`; `Databa
 
 - Keep Spanish public routes and user-facing content.
 - Rename Spanish implementation identifiers such as `IncidentesPage`, `EstudiantesPage`, and `UsuariosPage` as their files are touched.
-- Use PascalCase component files, kebab-case non-component files, and type-only imports for component contracts.
+- Use PascalCase component files, camelCase hook files beginning with `use`, kebab-case for other non-component files, and type-only imports for component contracts.
 - Dependency: Categories 3-6.
 
 #### 7.2 Focused components and state
@@ -297,6 +299,10 @@ The detailed, authoritative sequence is the 16-feature [Coding Standards Refacto
 10. Add Vitest and focused unit/integration coverage.
 
 Each increment needs its own implementation plan and must pass the verification commands before the next begins.
+
+## Production database rollout assumption
+
+After all planned refactoring features are complete, production Supabase will be reset and recreated from the committed migration history. Production contains no data that must be preserved.
 
 ## Deliberately excluded
 

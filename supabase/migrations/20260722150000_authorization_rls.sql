@@ -28,6 +28,18 @@ for delete
 to authenticated
 using (public.is_admin());
 
+drop policy "Admins can view all users"
+on public.users;
+
+drop policy "Users can view self"
+on public.users;
+
+create policy "Authenticated users can view user profiles"
+on public.users
+for select
+to authenticated
+using (true);
+
 drop policy "Authenticated users can update incidents"
 on public.incidents;
 

@@ -24,13 +24,14 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 - Assign and manage roles/permissions.
 - Access Admin Dashboard.
 - Manage coordinators, teachers, students, groups, and categories.
-- Create incidents.
+- Create, update, and delete all incidents.
 - Access to all current and future features.
 
 ### Coordinator
 
 - Create/manage incident categories.
 - Create/manage groups/classes.
+- Create, update, and delete all incidents.
 - Perform all teacher actions.
 - Access features explicitly assigned by admins.
 
@@ -42,6 +43,7 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
   - Category
   - Severity (Low, Medium, High)
   - Description (optional text field).
+- Update/delete only incidents they created.
 - Filter/search incidents by:
   - Category
   - Severity
@@ -63,7 +65,9 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 
 ### Incident Management
 
-- CRUD for incidents (create, read, update, delete – based on role).
+- All authenticated roles can read/create incidents.
+- Teachers can update/delete only incidents they created.
+- Coordinators and admins can update/delete all incidents.
 - Filtering by category, severity, group, and date.
 - CSV export (teachers and above).
 
