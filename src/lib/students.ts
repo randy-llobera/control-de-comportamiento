@@ -6,6 +6,7 @@ import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
 import type {
   CreateStudentInput,
   StudentPageData,
+  StudentSummary,
   UpdateStudentInput,
 } from '@/types/students';
 
@@ -98,6 +99,30 @@ export const getStudentPageData = async (): Promise<StudentPageData> => {
     })),
     canManageStudents: actor.role === 'admin',
   };
+};
+
+export const getGroupStudents = async (
+  groupId: string,
+): Promise<StudentSummary[]> => {
+  const supabase = await createClient();
+  await requirePermission(supabase, 'students:read');
+  await validateGroupExists(supabase, groupId);
+
+  const { data, error } = await supabase
+    .from('students')
+    .select('id, name')
+    .eq('group_id', groupId)
+    .order('name');
+
+  if (error) {
+    console.error(
+      'Failed to load students for the selected group:',
+      error.message,
+    );
+    throw error;
+  }
+
+  return data ?? [];
 };
 
 export const createStudent = async (

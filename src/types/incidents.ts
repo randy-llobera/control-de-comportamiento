@@ -21,6 +21,7 @@ export type IncidentListItem = {
   date: string;
   severity: IncidentSeverity;
   description: string;
+  canManage: boolean;
   student: IncidentStudentOption;
   category: IncidentCategoryOption;
   teacher: {
@@ -30,7 +31,6 @@ export type IncidentListItem = {
 };
 
 export type IncidentFormOptions = {
-  students: IncidentStudentOption[];
   categories: IncidentCategoryOption[];
   groups: IncidentGroupOption[];
 };
@@ -40,10 +40,17 @@ export type IncidentPageData = {
   formOptions: IncidentFormOptions;
 };
 
-export type CreateIncidentInput = {
-  studentId: string;
+type IncidentEditableFields = {
   categoryId: string;
   severity: IncidentSeverity;
   description: string;
   date: string;
+};
+
+export type CreateIncidentInput = IncidentEditableFields & {
+  studentId: string;
+};
+
+export type UpdateIncidentInput = IncidentEditableFields & {
+  id: string;
 };
