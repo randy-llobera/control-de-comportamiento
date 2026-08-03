@@ -4,22 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type {
   IncidentCategoryOption,
+  IncidentFilterCriteria,
   IncidentGroupOption,
 } from "@/types/incidents";
 
-export type IncidentFilterValues = {
-  category: string;
-  severity: string;
-  group: string;
-  dateFrom: string;
-  dateTo: string;
-};
-
 type IncidentFiltersProps = {
-  filters: IncidentFilterValues;
+  filters: IncidentFilterCriteria;
   categories: IncidentCategoryOption[];
   groups: IncidentGroupOption[];
-  onFiltersChange: (filters: IncidentFilterValues) => void;
+  onFiltersChange: (filters: IncidentFilterCriteria) => void;
 };
 
 const selectClassName =
@@ -31,9 +24,9 @@ export function IncidentFilters({
   groups,
   onFiltersChange,
 }: IncidentFiltersProps) {
-  const updateFilter = (
-    field: keyof IncidentFilterValues,
-    value: string,
+  const updateFilter = <Field extends keyof IncidentFilterCriteria>(
+    field: Field,
+    value: IncidentFilterCriteria[Field],
   ) => {
     onFiltersChange({ ...filters, [field]: value });
   };
@@ -53,9 +46,7 @@ export function IncidentFilters({
           <select
             id="incident-filter-category"
             value={filters.category}
-            onChange={(event) =>
-              updateFilter("category", event.target.value)
-            }
+            onChange={(event) => updateFilter("category", event.target.value)}
             className={selectClassName}
           >
             <option value="">Todas</option>
@@ -72,9 +63,18 @@ export function IncidentFilters({
           <select
             id="incident-filter-severity"
             value={filters.severity}
-            onChange={(event) =>
-              updateFilter("severity", event.target.value)
-            }
+            onChange={(event) => {
+              const severity = event.target.value;
+
+              if (
+                severity === "" ||
+                severity === "low" ||
+                severity === "medium" ||
+                severity === "high"
+              ) {
+                updateFilter("severity", severity);
+              }
+            }}
             className={selectClassName}
           >
             <option value="">Todas</option>

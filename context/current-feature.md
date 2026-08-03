@@ -1,15 +1,32 @@
-# Current Feature
+# Current Feature: Incident Filtering and CSV
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
+
+- Add `src/utils/incidents.ts` for the pure incident filter, CSV serializer, and filename formatter over mapped `IncidentListItem` contracts.
+- Derive one ordered `filteredIncidents` collection in `IncidentsView` and pass that exact array to both `IncidentList` and the CSV export path.
+- Add a pure CSV serializer with Spanish headers, an Excel-compatible UTF-8 BOM, and correct escaping for commas, quotes, CR/LF, accented characters, and empty values.
+- Preserve the `incidentes-YYYYMMDD.csv` filename and keep only Blob, object URL, anchor, and URL-revocation mechanics in the Client Component.
+- Add deterministic filter, serializer, filename, and visible-list-versus-export coverage.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Dependency: Feature 11 must be complete so the shared filtered collection has a stable owner.
+- Keep environment-agnostic incident transformations and their focused tests in `src/utils/incidents.ts` and `src/utils/incidents.test.ts`; keep browser download mechanics in `IncidentsView`.
+- Required flow: initial incidents -> `filterIncidents(initialIncidents, activeFilters)` -> `filteredIncidents` -> list and CSV serializer.
+- The export handler must use the already-derived `filteredIncidents`; it must not filter again, query, fetch related data, or reinterpret filter state.
+- Preserve source ordering and use mapped student, group, category, severity, description, teacher, and date display data already present in each list item.
+- Out of scope: server-generated files, Route Handlers, new filters, pagination, sorting changes, spreadsheet libraries, and export-time data fetching.
+- Main risks: filtering drift between visible and exported rows, malformed CSV escaping, and related-record lookups during export.
+- Prefix CSV content with the UTF-8 BOM so spreadsheet applications detect accented Spanish text correctly instead of guessing a legacy encoding.
+
 ## History
 
 <!-- Keep this updated. Earliest to latest -->

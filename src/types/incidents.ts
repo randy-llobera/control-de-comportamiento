@@ -1,4 +1,4 @@
-export type IncidentSeverity = 'low' | 'medium' | 'high';
+export type IncidentSeverity = "low" | "medium" | "high";
 
 export type IncidentGroupOption = {
   id: string;
@@ -38,6 +38,14 @@ export type IncidentFormOptions = {
 export type IncidentPageData = {
   incidents: IncidentListItem[];
   formOptions: IncidentFormOptions;
+};
+
+export type IncidentFilterCriteria = {
+  category: string;
+  severity: IncidentSeverity | "";
+  group: string;
+  dateFrom: string;
+  dateTo: string;
 };
 
 type IncidentEditableFields = {

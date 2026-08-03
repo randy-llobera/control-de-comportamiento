@@ -131,8 +131,11 @@ src/
     supabase-browser.ts
     supabase-proxy.ts
     <feature>.ts
-    <pure-utility>.ts
     integrations/<provider>.ts
+  utils/
+    cn.ts
+    <domain>.ts
+    <domain>.test.ts
   types/
     supabase.ts
     <feature>.ts
@@ -143,6 +146,50 @@ src/
 Components remain flat under `src/components`. Breaking down components into feature folders should only be introduced if that directory becomes difficult to navigate.
 
 All code, component filenames, types, and functions use English. User-facing labels, messages, content, and public URL segments remain Spanish.
+
+#### Pure utilities: `src/utils/`
+
+`src/utils/` contains environment-agnostic functions that perform a specific, well-defined transformation or calculation. A utility must be usable from Client Components, server code, tests, and scripts without depending on a browser, React, Next.js, Supabase, or another runtime-specific API.
+
+A utility should:
+
+- Be deterministic for the same inputs.
+- Receive its data and dependencies through arguments.
+- Return a value without changing external state.
+- Have one narrow, descriptive responsibility.
+- Depend only on neutral application contracts or other pure utilities.
+- Be independently testable.
+
+Examples include filtering mapped incidents, serializing incidents to CSV, formatting an export filename, aggregating dashboard data, and other pure domain transformations.
+
+Utilities must not:
+
+- Access Supabase, another database, or the network.
+- Read environment variables.
+- Use React components, hooks, or state.
+- Use Next.js APIs such as `cookies()`, `headers()`, or cache invalidation.
+- Use browser APIs such as `window`, `document`, `Blob`, or `URL`.
+- Perform authentication, authorization, logging, downloads, or other side effects.
+
+Keep runtime mechanics at the boundary that owns them. For example:
+
+```text
+utils/incidents.ts
+  -> filterIncidents()
+  -> serializeIncidentsToCsv()
+  -> formatIncidentCsvFilename()
+
+components/IncidentsView.tsx
+  -> creates the Blob
+  -> creates and revokes the object URL
+  -> triggers the browser download
+```
+
+Keep `src/utils/` flat while it remains small. Organize files by domain or cohesive responsibility, such as `utils/incidents.ts`, rather than broad technical buckets such as `formatters.ts`, `common.ts`, `shared.ts`, or `helpers.ts`. Create a domain subfolder only when several related utility files make the flat structure difficult to navigate.
+
+Place focused tests beside the utility with the same base filename, such as `utils/incidents.test.ts`. Use kebab-case when a utility filename contains multiple words.
+
+`src/utils/cn.ts` is the configured shadcn class-name utility. Keep the `utils` alias in `components.json` pointed to this file so generated UI primitives use the same application utility boundary.
 
 ---
 
@@ -228,7 +275,7 @@ IncidentDeleteDialog
 - All form markup.
 - Every mutation implementation.
 
-`IncidentsView` owns shared filter state, derives the visible collection, and mounts at most one active incident dialog. `IncidentList` does not mount a dialog per row. `IncidentFilters` renders and updates the controls. Extract the filtering algorithm into a pure utility only if it becomes substantial or reusable.
+`IncidentsView` owns shared filter state, derives the visible collection, and mounts at most one active incident dialog. `IncidentList` does not mount a dialog per row. `IncidentFilters` renders and updates the controls. Extract substantial or independently testable filtering logic to a domain-focused module under `src/utils/`.
 
 Reusability does not require a component to appear on several pages. A component is worth extracting when it has a clear, independent responsibility.
 

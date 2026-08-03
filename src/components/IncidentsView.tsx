@@ -2,15 +2,21 @@
 
 import { useRef, useState } from "react";
 
-import {
-  IncidentFilters,
-  type IncidentFilterValues,
-} from "@/components/IncidentFilters";
+import { IncidentFilters } from "@/components/IncidentFilters";
 import { IncidentDeleteDialog } from "@/components/IncidentDeleteDialog";
 import { IncidentFormDialog } from "@/components/IncidentFormDialog";
 import { IncidentList } from "@/components/IncidentList";
 import { Button } from "@/components/ui/button";
-import type { IncidentListItem, IncidentPageData } from "@/types/incidents";
+import type {
+  IncidentFilterCriteria,
+  IncidentListItem,
+  IncidentPageData,
+} from "@/types/incidents";
+import {
+  filterIncidents,
+  formatIncidentCsvFilename,
+  serializeIncidentsToCsv,
+} from "@/utils/incidents";
 
 type IncidentsViewProps = {
   initialData: IncidentPageData;
@@ -21,7 +27,7 @@ type ActiveDialog =
   | { type: "edit"; incident: IncidentListItem }
   | { type: "delete"; incident: IncidentListItem };
 
-const EMPTY_FILTERS: IncidentFilterValues = {
+const EMPTY_FILTERS: IncidentFilterCriteria = {
   category: "",
   severity: "",
   group: "",
@@ -45,52 +51,24 @@ export function IncidentsView({ initialData }: IncidentsViewProps) {
     requestAnimationFrame(() => createIncidentButtonRef.current?.focus());
   };
 
-  const matchesFilters = (incident: IncidentListItem) =>
-    (!filters.category || incident.category.id === filters.category) &&
-    (!filters.severity || incident.severity === filters.severity) &&
-    (!filters.group || incident.student.group.id === filters.group) &&
-    (!filters.dateFrom || incident.date >= filters.dateFrom) &&
-    (!filters.dateTo || incident.date <= filters.dateTo);
-
-  const visibleIncidents = incidents.filter(matchesFilters);
+  const filteredIncidents = filterIncidents(incidents, filters);
 
   const exportCSV = () => {
-    const filteredIncidents = incidents.filter(matchesFilters);
-    const csvContent = [
-      [
-        "Fecha",
-        "Estudiante",
-        "Grupo",
-        "Categoría",
-        "Gravedad",
-        "Descripción",
-        "Profesor",
-      ],
-      ...filteredIncidents.map((incident) => [
-        incident.date,
-        incident.student.name,
-        incident.student.group.name,
-        incident.category.name,
-        incident.severity,
-        incident.description,
-        "",
-      ]),
-    ]
-      .map((row) => row.map((field) => `"${field}"`).join(","))
-      .join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([serializeIncidentsToCsv(filteredIncidents)], {
+      type: "text/csv;charset=utf-8;",
+    });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `incidentes-${new Date().toISOString().split("T")[0].replace(/-/g, "")}.csv`,
-    );
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    try {
+      link.href = url;
+      link.download = formatIncidentCsvFilename(new Date());
+      document.body.appendChild(link);
+      link.click();
+    } finally {
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
   };
 
   return (
@@ -120,10 +98,8 @@ export function IncidentsView({ initialData }: IncidentsViewProps) {
           />
 
           <IncidentList
-            incidents={visibleIncidents}
-            onEdit={(incident) =>
-              setActiveDialog({ type: "edit", incident })
-            }
+            incidents={filteredIncidents}
+            onEdit={(incident) => setActiveDialog({ type: "edit", incident })}
             onDelete={(incident) =>
               setActiveDialog({ type: "delete", incident })
             }
