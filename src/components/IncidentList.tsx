@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-import type {
-  IncidentListItem,
-  IncidentSeverity,
-} from "@/types/incidents";
+import type { IncidentListItem, IncidentSeverity } from "@/types/incidents";
+import { formatDisplayDate } from "@/utils/date";
 
 type IncidentListProps = {
   incidents: IncidentListItem[];
@@ -33,7 +31,7 @@ export function IncidentList({
                     {incident.student.name} - {incident.student.group.name}
                   </p>
                   <p className="shrink-0 text-sm text-gray-500">
-                    {incident.date}
+                    {formatDisplayDate(incident.date)}
                   </p>
                 </div>
                 <p className="mt-1 text-sm text-gray-600">

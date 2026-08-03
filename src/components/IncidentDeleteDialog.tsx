@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { IncidentListItem } from "@/types/incidents";
+import { formatDisplayDate } from "@/utils/date";
 
 type IncidentDeleteDialogProps = {
   incident: IncidentListItem;
@@ -55,8 +56,8 @@ export function IncidentDeleteDialog({
           <AlertDialogTitle>Eliminar incidente</AlertDialogTitle>
           <AlertDialogDescription>
             ¿Estás seguro de que quieres eliminar el incidente de{" "}
-            {incident.student.name} del {incident.date}? Esta acción no se puede
-            deshacer.
+            {incident.student.name} del {formatDisplayDate(incident.date)}? Esta
+            acción no se puede deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
 

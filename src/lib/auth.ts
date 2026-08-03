@@ -9,6 +9,7 @@ export type Permission =
   | 'users:manage'
   | 'groups:manage'
   | 'categories:manage'
+  | 'dashboard:read'
   | 'students:read'
   | 'students:create'
   | 'students:manage'
@@ -20,6 +21,7 @@ const PERMISSION_ROLES: Record<Permission, readonly UserRoleName[]> = {
   'users:manage': ['admin'],
   'groups:manage': ['admin', 'coordinator'],
   'categories:manage': ['admin', 'coordinator'],
+  'dashboard:read': ['admin', 'coordinator'],
   'students:read': ['admin', 'coordinator', 'teacher'],
   'students:create': ['admin', 'coordinator', 'teacher'],
   'students:manage': ['admin'],

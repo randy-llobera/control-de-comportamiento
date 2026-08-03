@@ -3,6 +3,7 @@ import type {
   IncidentListItem,
   IncidentSeverity,
 } from "@/types/incidents";
+import { formatDisplayDate } from "@/utils/date";
 
 const CSV_HEADERS = [
   "Fecha",
@@ -42,7 +43,7 @@ export function filterIncidents(
 
 export function serializeIncidentsToCsv(incidents: IncidentListItem[]): string {
   const rows = incidents.map((incident) => [
-    incident.date,
+    formatDisplayDate(incident.date),
     incident.student.name,
     incident.student.group.name,
     incident.category.name,

@@ -150,8 +150,8 @@ describe("serializeIncidentsToCsv", () => {
     expect(csv).toBe(
       UTF8_BOM +
         '"Fecha","Estudiante","Grupo","Categoría","Gravedad","Descripción","Profesor"\r\n' +
-        '"2026-07-31","Álex Pérez","2º A","Convivencia","Alta","Descripción habitual","María López"\r\n' +
-        '"2026-07-30","Álex Pérez","2º A","Convivencia","Baja","Descripción habitual","María López"',
+        '"31-07-2026","Álex Pérez","2º A","Convivencia","Alta","Descripción habitual","María López"\r\n' +
+        '"30-07-2026","Álex Pérez","2º A","Convivencia","Baja","Descripción habitual","María López"',
     );
   });
 
