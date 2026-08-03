@@ -95,6 +95,8 @@ describe('requirePermission', () => {
     ['groups:manage', 'coordinator'],
     ['categories:manage', 'admin'],
     ['categories:manage', 'coordinator'],
+    ['dashboard:read', 'admin'],
+    ['dashboard:read', 'coordinator'],
     ['students:read', 'admin'],
     ['students:read', 'coordinator'],
     ['students:read', 'teacher'],
@@ -137,6 +139,7 @@ describe('requirePermission', () => {
     ['users:manage', 'teacher'],
     ['groups:manage', 'teacher'],
     ['categories:manage', 'teacher'],
+    ['dashboard:read', 'teacher'],
     ['students:manage', 'coordinator'],
     ['students:manage', 'teacher'],
   ] as const satisfies ReadonlyArray<readonly [Permission, UserRoleName]>;
