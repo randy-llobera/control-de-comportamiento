@@ -1,39 +1,22 @@
-# Current Feature: Dashboard Feature Boundary
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
 <!-- Add goals here -->
 
-- Move dashboard reads, coordinator/admin authorization, aggregation, and mapping to the server.
-- Convert `dashboard/page.tsx` to a Server Component while preserving its Spanish labels and visual output.
-- Define neutral `DashboardSummary`, `RecentIncident`, and `DashboardPageData` contracts in `types/dashboard.ts`.
-- Keep deterministic aggregation and recent-item ordering inside the dashboard feature module, with focused feature-module tests.
-- Add feature-module coverage for authorization and database result mapping.
-
 ## Notes
 
 <!-- Add notes here -->
-
-- Dependency: Feature 12 is complete.
-- Add server-only `lib/dashboard.ts` with one authorized `getDashboardPageData()` read for coordinators and admins.
-- Query the required incident relationships once, then map, aggregate, and order the results inside `lib/dashboard.ts`.
-- Keep only genuine browser/chart interaction client-side; keep the page fully server-rendered if the current screen is static.
-- Preserve the current metrics, date semantics, recent-item ordering, limit, Spanish labels, and visual output.
-- Use the shared `utils/date.ts` formatter so dashboard, incident-list, delete-confirmation, and CSV dates consistently use `DD-MM-YYYY`; keep form and database values in `YYYY-MM-DD`.
-- Out of scope: new metrics, date filters, chart libraries, client polling, caching, public APIs, generic analytics abstractions, and Route Handlers.
-- Risks: server/browser timezone differences may change date presentation; multiple queries may add work or inconsistent snapshots; layout checks do not replace feature authorization; database query types must remain internal to the dashboard feature module.
-- Tests: cover empty data, exact totals and grouped counts, recent ordering/limit, coordinator/admin success, teacher denial, and database-specific mapping.
-- Browser verification: an admin promoted a disposable teacher to coordinator and confirmed dashboard access, then demoted the same user to teacher and confirmed the dashboard link disappeared and direct `/dashboard` access redirected to `/incidentes`.
-- Done when dashboard data access, authorization, mapping, aggregation, and ordering are server-owned and tested; browser Supabase reads and effect/loading flows are removed; shared displayed/exported dates use `DD-MM-YYYY`; no unnecessary Client Component or Route Handler exists; and repository plus browser role checks pass.
 
 ## History
 
 <!-- Keep this updated. Earliest to latest -->
 
+- 2026-08-03: Moved dashboard reads, coordinator/admin authorization, mapping, aggregation, and recent ordering behind a server feature boundary; converted the page to a Server Component; unified displayed/exported incident dates as `DD-MM-YYYY`; and added focused tests plus browser role verification.
 - 2026-08-03: Added one shared incident filter for list and export, Excel-compatible UTF-8 CSV serialization, focused utility tests, and the `src/utils` application utility boundary.
 - 2026-07-31: Completed ownership-aware incident update/delete, group-scoped student loading, focused incident dialogs/filters/list components, and role-based boundary coverage.
 - 2026-07-27: Moved incident reads and creation behind an authenticated feature boundary with server-rendered mapped data, actor-derived identity, and focused tests.
