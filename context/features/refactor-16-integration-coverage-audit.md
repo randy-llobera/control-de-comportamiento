@@ -12,6 +12,7 @@ Verify RLS and feature boundaries through repeatable local integration tests, cl
 
 - `Coding Standards > Core conventions`
 - `Architecture Contract > 1. Layer model`
+- `Architecture Contract > 2. Folder structure > Pure utilities`
 - `Architecture Contract > 13. Authentication and authorization`
 - `Architecture Contract > 18. Database design and RLS`
 - `Architecture Contract > 19. Testing contract`
@@ -29,6 +30,7 @@ Complete Feature 15 first. This is the final refactoring feature.
 - Test RLS through user-scoped Supabase clients, never service-role assertions.
 - Fill material missing unit tests for validation, mapping, known errors, business rules, filtering, CSV, and dashboard aggregation.
 - Audit all source boundaries, naming, generated types, caching/invalidation, browser-client usage, and Route Handler usage against the standards.
+- Audit `src/utils/` for environment-neutral dependencies, deterministic behavior, domain-focused organization, colocated tests, and absence of external side effects.
 - Update the feature index and roadmap status only after every check passes.
 
 ## Out of Scope
@@ -44,7 +46,7 @@ Complete Feature 15 first. This is the final refactoring feature.
 3. Assert the complete approved permission matrix through user sessions.
 4. Clean fixtures reliably after success or failure.
 5. Run and fill the targeted unit-test matrix without adding low-value snapshot tests.
-6. Search for forbidden `.from()` calls outside feature modules/infrastructure, browser-client consumers, raw database types in components, and internal Route Handler fetches.
+6. Search for forbidden `.from()` calls outside feature modules/infrastructure, browser-client consumers, raw database types in components, internal Route Handler fetches, and runtime-specific imports or side effects under `src/utils/`.
 7. Run local DB reset, unit/integration tests, lint, typecheck, build, and role-based browser smoke checks.
 8. Record final compliance and any intentionally deferred standard section in the roadmap/index.
 
@@ -65,13 +67,14 @@ Complete Feature 15 first. This is the final refactoring feature.
 - Admin retains full approved access.
 - Direct application-table access exists only in server feature modules, approved Supabase infrastructure, migrations/seeds, and explicit administrative scripts.
 - No current Auth/navigation/data flow imports the browser Supabase client.
+- `src/utils/` imports no Supabase, React, Next.js, browser, or environment-specific APIs; utility tests remain beside their domain modules.
 
 ## Done Checklist
 
 - [ ] Integration tests refuse non-local Supabase URLs.
 - [ ] Every RLS assertion uses a user-scoped client.
 - [ ] Unit and integration suites are repeatable after a local DB reset.
+- [ ] Every `src/utils/` module satisfies the pure-utility boundary and has focused tests where it contains material logic.
 - [ ] No material test or standards gap remains undocumented.
 - [ ] Feature index and roadmap accurately reflect completion.
 - [ ] `npm test`, `npm run test:integration`, lint, typecheck, and build pass.
-

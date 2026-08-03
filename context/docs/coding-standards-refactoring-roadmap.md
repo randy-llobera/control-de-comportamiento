@@ -207,15 +207,16 @@ Standards: `Architecture Contract > 3, 4, 5, 9, 14, 15, 19`.
 
 #### 6.3 Filtering and CSV
 
-- Replace duplicated display/export filtering with one pure function.
-- Add a pure CSV serializer that correctly escapes quotes and preserves Spanish headers, UTF-8 output, and `incidentes-YYYYMMDD.csv` naming.
+- Keep the incident filter, CSV serializer, and filename formatter in `src/utils/incidents.ts`, with focused tests beside them in `src/utils/incidents.test.ts`.
+- Replace duplicated display/export filtering with one pure function and pass the same filtered collection to both consumers.
+- Serialize Spanish headers and display values with correct CSV escaping, an Excel-compatible UTF-8 BOM, and `incidentes-YYYYMMDD.csv` naming.
 - Keep only browser download mechanics in the Client Component.
 - Dependency: the contracts from 6.1.
 
 #### 6.4 Dashboard
 
-- Reuse the incident boundary or add one cohesive dashboard read if its result contract is materially different.
-- Keep calculations server-side or in pure utilities unless browser interaction requires otherwise.
+- Add one cohesive `src/lib/dashboard.ts` read when the dashboard result contract is materially different; keep authorization, Supabase queries, database errors, and database-specific result mapping there.
+- Keep deterministic aggregation and recent-item ordering over neutral dashboard contracts in `src/utils/dashboard.ts`, with focused tests in `src/utils/dashboard.test.ts`.
 - Make `dashboard/page.tsx` a Server Component and retain only genuine interaction client-side.
 - Dependency: 6.1; perform after the incident page.
 

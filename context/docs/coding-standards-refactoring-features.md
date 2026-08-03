@@ -49,6 +49,7 @@ Starting with Feature 04, run `npm test` for affected unit tests. UI features al
 - Server Actions handle UI mutations and delegate application behavior to feature modules.
 - Route Handlers are added only for actual HTTP callers. Server code never fetches the app's own handlers.
 - Feature modules own application-table access, authentication, authorization, business rules, mapping, and known application failures.
+- `src/utils/` contains deterministic, environment-agnostic logic over neutral contracts. It must not depend on Supabase, React, Next.js, browser APIs, environment variables, or external side effects; material utilities keep focused tests beside their domain modules.
 - The browser Supabase client is not used by current application flows after Feature 14. Its unused implementation remains available for a future browser-owned requirement.
 - Public routes and visible content remain Spanish. Code identifiers remain English.
 - Do not introduce services, repositories, `db-context.ts`, Zustand, TanStack Query, component-test tooling, or a JavaScript Tailwind configuration.
