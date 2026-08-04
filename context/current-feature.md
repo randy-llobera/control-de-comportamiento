@@ -1,41 +1,22 @@
-# Current Feature: Auth Server Actions
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
 <!-- Add goals here -->
 
-- Move login, signup, and logout to validated Server Actions using a new request-scoped Supabase server client per action.
-- Validate auth inputs at the server boundary and return safe Spanish messages for expected failures.
-- Preserve login redirects, signup email confirmation, logout redirects, and the existing auth loading/error UX.
-- Add a global shadcn Toast foundation as the default feedback for successful and failed operations across the app.
-- Replace Auth page and Navigation browser-client calls while keeping the browser Supabase module implemented but unused.
-- Verify session and redirect behavior, focused tests, lint, typecheck, and build.
-
 ## Notes
 
 <!-- Add notes here -->
 
-- Dependency: Feature 13 must be complete before implementation.
-- Public contracts: login accepts email/password; signup accepts email/password/display name/school role; Auth Actions return the shared `ActionResult`.
-- Successful login redirects to `/incidentes`; successful logout redirects to `/auth`; signup shows a safe confirmation-email toast.
-- Use boundary-local Zod schemas and convert Auth provider failures to a generic safe message without exposing raw provider details.
-- Redirects must remain outside error handling that converts expected failures into Action results.
-- Mount the shadcn `Toaster` once in the root layout; use it for operation success and error feedback without duplicating redirect outcomes.
-- Authentication/action failures use error toasts; field-specific validation remains inline beside the relevant inputs.
-- Browser verification covered invalid login feedback, signup validation and confirmation feedback, login/logout, unauthenticated redirects, all three role menus and route guards, and admin promotion/demotion. Disposable test accounts were removed afterward.
-- Toasts are transient UI feedback only. Persistent notifications, unread state, storage, and a message inbox are out of scope.
-- Out of scope: OAuth, password reset, MFA, signup metadata changes, Route Handlers, and deleting the browser-client module.
-- Standards: Architecture Contract sections 6, 9, 10, 11, 13, and 17.
-- Source spec: `context/features/refactor-14-auth-server-actions.md`.
-
 ## History
 
-<!-- Keep this updated. Earliest to latest -->
+<!-- Keep this updated. Newest to oldest -->
 
+- 2026-08-04: Moved login, signup, and logout to validated Server Actions with request-scoped Supabase clients; added safe Spanish Auth errors, separated shadcn-based Auth forms, global toast feedback, and focused tests plus browser verification.
 - 2026-08-03: Moved dashboard reads, coordinator/admin authorization, mapping, aggregation, and recent ordering behind a server feature boundary; converted the page to a Server Component; unified displayed/exported incident dates as `DD-MM-YYYY`; and added focused tests plus browser role verification.
 - 2026-08-03: Added one shared incident filter for list and export, Excel-compatible UTF-8 CSV serialization, focused utility tests, and the `src/utils` application utility boundary.
 - 2026-07-31: Completed ownership-aware incident update/delete, group-scoped student loading, focused incident dialogs/filters/list components, and role-based boundary coverage.
