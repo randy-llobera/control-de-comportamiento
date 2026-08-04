@@ -43,7 +43,7 @@ export function UserRoleControls({
 
   return (
     <div className="flex items-center gap-4">
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-app-text-muted">
         Rol actual: {ROLE_LABELS[currentRole.name]}
       </div>
       <select
@@ -51,7 +51,7 @@ export function UserRoleControls({
         value={selectedRoleId}
         disabled={isPending}
         onChange={(event) => handleRoleChange(event.target.value)}
-        className="rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:cursor-wait disabled:opacity-60"
+        className="rounded-md border-gray-300 text-sm shadow-sm focus:border-ring focus:ring-ring/50 disabled:cursor-wait disabled:opacity-60"
       >
         {roles.map((role) => (
           <option key={role.id} value={role.id}>
@@ -59,7 +59,7 @@ export function UserRoleControls({
           </option>
         ))}
       </select>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger-text">{error}</p>}
     </div>
   );
 }

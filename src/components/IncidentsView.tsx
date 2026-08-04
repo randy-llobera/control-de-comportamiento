@@ -72,11 +72,11 @@ export function IncidentsView({ initialData }: IncidentsViewProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-app-background">
       <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">Incidentes</h1>
+            <h1 className="text-3xl font-bold text-app-text">Incidentes</h1>
             <div className="flex flex-wrap gap-2">
               <Button
                 ref={createIncidentButtonRef}

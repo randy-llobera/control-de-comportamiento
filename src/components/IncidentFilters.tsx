@@ -34,7 +34,7 @@ export function IncidentFilters({
   return (
     <section
       aria-labelledby="incident-filters-title"
-      className="mb-6 rounded-lg bg-white p-4 shadow"
+      className="mb-6 rounded-lg bg-surface p-4 shadow"
     >
       <h2 id="incident-filters-title" className="mb-4 text-lg font-medium">
         Filtros

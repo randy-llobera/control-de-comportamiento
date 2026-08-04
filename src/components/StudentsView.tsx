@@ -28,7 +28,7 @@ export function StudentsView({
   return (
     <>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-gray-900">Estudiantes</h1>
+        <h1 className="text-3xl font-bold text-app-text">Estudiantes</h1>
         <Button
           onClick={() => setActiveDialog({ type: "create" })}
           disabled={groupOptions.length === 0}
@@ -38,21 +38,21 @@ export function StudentsView({
       </div>
 
       {groupOptions.length === 0 && (
-        <p role="status" className="mb-4 text-sm text-gray-600">
+        <p role="status" className="mb-4 text-sm text-app-text-subtle">
           Debe existir al menos un grupo para crear estudiantes.
         </p>
       )}
 
-      <div className="overflow-hidden rounded-md bg-white shadow">
-        <ul className="divide-y divide-gray-200">
+      <div className="overflow-hidden rounded-md bg-surface shadow">
+        <ul className="divide-y divide-app-border">
           {students.map((student) => (
             <li key={student.id} className="px-6 py-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate text-sm font-medium text-app-text">
                     {student.name}
                   </p>
-                  <p className="truncate text-sm text-gray-600">
+                  <p className="truncate text-sm text-app-text-subtle">
                     {student.group.name}
                   </p>
                 </div>
@@ -85,7 +85,7 @@ export function StudentsView({
         </ul>
 
         {students.length === 0 && (
-          <div className="py-8 text-center text-gray-500">
+          <div className="py-8 text-center text-app-text-muted">
             No hay estudiantes registrados
           </div>
         )}

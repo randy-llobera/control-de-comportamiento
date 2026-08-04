@@ -41,7 +41,8 @@
 ### Naming and styling
 
 - Components, types, and interfaces: PascalCase.
-- Component files: match the exported component name.
+- Application-owned component files: match the exported component name.
+- Generated shadcn primitives under `src/components/ui` keep the filenames and import paths produced by the shadcn CLI. Do not rename them to PascalCase.
 - Hook files: camelCase and begin with `use`, matching the exported hook name.
 - Other non-component files: kebab-case.
 - Functions and variables: camelCase.

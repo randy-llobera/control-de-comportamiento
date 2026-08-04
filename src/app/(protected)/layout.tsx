@@ -12,9 +12,9 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen flex-col bg-app-background lg:flex-row">
       <Navigation user={auth.profile} />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <main className="flex-1 overflow-x-hidden overflow-y-auto">{children}</main>
       </div>
     </div>

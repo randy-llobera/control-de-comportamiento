@@ -1,16 +1,37 @@
-# Current Feature
+# Current Feature: Tailwind Theme and Naming
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Define shared CSS-first Tailwind v4 theme tokens in the root stylesheet using the current palette.
+- Replace repeated semantic color utilities only where the token preserves existing visual intent.
+- Align implementation identifiers and filenames with project naming standards while preserving Spanish URLs and visible content.
+- Preserve generated shadcn primitive filenames and import paths under `src/components/ui`.
+- Rename the unused browser client module to `supabase-browser.ts` and verify that it remains unreferenced.
+- Remove obsolete legacy modules, comments, imports, and variables only after repository-wide zero-reference checks.
+- Preserve product behavior, layout, states, and responsive appearance.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Spec: `context/features/refactor-15-tailwind-theme-and-naming.md`
+- Dependency: Complete Feature 14 before starting.
+- Standards: Tailwind CSS v4; naming and styling; database and code quality; folder structure; UI components.
+- Naming rules: PascalCase application-owned component filenames, `use`-prefixed camelCase hook filenames, kebab-case for other non-component files, and type-only component contract imports.
+- Shadcn exception: preserve generated primitive filenames and import paths under `src/components/ui`; do not rename them to PascalCase.
+- Out of scope: visual redesign, new components, dark mode, shadcn installation, JavaScript Tailwind config, spacing/layout/type-scale changes, route or label changes, behavior changes, and component feature folders.
+- Implementation: inventory names/colors/modules; define theme tokens; replace clear semantic colors; fix English identifiers and filenames; rename the browser module; remove proven-unreferenced legacy modules; run automated and responsive browser checks.
+- Approved UI follow-up: keep the signed-out content narrow, make protected navigation fill the viewport, pin account/logout controls to the bottom, and use a neutral focus ring instead of blue.
+- Risks: overly broad token mappings can alter contrast or state meaning; casing-only renames can fail on case-sensitive systems; legacy removal requires repository-wide reference verification.
+- Verification: confirm unchanged route layouts and states, readable contrast, naming compliance, type-only imports, zero browser-client consumers, and passing tests, lint, typecheck, build, and mobile/desktop browser checks.
+- Browser verification: using the local admin account, created `Codex Theme Role Test`, promoted it from Profesor to Coordinador, demoted it back to Profesor, and verified every protected route at 390px and 1280px. Playwright confirmed the responsive shell gives `<main>` the full 390px mobile width below a 64px header, the open drawer measures 320px by 844px with its account/logout footer pinned to the bottom, the desktop sidebar fills a 900px viewport with its footer pinned to the bottom, and no browser errors or horizontal overflow remain. The 390px signed-out view now has 24px side gutters, and focused form controls use the neutral ring token.
+- Done checklist remains defined in the source spec.
 
 ## History
 

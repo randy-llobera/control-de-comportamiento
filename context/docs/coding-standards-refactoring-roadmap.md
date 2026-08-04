@@ -230,7 +230,8 @@ Standards: `React and Next.js`; `Tailwind CSS v4`; `Naming and styling`; `Databa
 
 - Keep Spanish public routes and user-facing content.
 - Rename Spanish implementation identifiers such as `IncidentesPage`, `EstudiantesPage`, and `UsuariosPage` as their files are touched.
-- Use PascalCase component files, camelCase hook files beginning with `use`, kebab-case for other non-component files, and type-only imports for component contracts.
+- Use PascalCase for application-owned component files, camelCase hook files beginning with `use`, kebab-case for other non-component files, and type-only imports for component contracts.
+- Preserve the generated filenames and import paths of shadcn primitives under `src/components/ui`; do not rename those files to PascalCase.
 - Dependency: Categories 3-6.
 
 #### 7.2 Focused components and state

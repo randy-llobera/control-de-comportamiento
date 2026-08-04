@@ -72,7 +72,7 @@ function LogoutButton({ className }: LogoutButtonProps) {
   }, [state]);
 
   return (
-    <form action={formAction}>
+    <form action={formAction} className='shrink-0'>
       <button type='submit' disabled={isPending} className={className}>
         {isPending ? 'Cerrando...' : 'Cerrar Sesión'}
       </button>
@@ -89,16 +89,16 @@ export default function Navigation({ user }: NavigationProps) {
   );
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='shrink-0 bg-app-background lg:h-screen'>
       {/* Mobile sidebar */}
       <div
-        className={`fixed inset-0 z-40 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}
+        className={`fixed inset-0 z-40 lg:hidden ${sidebarOpen ? 'flex' : 'hidden'}`}
       >
         <div
-          className='fixed inset-0 bg-gray-600 bg-opacity-75'
+          className='fixed inset-0 bg-app-overlay/75'
           onClick={() => setSidebarOpen(false)}
         />
-        <div className='relative flex-1 flex flex-col max-w-xs w-full bg-white'>
+        <div className='relative flex-1 flex flex-col max-w-xs w-full bg-surface'>
           <div className='absolute top-0 right-0 -mr-12 pt-2'>
             <button
               type='button'
@@ -111,7 +111,7 @@ export default function Navigation({ user }: NavigationProps) {
           </div>
           <div className='flex-1 h-0 pt-5 pb-4 overflow-y-auto'>
             <div className='shrink-0 flex items-center px-4'>
-              <h1 className='text-xl font-bold text-gray-900'>
+              <h1 className='text-xl font-bold text-app-text'>
                 Control de Comportamiento
               </h1>
             </div>
@@ -122,8 +122,8 @@ export default function Navigation({ user }: NavigationProps) {
                   href={item.href}
                   className={`${
                     pathname === item.href
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-app-accent text-app-text'
+                      : 'text-app-text-subtle hover:bg-app-background hover:text-app-text'
                   } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -133,75 +133,73 @@ export default function Navigation({ user }: NavigationProps) {
               ))}
             </nav>
           </div>
-          <div className='shrink-0 flex border-t border-gray-200 p-4'>
-            <div className='flex items-center'>
+          <div className='shrink-0 border-t border-app-border p-4'>
+            <div className='flex min-w-0 items-center gap-3'>
               <div className='shrink-0'>
-                <div className='h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center'>
-                  <span className='text-sm font-medium text-gray-700'>
+                <div className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-300'>
+                  <span className='text-sm font-medium text-app-text-secondary'>
                     {user.displayName.charAt(0).toUpperCase()}
                   </span>
                 </div>
               </div>
-              <div className='ml-3'>
-                <p className='text-base font-medium text-gray-700'>
+              <div className='min-w-0 flex-1'>
+                <p className='truncate text-sm font-medium text-app-text-secondary'>
                   {user.displayName}
                 </p>
-                <p className='text-sm font-medium text-gray-500'>
+                <p className='truncate text-xs font-medium text-app-text-muted'>
                   {user.schoolRole}
                 </p>
               </div>
+              <LogoutButton className='shrink-0 whitespace-nowrap rounded-md px-2 py-1.5 text-sm font-medium text-app-text-muted hover:bg-app-accent hover:text-app-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50' />
             </div>
-            <LogoutButton className='ml-3 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50' />
           </div>
         </div>
       </div>
 
       {/* Desktop sidebar */}
-      <div className='hidden lg:flex lg:shrink-0'>
-        <div className='flex flex-col w-64'>
-          <div className='flex flex-col h-0 flex-1 border-r border-gray-200 bg-white'>
-            <div className='flex-1 flex flex-col pt-5 pb-4 overflow-y-auto'>
-              <div className='flex items-center shrink-0 px-4'>
-                <h1 className='text-xl font-bold text-gray-900'>
-                  Control de Comportamiento
-                </h1>
-              </div>
-              <nav className='mt-5 flex-1 px-2 space-y-1'>
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`${
-                      pathname === item.href
-                        ? 'bg-gray-100 text-gray-900'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-                  >
-                    <span className='mr-3 text-lg'>{item.icon}</span>
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
+      <div className='hidden lg:flex lg:h-full lg:w-64 lg:shrink-0'>
+        <div className='flex h-full w-full flex-col border-r border-app-border bg-surface'>
+          <div className='flex min-h-0 flex-1 flex-col overflow-y-auto pt-5 pb-4'>
+            <div className='flex items-center shrink-0 px-4'>
+              <h1 className='text-xl font-bold text-app-text'>
+                Control de Comportamiento
+              </h1>
             </div>
-            <div className='shrink-0 flex border-t border-gray-200 p-4'>
-              <div className='flex items-center w-full'>
-                <div className='shrink-0'>
-                  <div className='h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center'>
-                    <span className='text-sm font-medium text-gray-700'>
-                      {user.displayName.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+            <nav className='mt-5 flex-1 px-2 space-y-1'>
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`${
+                    pathname === item.href
+                      ? 'bg-app-accent text-app-text'
+                      : 'text-app-text-subtle hover:bg-app-background hover:text-app-text'
+                  } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
+                >
+                  <span className='mr-3 text-lg'>{item.icon}</span>
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+          <div className='shrink-0 border-t border-app-border p-4'>
+            <div className='flex min-w-0 items-center gap-3'>
+              <div className='shrink-0'>
+                <div className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-300'>
+                  <span className='text-sm font-medium text-app-text-secondary'>
+                    {user.displayName.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                <div className='ml-3 flex-1'>
-                  <p className='text-sm font-medium text-gray-700'>
-                    {user.displayName}
-                  </p>
-                  <p className='text-xs font-medium text-gray-500'>
-                    {user.schoolRole}
-                  </p>
-                </div>
-                <LogoutButton className='ml-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50' />
               </div>
+              <div className='min-w-0 flex-1'>
+                <p className='truncate text-sm font-medium text-app-text-secondary'>
+                  {user.displayName}
+                </p>
+                <p className='truncate text-xs font-medium text-app-text-muted'>
+                  {user.schoolRole}
+                </p>
+              </div>
+              <LogoutButton className='shrink-0 whitespace-nowrap rounded-md px-2 py-1.5 text-xs font-medium text-app-text-muted hover:bg-app-accent hover:text-app-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50' />
             </div>
           </div>
         </div>
@@ -209,16 +207,16 @@ export default function Navigation({ user }: NavigationProps) {
 
       {/* Mobile menu button */}
       <div className='lg:hidden'>
-        <div className='flex items-center justify-between h-16 bg-white px-4 border-b border-gray-200'>
+        <div className='flex items-center justify-between h-16 bg-surface px-4 border-b border-app-border'>
           <button
             type='button'
-            className='text-gray-500 hover:text-gray-600'
+            className='text-app-text-muted hover:text-app-text-subtle'
             onClick={() => setSidebarOpen(true)}
           >
             <span className='sr-only'>Abrir sidebar</span>
             <span className='text-xl'>☰</span>
           </button>
-          <h1 className='text-lg font-semibold text-gray-900'>
+          <h1 className='text-lg font-semibold text-app-text'>
             Control de Comportamiento
           </h1>
           <div className='w-6' />

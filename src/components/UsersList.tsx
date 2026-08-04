@@ -8,8 +8,8 @@ type UsersListProps = {
 
 export function UsersList({ users, roles }: UsersListProps) {
   return (
-    <div className="overflow-hidden bg-white shadow sm:rounded-md">
-      <ul className="divide-y divide-gray-200">
+    <div className="overflow-hidden bg-surface shadow sm:rounded-md">
+      <ul className="divide-y divide-app-border">
         {users.map((user) => (
           <li key={user.id} className="px-6 py-4">
             <div className="flex items-center justify-between">
@@ -17,16 +17,16 @@ export function UsersList({ users, roles }: UsersListProps) {
                 <div className="flex items-center">
                   <div className="shrink-0">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-app-text-secondary">
                         {user.displayName.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-app-text">
                       {user.displayName}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-app-text-muted">
                       {user.schoolRole}
                     </div>
                   </div>
@@ -43,7 +43,7 @@ export function UsersList({ users, roles }: UsersListProps) {
         ))}
       </ul>
       {users.length === 0 && (
-        <div className="py-8 text-center text-gray-500">
+        <div className="py-8 text-center text-app-text-muted">
           No hay usuarios registrados
         </div>
       )}

@@ -26,22 +26,22 @@ export function CategoriesView({ categories }: CategoriesViewProps) {
   return (
     <>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-gray-900">Categorías</h1>
+        <h1 className="text-3xl font-bold text-app-text">Categorías</h1>
         <Button onClick={() => setActiveDialog({ type: "create" })}>
           Nueva categoría
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-md bg-white shadow">
-        <ul className="divide-y divide-gray-200">
+      <div className="overflow-hidden rounded-md bg-surface shadow">
+        <ul className="divide-y divide-app-border">
           {categories.map((category) => (
             <li key={category.id} className="px-6 py-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate text-sm font-medium text-app-text">
                     {category.name}
                   </p>
-                  <p className="truncate text-sm text-gray-600">
+                  <p className="truncate text-sm text-app-text-subtle">
                     Creado por: {category.createdByDisplayName}
                   </p>
                 </div>
@@ -72,7 +72,7 @@ export function CategoriesView({ categories }: CategoriesViewProps) {
         </ul>
 
         {categories.length === 0 && (
-          <div className="py-8 text-center text-gray-500">
+          <div className="py-8 text-center text-app-text-muted">
             No hay categorías registradas
           </div>
         )}
