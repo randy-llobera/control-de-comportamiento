@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useActionState, useEffect, useState } from 'react';
 
-import { supabase } from '@/lib/supabase';
+import { logoutAction } from '@/actions/auth';
+import { toast } from '@/components/ui/toast';
 import type { CurrentUser, UserRoleName } from '@/types/users';
 
 type NavigationItem = {
@@ -57,15 +58,31 @@ type NavigationProps = {
   user: CurrentUser;
 };
 
+type LogoutButtonProps = {
+  className: string;
+};
+
+function LogoutButton({ className }: LogoutButtonProps) {
+  const [state, formAction, isPending] = useActionState(logoutAction, null);
+
+  useEffect(() => {
+    if (state && !state.success) {
+      toast.add({ title: state.error, type: 'error' });
+    }
+  }, [state]);
+
+  return (
+    <form action={formAction}>
+      <button type='submit' disabled={isPending} className={className}>
+        {isPending ? 'Cerrando...' : 'Cerrar Sesión'}
+      </button>
+    </form>
+  );
+}
+
 export default function Navigation({ user }: NavigationProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.replace('/auth');
-  };
 
   const navigationItems = NAVIGATION_ITEMS.filter((item) =>
     item.allowedRoles.includes(user.role),
@@ -134,12 +151,7 @@ export default function Navigation({ user }: NavigationProps) {
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleSignOut}
-              className='ml-3 text-sm text-gray-500 hover:text-gray-700'
-            >
-              Cerrar Sesión
-            </button>
+            <LogoutButton className='ml-3 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50' />
           </div>
         </div>
       </div>
@@ -188,12 +200,7 @@ export default function Navigation({ user }: NavigationProps) {
                     {user.schoolRole}
                   </p>
                 </div>
-                <button
-                  onClick={handleSignOut}
-                  className='ml-2 text-sm text-gray-500 hover:text-gray-700'
-                >
-                  Cerrar Sesión
-                </button>
+                <LogoutButton className='ml-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50' />
               </div>
             </div>
           </div>

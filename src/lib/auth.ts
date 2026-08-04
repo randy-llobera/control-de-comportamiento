@@ -1,9 +1,54 @@
 import { cache } from 'react';
 import { isAuthSessionMissingError } from '@supabase/supabase-js';
-import { ApplicationError } from '@/lib/application-error';
+import {
+  ApplicationError,
+  AuthApplicationError,
+} from '@/lib/application-error';
 import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
+import type { LoginInput, SignupInput } from '@/types/auth';
 import { isValidRole } from '@/types/users';
 import type { CurrentUser, UserRoleName } from '@/types/users';
+
+const throwAuthError = (error: Error): never => {
+  console.error('Supabase Auth operation failed:', error.message);
+  throw new AuthApplicationError('auth-failed');
+};
+
+export const loginUser = async (input: LoginInput): Promise<void> => {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword(input);
+
+  if (error) {
+    throwAuthError(error);
+  }
+};
+
+export const signupUser = async (input: SignupInput): Promise<void> => {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signUp({
+    email: input.email,
+    password: input.password,
+    options: {
+      data: {
+        display_name: input.displayName,
+        school_role: input.schoolRole,
+      },
+    },
+  });
+
+  if (error) {
+    throwAuthError(error);
+  }
+};
+
+export const logoutUser = async (): Promise<void> => {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    throwAuthError(error);
+  }
+};
 
 export type Permission =
   | 'users:manage'
