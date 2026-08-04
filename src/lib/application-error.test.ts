@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   ApplicationError,
+  AuthApplicationError,
+  getAuthErrorMessage,
   getApplicationErrorMessage,
+  isAuthApplicationError,
   isApplicationError,
   type ApplicationErrorCode,
 } from "@/lib/application-error";
@@ -29,5 +32,17 @@ describe("ApplicationError", () => {
 
   it("rejects unknown errors", () => {
     expect(isApplicationError(new Error("unexpected"))).toBe(false);
+  });
+
+  it("maps generic Auth failures to their safe message", () => {
+    expect(getAuthErrorMessage("auth-failed")).toBe(
+      "No se pudo completar la autenticación. Inténtalo de nuevo.",
+    );
+  });
+
+  it("recognizes Auth application errors", () => {
+    expect(isAuthApplicationError(new AuthApplicationError("auth-failed"))).toBe(
+      true,
+    );
   });
 });

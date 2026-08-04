@@ -1,15 +1,46 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ApplicationError } from '@/lib/application-error';
 import {
+  ApplicationError,
+  AuthApplicationError,
+} from '@/lib/application-error';
+import {
+  loginUser,
   loadCurrentUserWithRole,
+  logoutUser,
   requirePermission,
+  signupUser,
   type Permission,
 } from '@/lib/auth';
 import type { ServerSupabaseClient } from '@/lib/supabase-server';
 import type { UserRoleName } from '@/types/users';
 
 const USER_ID = '11111111-1111-4111-8111-111111111111';
+
+const operationMocks = vi.hoisted(() => ({
+  createClient: vi.fn(),
+  signInWithPassword: vi.fn(),
+  signOut: vi.fn(),
+  signUp: vi.fn(),
+}));
+
+vi.mock('@/lib/supabase-server', () => ({
+  createClient: operationMocks.createClient,
+}));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  operationMocks.signInWithPassword.mockResolvedValue({ error: null });
+  operationMocks.signOut.mockResolvedValue({ error: null });
+  operationMocks.signUp.mockResolvedValue({ error: null });
+  operationMocks.createClient.mockResolvedValue({
+    auth: {
+      signInWithPassword: operationMocks.signInWithPassword,
+      signOut: operationMocks.signOut,
+      signUp: operationMocks.signUp,
+    },
+  });
+});
 
 type AuthTestOptions = {
   user: { id: string } | null;
@@ -36,6 +67,109 @@ const createSupabase = ({ user, profile = null }: AuthTestOptions) => {
     from,
   };
 };
+
+describe('Auth operations', () => {
+  it('logs in with a request-scoped server client', async () => {
+    await expect(
+      loginUser({ email: 'ada@example.com', password: 'secret' }),
+    ).resolves.toBeUndefined();
+
+    expect(operationMocks.createClient).toHaveBeenCalledOnce();
+    expect(operationMocks.signInWithPassword).toHaveBeenCalledWith({
+      email: 'ada@example.com',
+      password: 'secret',
+    });
+  });
+
+  it('signs up with the existing metadata contract', async () => {
+    await expect(
+      signupUser({
+        displayName: 'Ada Lovelace',
+        email: 'ada@example.com',
+        password: 'secret',
+        schoolRole: 'Tecnología',
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(operationMocks.createClient).toHaveBeenCalledOnce();
+    expect(operationMocks.signUp).toHaveBeenCalledWith({
+      email: 'ada@example.com',
+      password: 'secret',
+      options: {
+        data: {
+          display_name: 'Ada Lovelace',
+          school_role: 'Tecnología',
+        },
+      },
+    });
+  });
+
+  it('logs out with a request-scoped server client', async () => {
+    await expect(logoutUser()).resolves.toBeUndefined();
+
+    expect(operationMocks.createClient).toHaveBeenCalledOnce();
+    expect(operationMocks.signOut).toHaveBeenCalledOnce();
+  });
+
+  it('maps returned Auth provider failures to the generic Auth error', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    operationMocks.signInWithPassword.mockResolvedValue({
+      error: new Error('Raw provider message'),
+    });
+
+    await expect(
+      loginUser({ email: 'ada@example.com', password: 'secret' }),
+    ).rejects.toEqual(new AuthApplicationError('auth-failed'));
+    expect(consoleError).toHaveBeenCalledWith(
+      'Supabase Auth operation failed:',
+      'Raw provider message',
+    );
+    consoleError.mockRestore();
+  });
+
+  it('maps returned signup provider failures to the generic Auth error', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    operationMocks.signUp.mockResolvedValue({
+      error: new Error('Raw signup provider message'),
+    });
+
+    await expect(
+      signupUser({
+        displayName: 'Ada Lovelace',
+        email: 'ada@example.com',
+        password: 'secret',
+        schoolRole: 'Tecnología',
+      }),
+    ).rejects.toEqual(new AuthApplicationError('auth-failed'));
+    expect(consoleError).toHaveBeenCalledWith(
+      'Supabase Auth operation failed:',
+      'Raw signup provider message',
+    );
+    consoleError.mockRestore();
+  });
+
+  it('maps returned logout provider failures to the generic Auth error', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    operationMocks.signOut.mockResolvedValue({
+      error: new Error('Raw logout provider message'),
+    });
+
+    await expect(logoutUser()).rejects.toEqual(
+      new AuthApplicationError('auth-failed'),
+    );
+    expect(consoleError).toHaveBeenCalledWith(
+      'Supabase Auth operation failed:',
+      'Raw logout provider message',
+    );
+    consoleError.mockRestore();
+  });
+});
 
 describe('loadCurrentUserWithRole', () => {
   it('maps the database profile into the neutral current-user contract', async () => {
@@ -128,9 +262,9 @@ describe('requirePermission', () => {
         },
       });
 
-      await expect(requirePermission(client, permission)).resolves.toMatchObject(
-        { id: USER_ID, role },
-      );
+      await expect(
+        requirePermission(client, permission),
+      ).resolves.toMatchObject({ id: USER_ID, role });
     },
   );
 
