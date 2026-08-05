@@ -28,9 +28,7 @@ Complete this feature before the README and refactoring-documentation cleanup wh
 - The database workflow installs the latest Supabase CLI independently of the version in the project dependencies.
 - The database workflow resets local Supabase but does not run unit tests, RLS integration tests, typecheck, lint, or build.
 - `.github/workflows/backup-prod.yml` requires production secrets and runs manually, monthly, and on pushes to `main`; its current failure must be diagnosed from the GitHub Actions logs before changing its behavior.
-- The repository currently has two migrations:
-  - `20260710160000_initial_schema.sql`
-  - `20260722150000_authorization_rls.sql`
+- The repository currently has two historical migrations that must be replaced by `20260805135713_initial_schema.sql`.
 - Production contains no data that must be preserved and will be recreated from the official migration baseline. The squashed migration is not an upgrade path for a database that already recorded either old migration.
 
 ## Scope
