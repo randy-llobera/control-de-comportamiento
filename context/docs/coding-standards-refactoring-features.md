@@ -24,24 +24,24 @@ Starting with Feature 04, run `npm test` for affected unit tests. UI features al
 
 ## Ordered features
 
-| Order | Feature | Depends on | Status |
-| --- | --- | --- | --- |
-| 01 | [Authorization and RLS](../features/refactor-01-authorization-rls.md) | None | Planned |
-| 02 | [Proxy session boundary](../features/refactor-02-proxy-session-boundary.md) | 01 | Planned |
-| 03 | [Shared server contracts](../features/refactor-03-shared-server-contracts.md) | 02 | Planned |
-| 04 | [Vitest foundation](../features/refactor-04-vitest-foundation.md) | 03 | Planned |
-| 05 | [Users feature boundary](../features/refactor-05-users-feature-boundary.md) | 04 | Planned |
-| 06 | [Navigation boundary](../features/refactor-06-navigation-boundary.md) | 05 | Planned |
-| 07 | [Groups feature boundary](../features/refactor-07-groups-feature-boundary.md) | 06 | Planned |
-| 08 | [Categories feature boundary](../features/refactor-08-categories-feature-boundary.md) | 07 | Planned |
-| 09 | [Students feature boundary](../features/refactor-09-students-feature-boundary.md) | 08 | Planned |
-| 10 | [Incidents data boundary](../features/refactor-10-incidents-data-boundary.md) | 09 | Planned |
-| 11 | [Incident CRUD and UI boundary](../features/refactor-11-incidents-ui-boundary.md) | 10 | Planned |
-| 12 | [Incident filtering and CSV](../features/refactor-12-incident-filtering-csv.md) | 11 | Planned |
-| 13 | [Dashboard feature boundary](../features/refactor-13-dashboard-feature-boundary.md) | 12 | Planned |
-| 14 | [Auth Server Actions](../features/refactor-14-auth-server-actions.md) | 13 | Planned |
-| 15 | [Tailwind theme and naming](../features/refactor-15-tailwind-theme-and-naming.md) | 14 | Planned |
-| 16 | [Integration coverage and final audit](../features/refactor-16-integration-coverage-audit.md) | 15 | Planned |
+| Order | Feature                                                                                       | Depends on | Status   |
+| ----- | --------------------------------------------------------------------------------------------- | ---------- | -------- |
+| 01    | [Authorization and RLS](../features/refactor-01-authorization-rls.md)                         | None       | Complete |
+| 02    | [Proxy session boundary](../features/refactor-02-proxy-session-boundary.md)                   | 01         | Complete |
+| 03    | [Shared server contracts](../features/refactor-03-shared-server-contracts.md)                 | 02         | Complete |
+| 04    | [Vitest foundation](../features/refactor-04-vitest-foundation.md)                             | 03         | Complete |
+| 05    | [Users feature boundary](../features/refactor-05-users-feature-boundary.md)                   | 04         | Complete |
+| 06    | [Navigation boundary](../features/refactor-06-navigation-boundary.md)                         | 05         | Complete |
+| 07    | [Groups feature boundary](../features/refactor-07-groups-feature-boundary.md)                 | 06         | Complete |
+| 08    | [Categories feature boundary](../features/refactor-08-categories-feature-boundary.md)         | 07         | Complete |
+| 09    | [Students feature boundary](../features/refactor-09-students-feature-boundary.md)             | 08         | Complete |
+| 10    | [Incidents data boundary](../features/refactor-10-incidents-data-boundary.md)                 | 09         | Complete |
+| 11    | [Incident CRUD and UI boundary](../features/refactor-11-incidents-ui-boundary.md)             | 10         | Complete |
+| 12    | [Incident filtering and CSV](../features/refactor-12-incident-filtering-csv.md)               | 11         | Complete |
+| 13    | [Dashboard feature boundary](../features/refactor-13-dashboard-feature-boundary.md)           | 12         | Complete |
+| 14    | [Auth Server Actions](../features/refactor-14-auth-server-actions.md)                         | 13         | Complete |
+| 15    | [Tailwind theme and naming](../features/refactor-15-tailwind-theme-and-naming.md)             | 14         | Complete |
+| 16    | [Integration coverage and final audit](../features/refactor-16-integration-coverage-audit.md) | 15         | Complete |
 
 ## Boundary rules for every feature
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned
+Complete
 
 ## Goal
 
@@ -61,20 +61,22 @@ Complete Feature 15 first. This is the final refactoring feature.
 
 - Teacher updates/deletes own incidents and cannot update/delete another teacher's incidents.
 - Coordinator/admin update/delete all incidents.
+- Teacher-owned incidents and related teacher profiles are readable by the other teacher, coordinator, and admin.
 - All authenticated roles read/create students; only admin updates/deletes them.
 - Teacher cannot manage groups/categories/roles.
 - Coordinator manages groups/categories but not roles.
 - Admin retains full approved access.
+- Authorized admin deletions cannot bypass group/student/category foreign-key constraints.
 - Direct application-table access exists only in server feature modules, approved Supabase infrastructure, migrations/seeds, and explicit administrative scripts.
 - No current Auth/navigation/data flow imports the browser Supabase client.
 - `src/utils/` imports no Supabase, React, Next.js, browser, or environment-specific APIs; utility tests remain beside their domain modules.
 
 ## Done Checklist
 
-- [ ] Integration tests refuse non-local Supabase URLs.
-- [ ] Every RLS assertion uses a user-scoped client.
-- [ ] Unit and integration suites are repeatable after a local DB reset.
-- [ ] Every `src/utils/` module satisfies the pure-utility boundary and has focused tests where it contains material logic.
-- [ ] No material test or standards gap remains undocumented.
-- [ ] Feature index and roadmap accurately reflect completion.
-- [ ] `npm test`, `npm run test:integration`, lint, typecheck, and build pass.
+- [x] Integration tests refuse non-local Supabase URLs.
+- [x] Every RLS assertion uses a user-scoped client.
+- [x] Unit and integration suites are repeatable after a local DB reset.
+- [x] Every `src/utils/` module satisfies the pure-utility boundary and has focused tests where it contains material logic.
+- [x] No material test or standards gap remains undocumented.
+- [x] Feature index and roadmap accurately reflect completion.
+- [x] `npm test`, `npm run test:integration`, lint, typecheck, and build pass.

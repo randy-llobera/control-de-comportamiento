@@ -8,6 +8,10 @@ Bring the repository into alignment with `context/coding-standards.md` through s
 
 Implementation is divided into independent, ordered specs in [Coding Standards Refactoring Features](coding-standards-refactoring-features.md). Load and complete one feature at a time through the project feature workflow.
 
+## Completion status
+
+Completed on 2026-08-05. All 16 ordered features are implemented. The final audit found no undocumented material gap in source boundaries, browser-client usage, generated types, cache invalidation, Route Handler usage, naming, or pure utilities. Local reset, repeatable unit and integration tests, expanded RLS and foreign-key coverage, verified fixture cleanup, lint, typecheck, build, and teacher/coordinator/admin browser smoke checks passed.
+
 ## Baseline
 
 - `npm run lint`, `npm run typecheck`, and `npm run build` pass.
