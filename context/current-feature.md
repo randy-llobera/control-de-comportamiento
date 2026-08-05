@@ -1,16 +1,29 @@
-# Current Feature
+# Current Feature: Integration Coverage and Final Audit
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Add repeatable local-only Supabase integration tests with isolated fixtures and reliable cleanup.
+- Verify the approved RLS permission matrix through signed-in teacher-owner, teacher-other, coordinator, and admin clients.
+- Fill material unit-test gaps across validation, mapping, known errors, business rules, filtering, CSV, and dashboard aggregation.
+- Audit source boundaries, naming, generated types, caching and invalidation, browser-client usage, Route Handlers, and pure utilities against the coding standards.
+- Update the feature index and roadmap only after all required checks pass and unresolved gaps are documented.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Spec: `context/features/refactor-16-integration-coverage-audit.md`.
+- This is the final refactoring feature and depends on Feature 15 being complete.
+- Integration tests must refuse non-local Supabase URLs. Service-role access is limited to fixture setup and cleanup; all RLS assertions must use user-scoped clients.
+- Production data, load testing, component tests, coverage-percentage gates, new application behavior, and unrelated architecture changes are out of scope.
+- Required verification: local database reset; unit and integration suites; lint; typecheck; build; and role-based browser smoke checks.
+- Completion requires repeatable tests, pure and focused `src/utils/` modules, an accurate permission matrix, and no undocumented material standards gaps.
 
 ## History
 
