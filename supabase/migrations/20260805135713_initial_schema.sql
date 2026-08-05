@@ -183,25 +183,73 @@ for insert
 to authenticated
 with check (teacher_id = auth.uid());
 
-create policy "Authenticated users can update incidents"
+create policy "Owners coordinators and admins can update incidents"
 on public.incidents
 for update
 to authenticated
-using (true)
-with check (true);
+using (
+  teacher_id = auth.uid()
+  or exists (
+    select 1
+    from public.users
+    where users.id = auth.uid()
+      and users.role_id in (
+        select id from public.roles where name in ('coordinator', 'admin')
+      )
+  )
+)
+with check (
+  teacher_id = auth.uid()
+  or exists (
+    select 1
+    from public.users
+    where users.id = auth.uid()
+      and users.role_id in (
+        select id from public.roles where name in ('coordinator', 'admin')
+      )
+  )
+);
 
-create policy "Authenticated users can delete incidents"
+create policy "Owners coordinators and admins can delete incidents"
 on public.incidents
 for delete
 to authenticated
+using (
+  teacher_id = auth.uid()
+  or exists (
+    select 1
+    from public.users
+    where users.id = auth.uid()
+      and users.role_id in (
+        select id from public.roles where name in ('coordinator', 'admin')
+      )
+  )
+);
+
+create policy "Authenticated users can view students"
+on public.students
+for select
+to authenticated
 using (true);
 
-create policy "Authenticated users can manage students"
+create policy "Authenticated users can create students"
 on public.students
-for all
+for insert
 to authenticated
-using (true)
 with check (true);
+
+create policy "Admins can update students"
+on public.students
+for update
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+create policy "Admins can delete students"
+on public.students
+for delete
+to authenticated
+using (public.is_admin());
 
 create policy "Admins can delete users"
 on public.users
@@ -222,17 +270,11 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
-create policy "Admins can view all users"
+create policy "Authenticated users can view user profiles"
 on public.users
 for select
 to authenticated
-using (public.is_admin());
-
-create policy "Users can view self"
-on public.users
-for select
-to authenticated
-using (id = auth.uid());
+using (true);
 
 revoke all privileges on all tables in schema public from anon, authenticated;
 revoke all privileges on all sequences in schema public from anon, authenticated;

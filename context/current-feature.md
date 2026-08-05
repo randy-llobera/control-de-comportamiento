@@ -1,16 +1,34 @@
-# Current Feature
+# Current Feature: CI Pipeline and Official Database Baseline
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Add goals here -->
 
+- Diagnose the exact GitHub Actions failures and separate repository defects from required external configuration.
+- Align the Node, npm, and Supabase CLI toolchain and run the required application and local database gates in CI.
+- Keep CI database assertions isolated to an ephemeral local Supabase stack and detect stale generated types.
+- Preserve visible backup failures while documenting any required production secrets or repository settings.
+- Replace the two historical migrations with one official initial migration without changing database behavior.
+- Verify the fresh migration, generated types, unit and integration tests, lint, typecheck, build, and relevant GitHub Actions jobs.
+
 ## Notes
 
 <!-- Add notes here -->
+
+- Depends on the completed Integration Coverage and Final Audit feature.
+- Production contains no data to preserve and will be recreated from the official baseline; the squashed migration is not an upgrade path for databases that retain either old migration in their history.
+- Confirmed DB CI failure: run `31002665033`, job `db-ci`, step `Setup Node` failed because the referenced `.nvmrc` file does not exist.
+- Confirmed backup failure boundary: the latest retained run `22536343402` failed in `Create dumps (schema + full)` at the line containing the explicit empty-`PROD_DB_URL` guard. The full log has expired, so repository Actions must provide `PROD_DB_URL` as a valid production PostgreSQL connection URI before the backup can be verified; `PGSSLROOTCERT` remains optional and, if configured, must resolve to a certificate file path on the runner.
+- Keep `.github/workflows/backup-prod.yml` unchanged until `PROD_DB_URL` is configured and a new run provides current evidence; do not weaken its schedule, `main` trigger, or failure visibility.
+- Preserve the existing schema, functions, triggers, grants, constraints, reference roles, and final RLS behavior exactly. Do not introduce unrelated database or permission changes.
+- Do not run production deploy, reset, link, backup, or bootstrap operations without explicit approval.
+- Keep hosted Supabase credentials, database URLs, certificates, and dumps out of CI assertions, logs, and committed files.
+- The superseded migrations will be replaced by `20260805135713_initial_schema.sql`.
+- Relevant standards: `context/coding-standards.md` sections 18 and 19, plus the database/code-quality conventions and the authentication, authorization, and data-model sections in `context/project-overview.md`.
 
 ## History
 
