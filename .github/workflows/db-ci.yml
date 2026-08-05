@@ -1,77 +1,95 @@
-name: DB CI Gate
+name: CI
 
 on:
   pull_request:
-    branches: [main] # validate PRs targeting main
-    paths:
-      - "supabase/**"
-      - "scripts/**"
-      - ".github/workflows/db-ci.yml"
+    branches: [main]
   push:
-    branches: [working] # validate direct pushes to working
-    paths:
-      - "supabase/**"
-      - "scripts/**"
-      - ".github/workflows/db-ci.yml"
-  workflow_dispatch: {} # allow manual runs when needed
+    branches: [working]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
 
 jobs:
-  db-ci:
+  application:
+    name: Application checks
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
+          node-version: "26.x"
+          cache: npm
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.0.0
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run build
+        run: npm run build
+
+  database:
+    name: Local database checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
         with:
-          version: latest
+          node-version: "26.x"
+          cache: npm
 
-      - name: Supabase start (services up)
-        run: supabase start -x studio -x imgproxy -x edge-runtime
+      - name: Use pinned npm
+        run: npm install --global npm@12.0.0
 
-      - name: Supabase DB reset (fresh build)
-        run: supabase db reset
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Export local service env (API_URL, SERVICE_ROLE_KEY, DB_URL)
-        id: svc
+      - name: Start local Supabase
+        run: npm exec -- supabase start -x studio -x imgproxy -x edge-runtime
+
+      - name: Recreate database from migrations
+        run: npm exec -- supabase db reset --no-seed
+
+      - name: Regenerate database types
+        run: npm run types:local
+
+      - name: Check generated database types
+        run: git diff --exit-code -- src/types/supabase.ts
+
+      - name: Run local integration tests
         shell: bash
         run: |
-          set -euo pipefail
-          supabase status --output env > .svc_env
-          API_URL=$(grep '^API_URL=' .svc_env | cut -d= -f2-)
-          SERVICE_ROLE_KEY=$(grep '^SERVICE_ROLE_KEY=' .svc_env | cut -d= -f2-)
-          DB_URL=$(grep '^DB_URL=' .svc_env | cut -d= -f2-)
+          eval "$(npm exec -- supabase status -o env \
+            --override-name api.url=NEXT_PUBLIC_SUPABASE_URL \
+            --override-name auth.anon_key=NEXT_PUBLIC_SUPABASE_ANON_KEY \
+            --override-name auth.service_role_key=SUPABASE_SERVICE_ROLE_KEY)"
+          export NEXT_PUBLIC_SUPABASE_URL
+          export NEXT_PUBLIC_SUPABASE_ANON_KEY
+          export SUPABASE_SERVICE_ROLE_KEY
+          npm run test:integration
 
-          {
-            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
-            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
-            echo "LOCAL_DB_URL=$DB_URL"
-            echo "LOCAL_ADMIN_EMAIL=${{ secrets.LOCAL_ADMIN_EMAIL || 'admin.local@example.com' }}"
-            echo "LOCAL_ADMIN_PASSWORD=${{ secrets.LOCAL_ADMIN_PASSWORD || 'Passw0rd!-local' }}"
-          } > .env.local
-
-          echo "Wrote .env.local (masked):"
-          sed 's/SUPABASE_SERVICE_ROLE_KEY=.*/SUPABASE_SERVICE_ROLE_KEY=****/; s/LOCAL_ADMIN_PASSWORD=.*/LOCAL_ADMIN_PASSWORD=****/' .env.local
-
-      # 1) First pass: ensure base data (roles, etc.)
-      - name: Seed (base) – idempotent
-        run: npm run db:seed:local
-
-      # 2) Ensure local admin (trigger now succeeds because roles exist)
-      - name: Ensure local admin (Auth + mirror)
-        run: npm run db:ensure-admin
-
-      # 3) Second pass: data that depends on created_by/admin now links correctly
-      - name: Seed (dependent) – idempotent rerun
-        run: npm run db:seed:local
+      - name: Stop local Supabase
+        if: always()
+        run: |
+          if [ -x node_modules/.bin/supabase ]; then
+            node_modules/.bin/supabase stop --no-backup
+          fi

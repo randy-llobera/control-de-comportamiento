@@ -24,13 +24,14 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 - Assign and manage roles/permissions.
 - Access Admin Dashboard.
 - Manage coordinators, teachers, students, groups, and categories.
-- Create incidents.
+- Create, update, and delete all incidents.
 - Access to all current and future features.
 
 ### Coordinator
 
 - Create/manage incident categories.
 - Create/manage groups/classes.
+- Create, update, and delete all incidents.
 - Perform all teacher actions.
 - Access features explicitly assigned by admins.
 
@@ -42,6 +43,7 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
   - Category
   - Severity (Low, Medium, High)
   - Description (optional text field).
+- Update/delete only incidents they created.
 - Filter/search incidents by:
   - Category
   - Severity
@@ -63,7 +65,9 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 
 ### Incident Management
 
-- CRUD for incidents (create, read, update, delete – based on role).
+- All authenticated roles can read/create incidents.
+- Teachers can update/delete only incidents they created.
+- Coordinators and admins can update/delete all incidents.
 - Filtering by category, severity, group, and date.
 - CSV export (teachers and above).
 
@@ -77,14 +81,17 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 
 - Coordinators and admins can create/edit incident categories.
 
-### Dashboard (Admin Only)
+### Dashboard (Admin and Coordinators Only)
 
-- User management (assign/remove roles).
 - Overview of incidents by:
   - Category
   - Severity
   - Group/class
   - Timeline trends (basic charts).
+
+### Users Management
+
+- Manage user role (assign/remove roles).
 
 ### CSV Export
 
@@ -176,7 +183,7 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 ## 7. Role-Based Access (Supabase Policies)
 
 - Teachers: Insert `incidents`, insert `students`, select/filter `incidents`.
-- Coordinators: Teacher permissions + insert/update `categories` and `groups`.
+- Coordinators: Teacher permissions + insert/update `categories` and `groups` + Dashboard.
 - Admins: Full access to all tables, including updating user roles.
 
 ---

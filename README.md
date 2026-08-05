@@ -1,6 +1,6 @@
 # Control de Comportamiento
 
-A comprehensive student incident management system with role-based user access (Teacher, Coordinator, Administrator). The application interface is in Spanish but all code, documentation, and configuration are in English.
+A comprehensive student incident management system with role-based user access (Teacher, Coordinator, Administrator).
 
 ## Features
 
@@ -39,23 +39,53 @@ npm install
 ### 3. Configure Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Copy `env.local.example` to `.env.local`
+2. Copy `env.example` to `.env`
 3. Fill in the environment variables with your Supabase credentials:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+RESEND_API_KEY=
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+ADMIN_DISPLAY_NAME=
+ADMIN_SCHOOL_ROLE=
 ```
 
 ### 4. Configure the database
 
-Run the SQL scripts in Supabase SQL Editor following the instructions in `supabase/README.md`:
+Database schema and security changes are migration-only. Do not use the Supabase SQL Editor, `supabase db diff`, or `supabase db push` to create schema changes.
 
-1. Create tables (roles, users, groups, categories, students, incidents)
-2. Insert default roles (admin, coordinator, teacher)
-3. Configure RLS (Row Level Security) policies
-4. Create function to handle new user registration
+#### Local database
+
+```bash
+npm run db:start:local
+npm run db:reset:local
+ENV_FILE=.env npm run db:bootstrap-admin
+```
+
+`db:start:local` uses the Supabase CLI version pinned by this project. `db:reset:local` recreates local Postgres from all migrations and regenerates `src/types/supabase.ts`. `db:bootstrap-admin` creates the configured Auth user and promotes it to `admin`. To add disposable local fixtures after the admin exists, run:
+
+```bash
+npm run db:seed:local
+```
+
+#### Production database
+
+Create or recreate an empty Supabase project, then link it and apply committed migrations:
+
+```bash
+supabase link --project-ref <production-project-ref>
+npm run db:migrate:production
+ENV_FILE=.env.production npm run db:bootstrap-admin
+```
+
+Production receives the same schema, role records, policies, and admin account as local. The local fixture seed is never run against production.
+
+Admin bootstrap is the only database-adjacent operation outside migrations because a real Auth password must remain untracked. It is idempotent and uses the service-role key from the selected environment file.
+
+`.env.production` is an ignored operator reference file for the production Supabase endpoint, service-role key, and initial admin values. It is never committed. Configure only application runtime values manually in Vercel; do not expose the service-role key or admin password through `NEXT_PUBLIC_*` variables.
 
 ### 5. Run the project
 
@@ -175,7 +205,7 @@ npm run lint     # Run ESLint
 
 ### Database Management
 
-The database is fully managed through Supabase. Schema changes are applied by running SQL in the SQL Editor.
+For every schema or required reference-data change, create a migration with `supabase migration new <name>`, validate it with `npm run db:reset:local`, and deploy it with `npm run db:migrate:production` after linking the intended project.
 
 ### Key Components
 
@@ -218,10 +248,6 @@ The database is fully managed through Supabase. Schema changes are applied by ru
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## Changelog
-
-For detailed information about changes, fixes, and updates, see [CHANGELOG.md](./CHANGELOG.md).
 
 ## License
 
