@@ -1,34 +1,22 @@
-# Current Feature: Integration Coverage and Final Audit
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
 <!-- Add goals here -->
 
-- Add repeatable local-only Supabase integration tests with isolated fixtures and reliable cleanup.
-- Verify the approved RLS permission matrix through signed-in teacher-owner, teacher-other, coordinator, and admin clients.
-- Fill material unit-test gaps across validation, mapping, known errors, business rules, filtering, CSV, and dashboard aggregation.
-- Audit source boundaries, naming, generated types, caching and invalidation, browser-client usage, Route Handlers, and pure utilities against the coding standards.
-- Update the feature index and roadmap only after all required checks pass and unresolved gaps are documented.
-
 ## Notes
 
 <!-- Add notes here -->
-
-- Spec: `context/features/refactor-16-integration-coverage-audit.md`.
-- This is the final refactoring feature and depends on Feature 15 being complete.
-- Integration tests must refuse non-local Supabase URLs. Service-role access is limited to fixture setup and cleanup; all RLS assertions must use user-scoped clients.
-- Production data, load testing, component tests, coverage-percentage gates, new application behavior, and unrelated architecture changes are out of scope.
-- Required verification: local database reset; unit and integration suites; lint; typecheck; build; and role-based browser smoke checks.
-- Completion requires repeatable tests, pure and focused `src/utils/` modules, an accurate permission matrix, and no undocumented material standards gaps.
 
 ## History
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-08-05: Added repeatable local-only Supabase integration coverage for the role and ownership matrix, cross-role incident/profile reads, database constraints, and reliable fixture cleanup; completed the final standards audit and documented when the feature workflow must run the integration suite.
 - 2026-08-04: Established CSS-first Tailwind theme tokens, aligned application naming while preserving shadcn primitive filenames, renamed the unused browser client, removed obsolete legacy types, and fixed responsive navigation, logout placement, landing width, and focus styling.
 - 2026-08-04: Moved login, signup, and logout to validated Server Actions with request-scoped Supabase clients; added safe Spanish Auth errors, separated shadcn-based Auth forms, global toast feedback, and focused tests plus browser verification.
 - 2026-08-03: Moved dashboard reads, coordinator/admin authorization, mapping, aggregation, and recent ordering behind a server feature boundary; converted the page to a Server Component; unified displayed/exported incident dates as `DD-MM-YYYY`; and added focused tests plus browser role verification.
