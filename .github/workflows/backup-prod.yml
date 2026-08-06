@@ -2,49 +2,58 @@ name: Backup Prod DB
 
 on:
   workflow_dispatch: {}
-  push:
-    branches: [main] # auto-backup on prod deploys
   schedule:
     - cron: "0 3 1 * *" # monthly, 03:00 UTC on day 1
 
 jobs:
   backup:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - name: Install PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-
-      - name: Create dumps (schema + full)
+      - name: Create schema and encrypted full dumps
         env:
           PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
-          PGSSLROOTCERT: ${{ secrets.PGSSLROOTCERT }} # optional strict TLS (path or content not required)
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
 
           if [ -z "${PROD_DB_URL:-}" ]; then
-            echo "ERROR: Missing PROD_DB_URL secret"; exit 1;
+            echo "ERROR: Missing PROD_DB_URL secret"
+            exit 1
+          fi
+
+          if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 20 ]; then
+            echo "ERROR: BACKUP_ENCRYPTION_PASSPHRASE must contain at least 20 characters"
+            exit 1
           fi
 
           mkdir -p backups
           TS="$(date -u +%Y%m%d_%H%M%S)"
 
-          # Schema-only (portable .sql)
           SCHEMA_FILE="prod_schema_${TS}.sql.gz"
-          pg_dump "${PROD_DB_URL}" --schema-only --no-owner --no-privileges | gzip -9 > "backups/${SCHEMA_FILE}"
+          docker run --rm --env PROD_DB_URL postgres:17.6-alpine \
+            sh -c 'pg_dump "$PROD_DB_URL" --schema-only --no-owner --no-privileges' \
+            | gzip -9 > "backups/${SCHEMA_FILE}"
           echo "OK: Wrote backups/${SCHEMA_FILE}"
 
-          # Full dump (portable .sql)
-          FULL_FILE="prod_full_${TS}.sql.gz"
-          pg_dump "${PROD_DB_URL}" --no-owner --no-privileges | gzip -9 > "backups/${FULL_FILE}"
+          FULL_FILE="prod_full_${TS}.sql.gz.enc"
+          docker run --rm --env PROD_DB_URL postgres:17.6-alpine \
+            sh -c 'pg_dump "$PROD_DB_URL" --no-owner --no-privileges' \
+            | gzip -9 \
+            | openssl enc -aes-256-cbc -salt -pbkdf2 -iter 600000 \
+                -pass env:BACKUP_ENCRYPTION_PASSPHRASE \
+                -out "backups/${FULL_FILE}"
           echo "OK: Wrote backups/${FULL_FILE}"
 
       - name: Upload backups as artifact
         uses: actions/upload-artifact@v4
         with:
           name: prod-db-backup
-          path: backups/*.sql.gz
+          path: |
+            backups/prod_schema_*.sql.gz
+            backups/prod_full_*.sql.gz.enc
           if-no-files-found: error
-          compression-level: 0 # already gzipped; avoid double-compression
+          compression-level: 0
+          retention-days: 90
