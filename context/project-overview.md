@@ -176,7 +176,12 @@ The _Control de Comportamiento_ app is a role-based incident tracking system for
 
 - Vercel for frontend hosting.
 - Supabase for backend (DB + auth + storage).
-- CI/CD via GitHub → Vercel.
+- Local feature and fix branches use local Supabase and normally remain unpushed.
+- A push to `working` runs GitHub Actions application and local-database checks, applies pending migrations to the staging Supabase project, and then creates a Vercel Preview deployment.
+- Production changes enter protected `main` only through a pull request from `working`. Pull requests run checks without changing hosted databases or deploying the application.
+- Merging the pull request triggers the `main` release: checks, pending production migrations, and then the Vercel Production deployment.
+- Vercel Git deployments are disabled for `working` and `main`; GitHub Actions owns deployment ordering. Vercel does not apply Supabase migrations.
+- Production database backups run independently through GitHub Actions, manually or monthly, and encrypt the full data dump before artifact upload.
 
 ---
 

@@ -4,11 +4,16 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [working]
+    # A merged PR emits a push to main; direct pushes remain blocked by main protection.
+    branches: [working, main]
   workflow_dispatch: {}
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   application:
@@ -93,3 +98,101 @@ jobs:
           if [ -x node_modules/.bin/supabase ]; then
             node_modules/.bin/supabase stop --no-backup
           fi
+
+  migrate-hosted-database:
+    name: Migrate hosted database
+    if: github.event_name == 'push'
+    needs: [application, database]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    env:
+      PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
+      STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24.x"
+          cache: npm
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.0.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Push pending migrations
+        run: |
+          set -euo pipefail
+
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            TARGET_DB_URL="$PROD_DB_URL"
+          else
+            TARGET_DB_URL="$STAGING_DB_URL"
+          fi
+
+          if [ -z "${TARGET_DB_URL:-}" ]; then
+            echo "ERROR: Missing database URL for ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          npm exec -- supabase db push --db-url "$TARGET_DB_URL" --yes
+
+  deploy-application:
+    name: Deploy application
+    if: github.event_name == 'push'
+    needs: migrate-hosted-database
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Check Vercel configuration
+        run: |
+          set -euo pipefail
+
+          if [ -z "${VERCEL_TOKEN:-}" ] || [ -z "${VERCEL_ORG_ID:-}" ] || [ -z "${VERCEL_PROJECT_ID:-}" ]; then
+            echo "ERROR: Missing Vercel deployment configuration"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24.x"
+          cache: npm
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.0.0
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@58.7.1
+
+      - name: Build and deploy application
+        id: deploy
+        run: |
+          set -euo pipefail
+
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+            vercel build --prod --token "$VERCEL_TOKEN"
+            DEPLOYMENT_URL="$(vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN")"
+          else
+            vercel pull --yes --environment=preview --git-branch=working --token "$VERCEL_TOKEN"
+            vercel build --token "$VERCEL_TOKEN"
+            DEPLOYMENT_URL="$(vercel deploy --prebuilt --yes --token "$VERCEL_TOKEN")"
+          fi
+          echo "url=${DEPLOYMENT_URL}" >> "$GITHUB_OUTPUT"
