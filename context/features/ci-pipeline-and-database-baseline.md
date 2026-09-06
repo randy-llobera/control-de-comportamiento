@@ -1,4 +1,4 @@
-# Feature: CI Pipeline and Official Database Baseline
+# Feature: CI Pipeline and Database Baseline
 
 ## Status
 
@@ -6,7 +6,7 @@ Planned
 
 ## Goal
 
-Restore a passing, useful CI pipeline for application and database changes, troubleshoot the current GitHub Actions failures, and replace the two historical migrations with one official starting migration for newly created local and production databases.
+Provide a passing, gated release pipeline from local development through staging to production. Recreate the intended schema from one initial migration, apply pending hosted migrations before application deployment, and create encrypted monthly production backups with documented recovery procedures and limitations.
 
 ## Standards References
 
@@ -22,14 +22,16 @@ Feature 16, Integration Coverage and Final Audit, must be complete.
 
 Complete this feature before the README and refactoring-documentation cleanup when possible, so the rewritten README documents the final workflow and official migration layout.
 
-## Confirmed Starting State
+## Historical Starting State
+
+The following conditions describe the start of implementation, not the delivered system.
 
 - `.github/workflows/db-ci.yml` references `.nvmrc`, but that file does not currently exist.
 - The database workflow installs the latest Supabase CLI independently of the version in the project dependencies.
 - The database workflow resets local Supabase but does not run unit tests, RLS integration tests, typecheck, lint, or build.
 - `.github/workflows/backup-prod.yml` requires production secrets and runs manually, monthly, and on pushes to `main`; its current failure must be diagnosed from the GitHub Actions logs before changing its behavior.
 - The repository currently has two historical migrations that must be replaced by `20260805135713_initial_schema.sql`.
-- Production contains no data that must be preserved and will be recreated from the official migration baseline. The squashed migration is not an upgrade path for a database that already recorded either old migration.
+- Production had disposable data and an older schema/history. The existing project was retained and reset with explicit approval, then recreated from the initial migration. The baseline was not applied as an upgrade over the old schema.
 
 ## Scope
 
@@ -49,7 +51,7 @@ Complete this feature before the README and refactoring-documentation cleanup wh
   - `npm run typecheck`
   - `npm run lint`
   - `npm run build`
-- For database, Auth, RLS, migration, or integration-test changes:
+- On every supported CI trigger, run database checks:
   - Start an ephemeral local Supabase stack.
   - Recreate the database from committed migrations without the optional fixture seed.
   - Regenerate Supabase types and fail if committed generated types are stale.
@@ -58,32 +60,53 @@ Complete this feature before the README and refactoring-documentation cleanup wh
 - Preserve useful pull-request and branch triggers while ensuring changes to application tests, integration configuration, workflows, migrations, Auth, or database feature modules run the relevant gates.
 - Stop local Supabase services in an always-run cleanup step when the runner requires explicit cleanup.
 
+### Release workflow and deployment ownership
+
+- Develop feature branches locally against local Supabase; feature branches normally remain unpushed. Merge into `working` and push it to release to staging. Small direct changes to `working` use the same pipeline.
+- Run application and local-database checks on pushes to `working`/`main` and PRs targeting `main`. Manual CI dispatch runs checks only, not migrations or deployment.
+- After both check jobs pass on a push, run `supabase db push --db-url` against staging for `working` or production for `main`. A release without pending migrations follows the same sequence without applying SQL.
+- Deploy only after the migration job succeeds. GitHub Actions, not Vercel, applies hosted migrations.
+- Use `vercel pull`, `vercel build`, and `vercel deploy --prebuilt`, with production flags for `main` and Preview configuration scoped to `working` for staging.
+- Disable Vercel automatic Git deployments for both release branches so they cannot bypass the checks/migration sequence. Rebuild through the original push-triggered GitHub run when build-time environment values change.
+- Protect `main`: production releases enter through checked PRs, never direct pushes. A merged PR produces the push event that runs the production pipeline. PR checks themselves do not migrate or deploy.
+- Use Node 24.x, npm 12.0.0, the lockfile-resolved project Supabase CLI, and Vercel CLI 58.7.1 in CI.
+- Configure `STAGING_DB_URL`, `PROD_DB_URL`, `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` in GitHub. Configure Vercel's unsuffixed `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` separately for Preview and Production. The HTTPS API URL is not a PostgreSQL connection string.
+
 ### Backup workflow
 
 - Diagnose the current backup workflow failure before changing triggers or secret handling.
 - Preserve failure visibility for real backup failures; do not silently convert a failed backup into a successful skipped job.
-- If required production secrets are absent or invalid, report the exact repository configuration needed and ask for direction before changing the intended backup schedule or `main`-push behavior.
+- Run monthly on day 1 at 03:00 UTC and on manual dispatch, not on deployment or pushes. Require `PROD_DB_URL` and an encryption passphrase of at least 20 characters in `BACKUP_ENCRYPTION_PASSPHRASE`.
+- Generate a compressed schema-only dump and a compressed full logical SQL dump using PostgreSQL 17.6. Encrypt the full dump with AES-256-CBC, PBKDF2, and 600000 iterations. The schema-only file remains unencrypted.
+- Upload both files as `prod-db-backup` in GitHub Actions with 90-day retention. Verify successful creation and artifact upload from `main`.
+- Document artifact discovery/download, decryption, restore preparation, validation, and cutover commands in `supabase/README.md`.
+- Explicitly document omitted ownership/grants, managed-schema compatibility, Storage-file exclusions, and manual project configuration. Do not present the current artifact as a verified one-command project restore.
+- Defer the full restore rehearsal and required recovery-format improvements to TASK-007, P3 - Low, at the user's request.
 - Keep database URLs, certificates, dumps, and credentials out of logs and committed files.
 
-### Official migration baseline
+### Initial migration baseline
 
-- Replace the two existing migrations with one clearly named official initial migration.
+- Replace historical migrations with `20260805135713_initial_schema.sql`.
 - Build the migration from the final intended schema, functions, triggers, grants, constraints, reference roles, and RLS policies.
 - Define the final student, user-profile, and incident policies directly; do not create the superseded permissive policies and then drop them inside the baseline.
-- Preserve the current database behavior exactly. Do not add tables, columns, policies, roles, constraints, functions, or grants unrelated to combining the migrations.
+- Preserve the intended application database contract. The older production policies were not the source of truth; the approved reset replaces them with the final baseline policies. Do not introduce unrelated model or permission changes.
 - Delete both superseded migration files after the combined migration is complete.
 - Recreate local Supabase from the single migration and regenerate `src/types/supabase.ts`.
 - Verify that generated database contracts and all RLS/constraint behavior remain unchanged.
 - Search for and update any repository references to the deleted migration filenames.
+- Exercise actual pending baseline application through both hosted pipelines after approved resets, not only no-pending-migrations runs.
+- Bootstrap the initial admin manually after an empty reset. Migrations create roles and the new-user profile trigger, not an admin Auth account. The bootstrap script does not repair existing Auth accounts with missing profiles.
+- Future database changes must be new migrations. Never automatically reset hosted databases or repair migration history during routine deployment.
 
 ## Out of Scope
 
 - Applying the squashed migration over a production or local database that retains the old Supabase migration history.
-- Preserving production data; the approved rollout recreates an empty production project.
+- Preserving disposable production data during the explicitly approved initial reset; the existing project is retained.
 - Deploying, resetting, linking, backing up, or bootstrapping production during implementation without explicit approval.
 - Adding application features, changing role permissions, redesigning RLS, or modifying the data model.
-- Adding a custom application deployment workflow when Vercel already owns frontend deployment.
-- Rewriting the README or deleting completed refactoring documents; those belong to the separate documentation-cleanup feature.
+- A generalized project-cloning system, automatic Storage-file backups, additional backup destinations, or full recovery rehearsal in this delivery; evaluate recovery follow-ups under TASK-007.
+- Fixing stale/deleted-user sessions in this feature; track the confirmed error as DEF-004, P2.
+- Rewriting the root README or deleting completed refactoring documents; those belong to documentation-cleanup. The focused Supabase backup/restore README is in scope.
 - Adding third-party CI services, coverage-percentage gates, component-test tooling, or unrelated dependencies.
 
 ## Implementation Steps
@@ -92,12 +115,14 @@ Complete this feature before the README and refactoring-documentation cleanup wh
 2. Document the confirmed failure causes and any required GitHub secret or repository-setting changes.
 3. Align Node, npm, and Supabase CLI versions across `package.json`, the lockfile, local commands, and GitHub Actions with the smallest necessary change.
 4. Update the CI workflow to run the application gates and the local Supabase reset/integration gates under the appropriate triggers.
-5. Correct the backup workflow only where the diagnosed failure or intended trigger behavior requires a repository change; request user direction for missing production configuration or a behavioral trigger decision.
+5. Configure gated hosted migration/prebuilt deployment jobs, Vercel environment mapping, and PR-only main protection. Implement the agreed monthly/manual encrypted backup workflow.
 6. Create one official initial migration containing the final state produced by the two existing migrations, then remove the superseded files.
 7. Reset local Supabase from the new baseline and regenerate the committed database types.
-8. Run the unit and integration suites twice when fixture, cleanup, migration, or workflow integration behavior changed.
+8. Verify unit/integration behavior in independent clean CI runs for staging and production. This replaces the original two-consecutive-runs-in-one-local-stack criterion; same-stack repeatability is not claimed from the available evidence.
 9. Run lint, typecheck, build, and diff validation.
-10. Push the feature branch and verify the relevant GitHub Actions jobs succeed before completion. Do not mark an unexecuted external workflow as passing.
+10. Merge the local feature into `working`, push, and verify staging checks, actual migration, deployment, and smoke checks. Release through a checked PR to `main`, then verify production migration/deployment and login. Perform resets/bootstrap only with explicit approval.
+11. Verify a production backup artifact from `main`, document recovery limits, and record TASK-007 and DEF-004 without duplicate backlog entries.
+12. Update the specification with approved decisions and evidence, then commit/merge remaining documentation through the normal release workflow.
 
 ## Risks
 
@@ -107,6 +132,9 @@ Complete this feature before the README and refactoring-documentation cleanup wh
 - Installing unpinned tools can make CI pass or fail differently over time.
 - Backup failures can be hidden accidentally by overly broad conditions or skipped jobs.
 - Production secrets or database dumps must never appear in workflow logs or repository changes.
+- Migrations are applied before deployment; a failed build/deployment does not roll them back. Future migrations should remain compatible with the running application.
+- Monthly backups permit approximately a month's data loss, and artifact expiration removes recovery points. Successful backup creation does not establish recoverability.
+- Recreating a project still requires new connection settings, API keys, and manual service configuration. SQL backups do not restore uploaded Storage bytes.
 
 ## Tests
 
@@ -115,23 +143,26 @@ Complete this feature before the README and refactoring-documentation cleanup wh
 - The official migration recreates a fresh local database successfully with no optional seed dependency.
 - `src/types/supabase.ts` is regenerated from the official migration and contains no unintended contract change.
 - `npm test` passes.
-- `npm run test:integration` passes twice consecutively against local Supabase with no leaked fixtures.
+- `npm run test:integration` passes against ephemeral local Supabase in independent clean staging and production CI runs; cleanup succeeds. Two consecutive executions in one local stack were not verified and are not part of the revised acceptance criterion.
 - RLS coverage still verifies incident ownership, cross-role incident/profile reads, student permissions, group/category/role permissions, and foreign-key constraints.
 - `npm run typecheck`, `npm run lint`, `npm run build`, and `git diff --check` pass.
 - Repository search finds exactly one official migration and no references to the two deleted filenames.
 - CI obtains local Supabase credentials without hardcoding production or hosted secrets.
-- Relevant pull-request or manual GitHub Actions runs complete successfully.
-- The backup workflow either completes successfully with configured secrets or reports a clear actionable configuration failure without exposing secret values.
+- Required PR checks and push-triggered staging/production releases complete successfully. Hosted migration jobs apply the pending baseline after approved resets.
+- Staging authenticated page/data checks pass and production authentication is confirmed. These are smoke checks, not full browser/CRUD or multi-role acceptance coverage.
+- The backup workflow completes successfully from `main` and uploads its artifact. Decryption and full restoration remain deferred, not implicitly passed.
 
 ## Done Checklist
 
-- [ ] Current GitHub Actions failures have confirmed causes rather than assumed fixes.
-- [ ] Node, npm, and Supabase CLI versions are intentional and consistent in CI.
-- [ ] CI runs the required application and local database verification gates.
-- [ ] CI integration tests cannot target hosted Supabase.
-- [ ] Backup behavior and required repository secrets are explicit and verified.
-- [ ] One official migration replaces the two historical migrations without changing database behavior.
-- [ ] A fresh local reset, generated types, unit tests, and two consecutive integration runs pass.
-- [ ] Lint, typecheck, build, and diff validation pass.
-- [ ] Relevant GitHub Actions jobs pass before feature completion.
-- [ ] No production operation, credential, or unrelated application change is included.
+- [ ] CI/hosted failures were investigated from logs and actionable configuration issues resolved.
+- [ ] CI uses an intentional toolchain and runs application/local-database gates.
+- [ ] Integration assertions reject hosted Supabase URLs.
+- [ ] The initial migration recreates the intended schema and passes generated-type and RLS/constraint checks.
+- [ ] Application checks, local resets, and integration checks pass in clean staging and production CI runs.
+- [ ] PR-only production releases and gated hosted migrations/Vercel deployments were exercised successfully.
+- [ ] Staging smoke checks and production authentication completed.
+- [ ] Monthly/manual backup creation and artifact upload succeeded from `main`.
+- [ ] Backup/restore documentation states the current limits without claiming a tested restore.
+- [ ] Full recovery is deferred to TASK-007, P3; stale-session handling is tracked as DEF-004, P2.
+- [ ] Hosted resets/bootstrap were explicitly approved; they are not routine automated deployment behavior.
+- [ ] Commit and merge the remaining documentation changes. This is repository handoff, not an outstanding CI/CD implementation goal.
