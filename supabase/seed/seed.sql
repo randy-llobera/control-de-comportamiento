@@ -8,7 +8,7 @@ with
     limit 1
   ),
   seed_groups(name) as (
-    values ('ESO1'), ('ESO2'), ('ESO3'), ('ESO4')
+    values ('ESO 1A'), ('ESO 1B'), ('ESO 2A'), ('ESO 2B')
   ),
   inserted_groups as (
     insert into public.groups (name, created_by)
@@ -19,7 +19,7 @@ with
     returning id, name
   ),
   seed_categories(name) as (
-    values ('Behavior'), ('Attendance'), ('Achievement')
+    values ('Indisciplina en Clase'), ('Asistencia'), ('Dispositivos Electronicos')
   ),
   inserted_categories as (
     insert into public.categories (name, created_by)
@@ -35,7 +35,7 @@ with
     select id, name from public.groups
   ),
   seed_students(name, group_name) as (
-    values ('Alice', 'ESO1'), ('Bob', 'ESO1'), ('Chloe', 'ESO2')
+    values ('Alice', 'ESO 1A'), ('Bob', 'ESO 1B'), ('Peter', 'ESO 2A')
   )
 insert into public.students (name, group_id)
 select seed_students.name, groups.id

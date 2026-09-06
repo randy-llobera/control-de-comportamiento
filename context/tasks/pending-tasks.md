@@ -10,14 +10,6 @@
 - **Impact:** Payload and rendering costs grow with the incident table. Incidents beyond the API row cap can be absent from the list, CSV export, and dashboard totals, making the dashboard increasingly inaccurate as well as less useful.
 - **Action:** Define one server-owned reporting filter contract and use it for the incident list, complete export, and dashboard. Paginate detailed results, compute filtered aggregates at the database boundary, and redesign the dashboard around useful period comparisons, filters, and paginated or linked drill-downs. Preserve the shared filter semantics and displayed/exported teacher and date values.
 
-### TASK-007 - Complete and verify the gated CI release and production backup rollout
-
-- **Confirmed:** 2026-08-06
-- **Location:** `.github/workflows/db-ci.yml`, `.github/workflows/backup-prod.yml`, GitHub Actions, and Vercel deployments
-- **Evidence:** `origin/working` contains the new hosted migration and ordered Vercel deployment jobs at `ca6934b`, and all six required repository secrets exist. The active `main` ruleset requires `Application checks` and `Local database checks`, blocks deletion and non-fast-forward updates, requires pull requests and linear history, and permits only squash/rebase merges. However, GitHub has no CI run for the new `working` commit. The latest successful run, `31120943522`, tested `bf7bb28` with the older checks-only workflow and contains only the application and local database jobs. `origin/main` still points to `bf7bb28`, so it does not yet contain the hosted migration/deployment jobs. Every retained `Backup Prod DB` run failed, with no successful artifact or decrypt verification.
-- **Impact:** The intended staging and production release order has not been exercised from the committed workflow, production does not yet receive that workflow from `main`, and the encrypted backup cannot be treated as recoverable until a successful artifact is decrypted and inspected outside production.
-- **Action:** Dispatch or retrigger CI for the current `working` commit and verify application checks, local database checks, staging migration, and Preview deployment. Open the `working` to `main` pull request, verify the required checks, merge using an allowed method, and verify the production migration and deployment jobs. Then manually run `Backup Prod DB`, download the retained artifact, decrypt and validate the full dump in an approved non-production recovery environment, and record the evidence without exposing credentials or plaintext production data.
-
 ## P2 - Medium
 
 ### TASK-002 - Add anonymous-access regression coverage to the RLS integration suite
@@ -35,6 +27,14 @@
 - **Action:** Replace the NextAuth-specific scope with Supabase-owned versus application-owned controls. Cover request-scoped session validation, Proxy and protected layouts, authorization at feature and Server Action boundaries, signup metadata/profile creation, role escalation, RLS and grants, service-role key isolation, browser/server client separation, safe Auth errors, and hosted configuration assumptions. Keep findings evidence-based and require current Supabase documentation.
 
 ## P3 - Low
+
+### TASK-007 - Verify end-to-end database backup and restore recovery
+
+- **Confirmed:** 2026-08-06; updated 2026-09-06
+- **Location:** `.github/workflows/backup-prod.yml`, `supabase/README.md`, GitHub Actions artifacts, and an approved disposable Supabase recovery project
+- **Evidence:** The gated staging and production migration/deployment rollout was verified on September 5, 2026; production CI run `33980123931` succeeded after reruns, and the user confirmed production authentication. Production backup run `33982278245` succeeded from `main` and uploaded `prod-db-backup`. Full decryption and a complete database restore rehearsal remain unverified. The current raw SQL dump excludes ownership/grants and requires review for Supabase-managed schemas; Storage file contents and external project configuration are not included.
+- **Impact:** Backup creation is verified, but recoverability into a usable replacement project is not. Deferred at the user's request as P3 - Low; that priority does not establish that recovery is tested.
+- **Action:** Follow `supabase/README.md` to verify backup creation, artifact discovery/download, retention, passphrase retrieval, decryption, and integrity. Restore into an explicitly approved disposable project, never production or shared staging. Resolve dump-format or managed-schema compatibility issues with the smallest necessary change. Verify Auth accounts/identities and profile UUID relationships, application data counts and relationships, constraints/indexes, functions/triggers, RLS/grants, migration history, login, role-specific permissions, and representative CRUD behavior. Check whether Storage files or encrypted database values require separate recovery, and record the manual project-setting/secret and application cutover steps. Record run IDs, backup timestamp, recovery duration, command results, and remaining limitations without credentials or plaintext personal data. Update the runbook with the rehearsed procedure and clean up the approved recovery resources. Close this task only after the restored database works with an isolated application; do not duplicate the completed CI rollout work.
 
 ### TASK-004 - Split the combined authentication screen into dedicated routes
 
