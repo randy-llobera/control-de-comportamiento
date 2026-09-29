@@ -1,5 +1,7 @@
 # Pending Defects
 
+Internal record of confirmed deviations from the [product contract](../project-overview.md) or [engineering rules](../coding-standards.md). Preserve intended behavior in those guides; keep reproduction evidence and corrective work here until resolved.
+
 ## P2 - Medium
 
 ### DEF-001 - CSV exports do not neutralize spreadsheet formulas

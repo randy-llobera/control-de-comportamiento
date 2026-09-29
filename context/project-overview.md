@@ -1,265 +1,64 @@
-# Control de Comportamiento. Project Overview.
+# Product Overview
 
-## 1. Overview
+## Purpose
 
-The _Control de Comportamiento_ app is a role-based incident tracking system for schools. Teachers, coordinators, and admins can log and manage student incidents across classes and categories. The app will be simple, intuitive, and maintainable, leveraging modern frameworks and cloud infrastructure. The app will be in Spanish (UI, wording, labels, texts). The code and backend should be written in English.
+Control de Comportamiento helps a school record and review student incidents. Teachers record incidents; coordinators manage classroom organization and reporting; admins also manage student records and user roles. The interface is Spanish, with English code identifiers.
 
----
+This document owns the product contract. Implementation details belong in [coding standards](coding-standards.md), setup and release instructions in the [README](../README.md).
 
-## 2. Goals and Principles
+## Roles and permissions
 
-- Primary Goal: Allow teachers to record incidents quickly, coordinators to manage categories/groups, and admins to manage roles/permissions and oversee the system.
-- Keep it Simple: Minimize overengineering. Use modern libraries and frameworks, but avoid unnecessary complexity.
-- Maintainability: Clean, well-structured, and documented code with scalable architecture.
-- Role-Based Access Control (RBAC): Strict separation of concerns between roles.
-- Internationalization-ready (i18n): Default app language is Spanish, but support for multilingual expansion. To be implemented in future iteration.
-- Accessibility: Follow accessibility standards (WCAG 2.1 AA).
+| Operation | Teacher | Coordinator | Admin |
+| --- | --- | --- | --- |
+| Read/create students in existing groups | Yes | Yes | Yes |
+| Update/delete students | No | No | Yes |
+| Read/create incidents; filter and export | Yes | Yes | Yes |
+| Update/delete incidents | Own only | All | All |
+| Read groups and categories for selection | Yes | Yes | Yes |
+| Create/update/delete groups and categories | No | Yes | Yes |
+| View dashboard | No | Yes | Yes |
+| View user management and assign roles | No | No | Yes |
 
----
+A user's school-role description is profile text, not an authorization role. Roles are `teacher`, `coordinator`, and `admin`; new registrations receive `teacher`. Each incident retains the identity of its creator. Role-based controls must be enforced on the server and in the database, not just hidden in the interface.
 
-## 3. User Roles & Permissions
+## User workflows
 
-### Admin
+| Page | Behavior |
+| --- | --- |
+| `/` | Introduces the app and links to authentication |
+| `/auth` | Email/password login and registration; registration collects display name and school-role description |
+| `/incidentes` | Landing page after login; create, review, filter, edit, delete, and export incidents according to permissions |
+| `/estudiantes` | Create students in existing groups; admins also edit/delete records |
+| `/grupos` | Manage student groups |
+| `/categorias` | Manage incident categories |
+| `/dashboard` | Review incident totals, severity counts, category/group summaries, and recent incidents |
+| `/usuarios` | Assign existing user roles |
 
-- Assign and manage roles/permissions.
-- Access Admin Dashboard.
-- Manage coordinators, teachers, students, groups, and categories.
-- Create, update, and delete all incidents.
-- Access to all current and future features.
+Navigation shows the pages available to the signed-in role. Signup follows the configured Auth email-confirmation policy. Logout ends the session and returns to authentication.
 
-### Coordinator
+To create an incident, select a group and student, category, severity (`low`, `medium`, or `high`), description, and incident date. The creator comes from the session. Editing changes category, severity, description, and date; it does not transfer the incident to a different student or creator.
 
-- Create/manage incident categories.
-- Create/manage groups/classes.
-- Create, update, and delete all incidents.
-- Perform all teacher actions.
-- Access features explicitly assigned by admins.
+Incident filters cover category, severity, group, and inclusive date range. CSV export uses the same filters and includes date, student, group, category, severity, description, and teacher. Files use `incidentes-YYYYMMDD.csv`, UTF-8 with a BOM, Spanish headers, and displayed dates in `DD-MM-YYYY` format.
 
-### Teacher
+Deletion must preserve related records: a referenced group, category, or student cannot be removed while dependent records remain. Destructive UI operations require explicit confirmation.
 
-- Add students (assign them to existing groups/classes).
-- Create incidents by selecting:
-  - Student
-  - Category
-  - Severity (Low, Medium, High)
-  - Description (optional text field).
-- Update/delete only incidents they created.
-- Filter/search incidents by:
-  - Category
-  - Severity
-  - Group/class
-  - Date range
-- Export incidents as CSV based on applied filters.
-- No access to create categories/groups.
+## Domain relationships
 
----
+- An Auth account has an application profile linked to one role.
+- A student belongs to one group; names are unique within that group.
+- Groups and categories have unique names and record their creator.
+- An incident links a student, category, and creator, with severity, description, and incident date.
+- Database severity is text constrained to the allowed values, not a Postgres enum.
 
-## 4. Core Features
+[Migrations](../supabase/migrations/) own exact columns, defaults, grants, constraints, and RLS. [Generated database types](../src/types/supabase.ts) describe the database contract used by TypeScript. Do not maintain a second column-by-column schema here.
 
-### Authentication & Authorization
+## Product requirements
 
-- Supabase Auth for login and role management.
-- Roles stored in Supabase and enforced via policies.
-- JWT-based access control in frontend.
-- Session persistence.
+- Recording an incident should require few steps and provide clear confirmation or actionable validation feedback.
+- Permissions must remain consistent across navigation, individual operations, exports, and reporting.
+- Reports and exports should represent the selected data accurately; implementation defects do not change that requirement.
+- Forms must support keyboard operation, visible focus, accessible labels, and field-level errors. WCAG 2.1 AA is the accessibility target, not a claim of completed certification.
+- User-facing errors must be safe and understandable in Spanish. Do not reveal database details or credentials.
+- Support usable layouts on phones, tablets, and desktop screens. Keep product complexity proportional to the school's needs.
 
-### Incident Management
-
-- All authenticated roles can read/create incidents.
-- Teachers can update/delete only incidents they created.
-- Coordinators and admins can update/delete all incidents.
-- Filtering by category, severity, group, and date.
-- CSV export (teachers and above).
-
-### Student & Group Management
-
-- Teachers: add students (must select an existing group).
-- Coordinators: create/manage groups.
-- Admins: full management.
-
-### Category Management
-
-- Coordinators and admins can create/edit incident categories.
-
-### Dashboard (Admin and Coordinators Only)
-
-- Overview of incidents by:
-  - Category
-  - Severity
-  - Group/class
-  - Timeline trends (basic charts).
-
-### Users Management
-
-- Manage user role (assign/remove roles).
-
-### CSV Export
-
-- Based on applied filters
-
----
-
-## 5. Data Model (Supabase – PostgreSQL)
-
-### system users (Supabase auth.users)
-
-- id (UUID, PK)
-- email (string)
-
-### roles
-
-- id (UUID, PK)
-- name (string: 'admin', 'coordinator', 'teacher')
-- created_at (timestamp)
-
-### users
-
-- id (UUID, PK, FK → auth.users.id)
-- role_id (FK → roles.id, defaults to teacher on signup)
-- display_name (string, user’s full name provided at signup)
-- school_role (string, e.g., "Technology Teacher")
-- created_at (timestamp)
-- updated_at (timestamp)
-
-### students
-
-- id (UUID, PK)
-- name (string)
-- group_id (FK → groups.id)
-- created_at (timestamp)
-
-### groups
-
-- id (UUID, PK)
-- name (string)
-- created_by (FK → users.id)
-- created_at (timestamp)
-
-### categories
-
-- id (UUID, PK)
-- name (string)
-- created_by (FK → users.id)
-- created_at (timestamp)
-
-### incidents
-
-- id (UUID, PK)
-- student_id (FK → students.id)
-- category_id (FK → categories.id)
-- severity (enum: low, medium, high)
-- description (text)
-- date (date)
-- teacher_id (FK → users.id, automatically assigned based on logged-in user)
-- created_at (timestamp)
-
----
-
-## 6. Architecture
-
-### Frontend
-
-- Framework: React + Next.js.
-- Styling: Tailwind CSS v4.\* .
-- State Management:
-  - Server state: TanStack Query or similar if Next.js Server Components and Server Actions becomes insufficient.
-  - Client state: Zustand.
-- i18n: `next-i18next` for Spanish default. (Added in future iterations)
-
-### Backend
-
-- Supabase (Postgres DB + Auth + Storage + Edge Functions).
-- Row-Level Security (RLS) policies for role-based permissions.
-- Edge Functions for sensitive role-management logic.
-
-### Deployment
-
-- Vercel for frontend hosting.
-- Supabase for backend (DB + auth + storage).
-- Local feature and fix branches use local Supabase and normally remain unpushed.
-- A push to `working` runs GitHub Actions application and local-database checks, applies pending migrations to the staging Supabase project, and then creates a Vercel Preview deployment.
-- Production changes enter protected `main` only through a pull request from `working`. Pull requests run checks without changing hosted databases or deploying the application.
-- Merging the pull request triggers the `main` release: checks, pending production migrations, and then the Vercel Production deployment.
-- Vercel Git deployments are disabled for `working` and `main`; GitHub Actions owns deployment ordering. Vercel does not apply Supabase migrations.
-- Production database backups run independently through GitHub Actions, manually or monthly, and encrypt the full data dump before artifact upload.
-
----
-
-## 7. Role-Based Access (Supabase Policies)
-
-- Teachers: Insert `incidents`, insert `students`, select/filter `incidents`.
-- Coordinators: Teacher permissions + insert/update `categories` and `groups` + Dashboard.
-- Admins: Full access to all tables, including updating user roles.
-
----
-
-## 8. UI/UX Guidelines
-
-- All roles land on the **Incidents page** after login.
-- Sidebar navigation:
-  - Teacher: Incidents, Students
-  - Coordinator: Incidents, Students, Groups, Categories, Dashboard
-  - Admin: Incidents, Students, Groups, Categories, Dashboard, User Management
-- Dashboard provides statistics.
-- Teacher identity is automatically filled from the `users` table when logging incidents.
-
----
-
-## 9. CSV Export
-
-- Teachers and above can export incidents filtered by parameters.
-- File naming convention: `incidentes-YYYYMMDD.csv`.
-- Encoding: UTF-8 with headers.
-
----
-
-## 10. Development Guidelines
-
-- Coding Standards: ESLint + Prettier.
-- Version Control: GitHub (feature branching).
-- Commits: Conventional Commits (`feat:`, `fix:`, `chore:`).
-- Testing: Vitest
-- Error Handling:
-  - User-friendly error messages.
-  - Logging (Supabase functions + Vercel monitoring).
-
----
-
-## 11. Non-Functional Requirements
-
-- Performance: Fast response.
-- Scalability: Designed to scale to multiple schools in future.
-- Security:
-  - RLS policies in Supabase.
-  - HTTPS enforced.
-  - Passwordless login via OAuth & Office 365 (To be added in the future).
-  - Localization: Spanish default; prepared for translations (To be added in the future).
-- Accessibility: Keyboard navigation, ARIA labels.
-
----
-
-## 12. Roadmap (MVP → Future)
-
-### MVP
-
-- Authentication (Supabase).
-
-* Users table linked to auth.users with default role = teacher
-* Role-based RLS
-* Incident logging with required description and date; teacher automatically linked
-
-- Students/groups/categories management.
-- Dashboard (basic version).
-
-* CSV export
-
-### Future Enhancements
-
-- Passwordless login via OAuth & Office 365
-- Internationalization support for other languages.
-
-* Notifications (email/SMS).
-* Incident resolution workflow (status: open, closed).
-* Multi-school support.
-* Advanced analytics dashboards.
-* Parent portal.
+Proposed extensions and implementation gaps are maintained in the internal work records described by the [documentation workflow](ai-interaction.md), not in the available-feature list.

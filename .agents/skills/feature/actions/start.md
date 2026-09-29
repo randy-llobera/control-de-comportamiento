@@ -1,7 +1,6 @@
 # Start Action
 
-1. Read current-feature.md - verify Goals are populated
-2. If empty, error: "Run /feature load first"
-3. Set Status to "In Progress"
-4. Create and checkout the feature branch. Branch name will derive name from H1 heading, ex: feature/[heading]
-5. List the goals, then implement them one by one
+1. Read the active spec linked from current-feature. If none is loaded, request load first.
+2. Check dependencies and the worktree, then follow the project's planning and branching rules. Derive the branch name from the feature and reuse it when resuming.
+3. Set the active feature and spec status to `In Progress`.
+4. Implement the agreed acceptance scope incrementally. Apply the documentation update matrix and record verification in the spec.

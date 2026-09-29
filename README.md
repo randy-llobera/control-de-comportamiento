@@ -1,254 +1,125 @@
 # Control de Comportamiento
 
-A comprehensive student incident management system with role-based user access (Teacher, Coordinator, Administrator).
+A Spanish-language school incident tracking app. Teachers record student incidents, coordinators manage groups and categories, and admins also manage student records and user roles. See the [product overview](context/project-overview.md) for workflows and the permission matrix.
 
-## Features
+Built with Next.js App Router, React, strict TypeScript, Supabase Postgres/Auth, Tailwind CSS v4, shadcn/ui, and Zod. [Coding standards](context/coding-standards.md) define application boundaries. [Development workflow](context/ai-interaction.md) explains how to contribute and which documents to update.
 
-- **Authentication**: Supabase Auth with user registration
-- **Role-based Access**: Teacher (default), Coordinator, Administrator
-- **Incident Management**: Create, filter, and export incidents
-- **Student Management**: CRUD operations for students by teachers
-- **Group & Category Management**: Available for coordinators and administrators
-- **Dashboard**: Statistics and analytics for coordinators and administrators
-- **User Management**: Role assignment by administrators
-- **CSV Export**: Apply filters to exported data
+## Local setup
 
-## Technology Stack
-
-- **Frontend**: Next.js 16 (App Router), React 19, TypeScript
-- **Styling**: Tailwind CSS v4
-- **Backend**: Supabase (PostgreSQL, Auth, Row Level Security)
-- **Development**: ESLint, PostCSS
-- **Deployment**: Vercel (frontend) + Supabase (backend)
-
-## Setup
-
-### 1. Clone the repository
+Use Node 24.x and npm 12.0.0, with Docker running for local Supabase. Run commands from the repository root. `npm ci` installs the lockfile-resolved toolchain, including the Supabase CLI.
 
 ```bash
-git clone <repository-url>
-cd control-de-comportamiento
+npm ci
+cp .env.example .env
+npm run db:start:local
+npm run db:reset:local
+npm exec -- supabase status
 ```
 
-### 2. Install dependencies
+The reset destroys local database data, applies committed migrations without optional seeds, and regenerates database types. Use disposable local data only. Fill `.env` from the local stack's output:
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Local Supabase API endpoint |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Local public API key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Local admin bootstrap and integration fixtures |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Initial local admin credentials |
+| `ADMIN_DISPLAY_NAME`, `ADMIN_SCHOOL_ROLE` | Initial local admin profile |
+
+Keep values untracked. Never expose service-role keys or admin credentials through `NEXT_PUBLIC_*`. Ensure shell exports and other environment files do not override the intended local settings.
 
 ```bash
-npm install
+ENV_FILE=.env npm run db:bootstrap-admin
+npm run dev
 ```
 
-### 3. Configure Supabase
+Bootstrap creates the configured Auth account if absent and assigns its profile the admin role. It does not reset existing passwords or repair missing profiles. Shell exports override `ENV_FILE`, which defaults to `.env`. Optionally run `npm run db:seed:local` after bootstrap to add disposable fixtures. Open [the local app](http://localhost:3000).
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Copy `env.example` to `.env`
-3. Fill in the environment variables with your Supabase credentials:
+## Commands
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-RESEND_API_KEY=
-ADMIN_EMAIL=
-ADMIN_PASSWORD=
-ADMIN_DISPLAY_NAME=
-ADMIN_SCHOOL_ROLE=
+[package.json](package.json) owns exact command definitions; the lockfile owns resolved dependency versions.
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` / `npm run start` | Build / serve the built app |
+| `npm test` / `npm run test:watch` | Unit tests / watch mode |
+| `npm run test:integration` | Local Supabase permission and constraint tests |
+| `npm run lint` / `npm run typecheck` | ESLint / TypeScript checks |
+| `npm run format` | Format files; writes changes |
+| `npm run db:start:local` | Start local Supabase |
+| `npm run db:reset:local` | Reset local database and regenerate types |
+| `npm run types:local` | Regenerate `src/types/supabase.ts` |
+| `npm run db:bootstrap-admin` | Bootstrap the admin in the selected environment |
+| `npm run db:seed:local` | Add optional local fixtures |
+| `npm run db:migrate:production` | Apply pending migrations to the linked project; exceptional operator use |
+
+## Checks
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+git diff --check
 ```
 
-### 4. Configure the database
+Success means exit code 0, no lint/type errors, a completed build, and no whitespace errors. Run `npm test` for affected unit behavior and follow the [testing contract](context/coding-standards.md#testing) for integration and browser checks.
 
-Database schema and security changes are migration-only. Do not use the Supabase SQL Editor, `supabase db diff`, or `supabase db push` to create schema changes.
-
-#### Local database
+For local integration tests, configure `.env` with the local API URL, anon key, and service-role key:
 
 ```bash
 npm run db:start:local
 npm run db:reset:local
-ENV_FILE=.env npm run db:bootstrap-admin
+npm run test:integration
 ```
 
-`db:start:local` uses the Supabase CLI version pinned by this project. `db:reset:local` recreates local Postgres from all migrations and regenerates `src/types/supabase.ts`. `db:bootstrap-admin` creates the configured Auth user and promotes it to `admin`. To add disposable local fixtures after the admin exists, run:
+[Integration configuration](vitest.integration.config.ts) loads test-mode environment files, with shell variables taking precedence. It requires both keys and refuses any URL whose hostname is not `localhost` or `127.0.0.1` before fixtures run. Never bypass the guard by forwarding a hosted database through a local endpoint.
 
-```bash
-npm run db:seed:local
-```
+[The suite](supabase/rls.integration.test.ts) creates/cleans isolated fixtures with a service-role client and checks permissions through signed-in teacher-owner, other-teacher, coordinator, and admin clients. It covers student permissions, incident ownership and cross-role/profile reads, group/category/role management, and foreign-key deletion constraints. Optional seeds and a preexisting admin are not required.
 
-#### Production database
+## Database development
 
-Create or recreate an empty Supabase project, then link it and apply committed migrations:
+Create a migration with `npm exec -- supabase migration new change_name`, edit its SQL, then reset and test locally using the commands above. Commit migrations and generated types together. Do not rewrite applied migrations or author untracked hosted schema changes.
 
-```bash
-supabase link --project-ref <production-project-ref>
-npm run db:migrate:production
-ENV_FILE=.env.production npm run db:bootstrap-admin
-```
+[Migrations](supabase/migrations/) own schema, grants, RLS, reference roles, and the signup profile trigger. They do not create an admin Auth account. In a clean verification checkout, regenerate types and run `git diff --exit-code -- src/types/supabase.ts`; success is exit code 0. Review and commit intentional generated changes alongside their migration first.
 
-Production receives the same schema, role records, policies, and admin account as local. The local fixture seed is never run against production.
+Hosted migrations normally run through the release pipeline. `db:migrate:production` executes `supabase migration up --linked`; the script name does not select production. Use it only as an exceptional operator action after verifying the linked target. Hosted bootstrap also requires deliberately selected environment values and authorization.
 
-Admin bootstrap is the only database-adjacent operation outside migrations because a real Auth password must remain untracked. It is idempotent and uses the service-role key from the selected environment file.
+## Releases
 
-`.env.production` is an ignored operator reference file for the production Supabase endpoint, service-role key, and initial admin values. It is never committed. Configure only application runtime values manually in Vercel; do not expose the service-role key or admin password through `NEXT_PUBLIC_*` variables.
+The [developer workflow](context/ai-interaction.md#change-lifecycle) keeps feature/fix branches local and merges completed work into `working` before one push. Release behavior is defined by [CI](.github/workflows/db-ci.yml) and [Vercel configuration](vercel.json):
 
-### 5. Run the project
+| Trigger | Checks | Hosted result after checks pass |
+| --- | --- | --- |
+| Push `working` | Application and local database | Pending staging migrations, then Vercel Preview |
+| PR from `working` to `main` | Application and local database | No hosted migration or deployment |
+| Push `main` after PR merge | Application and local database | Pending production migrations, then Vercel Production |
+| Manual CI dispatch | Application and local database | Checks only |
 
-```bash
-npm run dev
-```
+Application checks run unit tests, typecheck, lint, and build. Database checks start ephemeral local Supabase, reset migrations, compare generated types, and run integration tests. Both jobs must pass before hosted migrations, which must succeed before deployment. With no pending migrations, that step is a no-op.
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Validate Preview behavior before opening the production PR. Protected `main` requires a PR, resolved review threads, linear history, and up-to-date `Application checks` and `Local database checks`. Use an approved squash or rebase merge, never a direct push; the merge emits the production push event.
 
-## Usage
+Vercel Git deployments are disabled for both release branches. GitHub Actions owns deployment ordering; Vercel does not apply Supabase migrations. Failed checks/migrations stop deployment. Migrations have no automatic rollback, even if a later deployment fails: keep them compatible with the running app and use a forward-fix migration when reversal is needed.
 
-### User Flow
+## Environment configuration
 
-1. **Registration**: New users are registered as "Teacher" by default
-2. **Login**: All users are redirected to `/incidentes` after login
-3. **Navigation**: Sidebar shows options based on user role
+| App environment | Database |
+| --- | --- |
+| Local development | Local Supabase |
+| `working` / Vercel Preview | Staging Supabase |
+| `main` / Vercel Production | Production Supabase |
 
-### Roles and Permissions
+GitHub release secrets are `STAGING_DB_URL` and `PROD_DB_URL` (PostgreSQL connection strings), plus `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` for deployment. Backup-specific configuration belongs in the [recovery guide](supabase/README.md#configuration).
 
-#### Teacher (default)
+Configure the unsuffixed `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` separately in Vercel Preview and Production. These are the application's HTTPS API endpoint/public key, not GitHub's database connection strings. Rebuild through the push-triggered release when public build-time values change.
 
-- View and create incidents
-- Manage students
-- Filter and export incidents
+## Backups
 
-#### Coordinator
+Production backups run independently of releases. Consult [Database backups and recovery](supabase/README.md) for schedule, retention, configuration, download, decryption, restore preparation, and validation. Preserve the encryption passphrase separately from GitHub and perform recovery rehearsals only on a disposable target.
 
-- All Teacher functions
-- Manage groups
-- Manage categories
-- View dashboard with statistics
+## Repository guide
 
-#### Administrator
+Application source is under `src/`; its folder responsibilities are defined in [coding standards](context/coding-standards.md#application-boundaries). Database migrations, fixtures, and recovery instructions live under `supabase/`; admin bootstrap lives in `scripts/bootstrap-admin.mjs`; automation lives in `.github/workflows/`.
 
-- All Coordinator functions
-- Manage users and assign roles
-
-### Main Pages
-
-- **`/`**: Home page with authentication link
-- **`/auth`**: User login and registration
-- **`/incidentes`**: Incident list with filters and creation form
-- **`/estudiantes`**: Student CRUD operations (teachers)
-- **`/grupos`**: Group CRUD operations (coordinators+)
-- **`/categorias`**: Category CRUD operations (coordinators+)
-- **`/dashboard`**: Statistics and summaries (coordinators+)
-- **`/usuarios`**: User management and role assignment (administrators)
-
-## Project Structure
-
-```
-src/
-├── app/                    # Next.js pages (App Router)
-│   ├── auth/              # Authentication
-│   │   └── page.tsx       # Login/register page
-│   ├── incidentes/        # Incident management
-│   │   └── page.tsx       # Incident list and creation
-│   ├── estudiantes/       # Student management
-│   │   └── page.tsx       # Student CRUD operations
-│   ├── grupos/            # Group management
-│   │   └── page.tsx       # Group CRUD operations
-│   ├── categorias/        # Category management
-│   │   └── page.tsx       # Category CRUD operations
-│   ├── dashboard/         # Analytics dashboard
-│   │   └── page.tsx       # Statistics and charts
-│   ├── usuarios/          # User management
-│   │   └── page.tsx       # User role assignment
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/            # Reusable components
-│   ├── Layout.tsx         # Main layout with navigation
-│   └── Navigation.tsx     # Role-based navigation sidebar
-├── lib/                   # Utilities and configuration
-│   ├── supabase.ts        # Supabase client (browser)
-│   └── supabase-server.ts # Supabase client (server)
-└── types/                 # TypeScript types
-    ├── database.ts        # Database types and relationships
-    └── supabase.ts        # Generated Supabase types
-
-Root files:
-├── supabase/              # Database setup
-│   └── README.md          # Database migration instructions
-├── scripts/               # Database utilities
-│   └── seed.sql           # Sample data for testing
-├── reqs/                  # Requirements documentation
-├── package.json           # Dependencies and scripts
-├── next.config.js         # Next.js configuration
-├── tailwind.config.js     # Tailwind CSS configuration
-├── tsconfig.json          # TypeScript configuration
-├── env.local.example      # Environment variables template
-└── SETUP.md               # Detailed setup instructions
-```
-
-## Deployment
-
-### Frontend (Vercel)
-
-1. Connect the repository to Vercel
-2. Configure environment variables in Vercel
-3. Deploy automatically
-
-### Backend (Supabase)
-
-The backend is already configured in Supabase. You only need to apply the SQL migrations.
-
-## Development
-
-### Available Scripts
-
-```bash
-npm run dev      # Run in development mode
-npm run build    # Build for production
-npm run start    # Run in production mode
-npm run lint     # Run ESLint
-```
-
-### Database Management
-
-For every schema or required reference-data change, create a migration with `supabase migration new <name>`, validate it with `npm run db:reset:local`, and deploy it with `npm run db:migrate:production` after linking the intended project.
-
-### Key Components
-
-- **Layout.tsx**: Main application layout with authentication check
-- **Navigation.tsx**: Role-based sidebar navigation with user profile
-- **supabase.ts**: Browser-side Supabase client configuration
-- **supabase-server.ts**: Server-side Supabase client for SSR
-- **database.ts**: TypeScript types for all database entities and relationships
-
-## Security
-
-- **RLS (Row Level Security)**: All tables have RLS policies configured
-- **Authentication**: Supabase Auth handles user authentication
-- **Authorization**: Permissions are verified on both frontend and backend
-- **Validation**: Forms have required field validation
-- **Role-based Access**: Features are restricted based on user roles
-
-## Database Schema
-
-### Core Tables
-
-- **roles**: User role definitions (admin, coordinator, teacher)
-- **users**: User profiles with role assignments
-- **groups**: Student class/group organization
-- **categories**: Incident categorization
-- **students**: Student records linked to groups
-- **incidents**: Behavior incident records with severity levels
-
-### Key Relationships
-
-- Users belong to roles (many-to-one)
-- Students belong to groups (many-to-one)
-- Incidents reference students, categories, and teachers (many-to-one each)
-- Groups and categories are created by users (many-to-one)
-
-## Contributing
-
-1. Fork the project
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is under the MIT License. See the `LICENSE` file for more details.
+Use the [documentation map](context/ai-interaction.md#document-ownership) to find product, engineering, workflow, and internal feature records.
