@@ -1,6 +1,11 @@
 # Pending Tasks
 
+<<<<<<< HEAD
 Internal backlog for improvements and product proposals. Follow the [documentation workflow](../ai-interaction.md); keep active implementation acceptance in its feature spec and remove resolved entries after linking their outcome.
+
+=======
+
+> > > > > > > main
 
 ## P1 - High
 
@@ -10,7 +15,20 @@ Internal backlog for improvements and product proposals. Follow the [documentati
 - **Location:** `src/lib/incidents.ts`, `src/components/IncidentsView.tsx`, `src/lib/dashboard.ts`, and `src/app/(protected)/(coordinator)/dashboard/page.tsx`
 - **Evidence:** The incident page and dashboard each issue an unbounded incident query. The list filters in the browser, while the dashboard loads the returned rows into memory and derives all totals, category/group counts, and the ten recent incidents there. Neither query uses `range()` or another pagination strategy, so Supabase Data API row limits can silently truncate both detailed results and dashboard aggregates. The dashboard also has no period, group, category, severity, or teacher filters and offers no drill-down beyond a fixed recent list.
 - **Impact:** Payload and rendering costs grow with the incident table. Incidents beyond the API row cap can be absent from the list, CSV export, and dashboard totals, making the dashboard increasingly inaccurate as well as less useful.
+  <<<<<<< HEAD
 - **Action:** Define one server-owned reporting filter contract and use it for the incident list, complete export, and dashboard. Paginate detailed results, compute filtered aggregates at the database boundary, and redesign the dashboard around useful period comparisons, timeline trends/charts, filters, and paginated or linked drill-downs. Preserve the shared filter semantics and displayed/exported teacher and date values.
+  \=======
+- **Action:** Define one server-owned reporting filter contract and use it for the incident list, complete export, and dashboard. Paginate detailed results, compute filtered aggregates at the database boundary, and redesign the dashboard around useful period comparisons, filters, and paginated or linked drill-downs. Preserve the shared filter semantics and displayed/exported teacher and date values.
+
+### TASK-007 - Complete and verify the gated CI release and production backup rollout
+
+- **Confirmed:** 2026-08-06
+- **Location:** `.github/workflows/db-ci.yml`, `.github/workflows/backup-prod.yml`, GitHub Actions, and Vercel deployments
+- **Evidence:** `origin/working` contains the new hosted migration and ordered Vercel deployment jobs at `ca6934b`, and all six required repository secrets exist. The active `main` ruleset requires `Application checks` and `Local database checks`, blocks deletion and non-fast-forward updates, requires pull requests and linear history, and permits only squash/rebase merges. However, GitHub has no CI run for the new `working` commit. The latest successful run, `31120943522`, tested `bf7bb28` with the older checks-only workflow and contains only the application and local database jobs. `origin/main` still points to `bf7bb28`, so it does not yet contain the hosted migration/deployment jobs. Every retained `Backup Prod DB` run failed, with no successful artifact or decrypt verification.
+- **Impact:** The intended staging and production release order has not been exercised from the committed workflow, production does not yet receive that workflow from `main`, and the encrypted backup cannot be treated as recoverable until a successful artifact is decrypted and inspected outside production.
+- **Action:** Dispatch or retrigger CI for the current `working` commit and verify application checks, local database checks, staging migration, and Preview deployment. Open the `working` to `main` pull request, verify the required checks, merge using an allowed method, and verify the production migration and deployment jobs. Then manually run `Backup Prod DB`, download the retained artifact, decrypt and validate the full dump in an approved non-production recovery environment, and record the evidence without exposing credentials or plaintext production data.
+
+> > > > > > > main
 
 ## P2 - Medium
 

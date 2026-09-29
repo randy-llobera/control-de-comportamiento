@@ -8,31 +8,31 @@ This document owns the product contract. Implementation details belong in [codin
 
 ## Roles and permissions
 
-| Operation | Teacher | Coordinator | Admin |
-| --- | --- | --- | --- |
-| Read/create students in existing groups | Yes | Yes | Yes |
-| Update/delete students | No | No | Yes |
-| Read/create incidents; filter and export | Yes | Yes | Yes |
-| Update/delete incidents | Own only | All | All |
-| Read groups and categories for selection | Yes | Yes | Yes |
-| Create/update/delete groups and categories | No | Yes | Yes |
-| View dashboard | No | Yes | Yes |
-| View user management and assign roles | No | No | Yes |
+| Operation                                  | Teacher  | Coordinator | Admin |
+| ------------------------------------------ | -------- | ----------- | ----- |
+| Read/create students in existing groups    | Yes      | Yes         | Yes   |
+| Update/delete students                     | No       | No          | Yes   |
+| Read/create incidents; filter and export   | Yes      | Yes         | Yes   |
+| Update/delete incidents                    | Own only | All         | All   |
+| Read groups and categories for selection   | Yes      | Yes         | Yes   |
+| Create/update/delete groups and categories | No       | Yes         | Yes   |
+| View dashboard                             | No       | Yes         | Yes   |
+| View user management and assign roles      | No       | No          | Yes   |
 
 A user's school-role description is profile text, not an authorization role. Roles are `teacher`, `coordinator`, and `admin`; new registrations receive `teacher`. Each incident retains the identity of its creator. Role-based controls must be enforced on the server and in the database, not just hidden in the interface.
 
 ## User workflows
 
-| Page | Behavior |
-| --- | --- |
-| `/` | Introduces the app and links to authentication |
-| `/auth` | Email/password login and registration; registration collects display name and school-role description |
-| `/incidentes` | Landing page after login; create, review, filter, edit, delete, and export incidents according to permissions |
-| `/estudiantes` | Create students in existing groups; admins also edit/delete records |
-| `/grupos` | Manage student groups |
-| `/categorias` | Manage incident categories |
-| `/dashboard` | Review incident totals, severity counts, category/group summaries, and recent incidents |
-| `/usuarios` | Assign existing user roles |
+| Page           | Behavior                                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `/`            | Introduces the app and links to authentication                                                                |
+| `/auth`        | Email/password login and registration; registration collects display name and school-role description         |
+| `/incidentes`  | Landing page after login; create, review, filter, edit, delete, and export incidents according to permissions |
+| `/estudiantes` | Create students in existing groups; admins also edit/delete records                                           |
+| `/grupos`      | Manage student groups                                                                                         |
+| `/categorias`  | Manage incident categories                                                                                    |
+| `/dashboard`   | Review incident totals, severity counts, category/group summaries, and recent incidents                       |
+| `/usuarios`    | Assign existing user roles                                                                                    |
 
 Navigation shows the pages available to the signed-in role. Signup follows the configured Auth email-confirmation policy. Logout ends the session and returns to authentication.
 
