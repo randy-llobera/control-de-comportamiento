@@ -1,27 +1,22 @@
-# Current Feature: Project Documentation Cleanup
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
 <!-- Add goals here -->
 
-See [the active specification](features/documentation-cleanup.md) for scope, decisions, and the acceptance checklist.
-
 ## Notes
 
 <!-- Add notes here -->
-
-- Working incrementally on the existing documentation feature branch.
-- Documentation cleanup is implemented and verified; see the active spec for outcomes and checks. Ready for review/completion, with changes uncommitted.
-- Application code and deployment settings are outside this change. No commit or release has been requested.
 
 ## History
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-09-29: Consolidated project documentation around clear ownership; simplified the product, engineering, operational, recovery, feature, task, defect, skill, and reviewer records; added the documentation update matrix; and verified repository documentation checks. [Record](features/documentation-cleanup.md).
 - 2026-08-06: Established gated application and local-database checks, automatic staging and production migrations, ordered Vercel deployments, encrypted monthly production backups, and one verified initial schema baseline. [Record](features/ci-pipeline-and-database-baseline.md).
 - 2026-08-05: Added repeatable local-only Supabase integration coverage for the role and ownership matrix, cross-role incident/profile reads, database constraints, and reliable fixture cleanup; completed the final standards audit and documented when the feature workflow must run the integration suite. [Record](features/refactor-16-integration-coverage-audit.md).
 - 2026-08-04: Established CSS-first Tailwind theme tokens, aligned application naming while preserving shadcn primitive filenames, renamed the unused browser client, removed obsolete legacy types, and fixed responsive navigation, logout placement, landing width, and focus styling. [Record](features/refactor-15-tailwind-theme-and-naming.md).
