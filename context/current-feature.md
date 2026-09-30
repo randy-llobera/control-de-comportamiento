@@ -2,20 +2,21 @@
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- [Client-side form validation](features/client-side-validation.md)
+<!-- Add goals here -->
 
 ## Notes
 
-- TASK-005: share neutral Zod schemas with client forms while retaining authoritative Server Action validation.
+<!-- Add notes here -->
 
 ## History
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-09-30: Added shared environment-neutral Zod validation for client forms and authoritative Server Actions, with immediate accessible feedback for auth and CRUD create/edit forms. [Record](features/client-side-validation.md).
 - 2026-09-29: Consolidated project documentation around clear ownership; simplified the product, engineering, operational, recovery, feature, task, defect, skill, and reviewer records; added the documentation update matrix; and verified repository documentation checks. [Record](features/documentation-cleanup.md).
 - 2026-08-06: Established gated application and local-database checks, automatic staging and production migrations, ordered Vercel deployments, encrypted monthly production backups, and one verified initial schema baseline. [Record](features/ci-pipeline-and-database-baseline.md).
 - 2026-08-05: Added repeatable local-only Supabase integration coverage for the role and ownership matrix, cross-role incident/profile reads, database constraints, and reliable fixture cleanup; completed the final standards audit and documented when the feature workflow must run the integration suite. [Record](features/refactor-16-integration-coverage-audit.md).
