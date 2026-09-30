@@ -1,38 +1,12 @@
 ---
 name: research
-description: Run a research task to generate documentation
-argument-hint: <prompt-name>
+description: Research a specified project question and record conclusions in its owning document when requested.
 ---
 
-## Task
+# Research
 
-Execute research task: $ARGUMENTS
+Accept a question or an explicit prompt-file path. Resolve a supplied path; if it is missing, ask for the intended source instead of assuming a research folder exists.
 
----
+Read the relevant source and consult current authoritative documentation for external technology facts. Separate observed behavior, requirements, and proposed changes. Follow [document ownership](../../../context/ai-interaction.md#document-ownership) to place conclusions in an existing owner or the user's specified output; return findings in conversation when no persistent artifact is needed.
 
-### Instructions
-
-1. If no argument provided, error: "Usage: /research <prompt-name>"
-2. Look for prompt file at `context/research/{$ARGUMENTS}.md`
-3. If not found, error: "Prompt file not found at context/research/{$ARGUMENTS}.md"
-4. Read the prompt file which should contain:
-   - **Output**: Where to write results (e.g., `context/content-types.md`)
-   - **Research**: What to investigate
-   - **Include**: Specific details to capture
-   - **Sources**: What files/tools to use
-5. Execute the research using appropriate tools:
-   - Read files (db schema, constants, components)
-   - Query database via Supabase MCP or CLI if needed
-   - Search codebase for patterns
-6. Write findings to the specified output location
-7. Summarize what was discovered
-
----
-
-### Rules
-
-- This command produces DOCUMENTATION only
-- Do NOT modify source code files
-- Do NOT create branches or commits
-- Output should go to `/docs/` unless otherwise specified
-- Use subagents for thorough exploration if needed
+Produce documentation only. Do not modify application code, create branches, commit, or mutate external systems as part of research unless separately authorized. Keep evidence and uncertainty explicit; do not duplicate an existing spec or report.

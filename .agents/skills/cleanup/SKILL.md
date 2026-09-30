@@ -1,31 +1,14 @@
 ---
 name: cleanup
-description: Clean up project housekeeping tasks (add "run" to execute fixes)
-argument-hint: run|check
+description: Inspect repository housekeeping and documentation drift; apply selected fixes when requested.
 ---
 
-Review the codebase for cleanup tasks:
+# Cleanup
 
-1. Make sure that the history in @context/current-feature.md is in order from newest to oldest
-2. Find unnecessary console.log statements in src/
-3. Find unused imports
-4. Check for stale TODO comments
-5. Find orphaned/unused files
-6. Check that context files match actual project state
-7. Check if the .env.production has the same variables (not always the same value) as the .env. If something is missing, tell me.
-8. Find `@ts-ignore` comments that might be stale
+Usage: `$cleanup check|run` (default `check`).
 
-**Mode: $ARGUMENTS**
+Use [document ownership](../../../context/ai-interaction.md#document-ownership) to inspect stale guidance, duplicate records, broken references, and feature-history ordering. Check source for unused imports/files, debug output, stale TODOs, and obsolete suppression comments. Confirm consumers before calling a file unused.
 
-If no argument or argument is "check":
+Compare required environment variable names with templates and owning guides only when relevant. Do not print values or require local, staging, and production files to have identical variables; their roles differ.
 
-- Only report findings, don't modify anything
-- List what WOULD be cleaned up
-
-If the argument is "run" or "fix":
-
-- First, report all findings with numbered items
-- Then ask: "Which items would you like me to fix? (enter numbers like 1,3,5 or 'all' or 'none')"
-- Wait for user response before making any changes
-- Only fix the items the user specifies
-- Report what you changed
+In check mode, report numbered, evidence-based findings without edits. In run/fix mode, use the user's selected items or existing scope authorization; if no selection is clear, present findings and request the selection before changing files. Do not extend the cleanup into application redesign.

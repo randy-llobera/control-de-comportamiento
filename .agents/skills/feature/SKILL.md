@@ -1,40 +1,21 @@
 ---
 name: feature
-description: Manage current feature workflow - start, review, explain or complete
-argument-hint: load|start|review|explain|test|complete
+description: Load, start, review, explain, test, or complete the current project feature when requested.
 ---
 
 # Feature Workflow
 
-Manages the full lifecycle of a feature from spec to merge.
+Usage: `$feature load|start|review|explain|test|complete`.
 
-## Working File
+Read [the project workflow](../../../context/ai-interaction.md) and [current feature](../../../context/current-feature.md), then only the requested action:
 
-@context/current-feature.md
+| Action | Instructions |
+| --- | --- |
+| Load a spec or inline description | [load](actions/load.md) |
+| Begin implementation | [start](actions/start.md) |
+| Review against acceptance | [review](actions/review.md) |
+| Explain the diff | [explain](actions/explain.md) |
+| Select and run relevant tests | [test](actions/test.md) |
+| Commit, merge locally, reset, and push working | [complete](actions/complete.md) |
 
-### File Structure
-
-current-feature.md has these sections:
-
-- `# Current Feature` - H1 heading with feature name when active
-- `## Status` - Not Started | In Progress | Complete
-- `## Goals` - Bullet points of what success looks like
-- `## Notes` - Additional context, constraints, or details from spec
-- `## History` - Completed features (append only)
-
-## Task
-
-Execute the requested action: $ARGUMENTS
-
-| Action     | Description                                               |
-| ---------- | --------------------------------------------------------- |
-| `load`     | Load a feature spec or inline description                 |
-| `start`    | Begin implementation, create branch                       |
-| `review`   | Check goals met, code quality                             |
-| `explain`  | Document what changed and why                             |
-| `test`     | Check for testable logic for server actions and utilities |
-| `complete` | Commit, push, merge, reset                                |
-
-See [actions/](actions/) for detailed instructions.
-
-If no action provided, explain the available options.
+If no action is provided, list these choices. Do not treat load, review, explain, or test as permission to complete or release. Document ownership, statuses, and approval rules belong to the project workflow.

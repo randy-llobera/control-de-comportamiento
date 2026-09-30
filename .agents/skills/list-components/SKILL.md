@@ -1,19 +1,10 @@
 ---
 name: list-components
-description: List project components
-argument-hint: subdirectory
+description: List component source files and their responsibilities in the project or a requested component subdirectory.
 ---
 
-## Task
+# List Components
 
-List all React component files (.tsx, .ts, .jsx, .js) in the components folder.
+Usage: `$list-components [subdirectory]`.
 
-If a [subdirectory] is provided via $ARGUMENTS, only list files in that subdirectory.
-
-## Output Format
-
-- Numbered list of files with relative paths
-- Brief one-line description of each (infer from filename)
-- Summary count at the end
-
-If no files found, say "No components found."
+Inspect `src/components` or the requested subdirectory and list component files with a brief source-based responsibility and total count. Distinguish helper files from components; do not infer behavior from filenames alone. If the directory is missing or empty, say so. Return the inventory in conversation without maintaining a duplicate component catalog.
