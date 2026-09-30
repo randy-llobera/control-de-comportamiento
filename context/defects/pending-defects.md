@@ -1,11 +1,6 @@
 # Pending Defects
 
-<<<<<<< HEAD
 Internal record of confirmed deviations from the [product contract](../project-overview.md) or [engineering rules](../coding-standards.md). Preserve intended behavior in those guides; keep reproduction evidence and corrective work here until resolved.
-
-=======
-
-> > > > > > > main
 
 ## P2 - Medium
 
