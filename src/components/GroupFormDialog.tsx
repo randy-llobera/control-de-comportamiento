@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { GroupListItem } from "@/types/groups";
+import { createGroupSchema, updateGroupSchema } from "@/validation/groups";
+import { fieldErrors } from "@/validation/form-errors";
 
 type GroupFormDialogProps =
   | {
@@ -46,6 +48,14 @@ export function GroupFormDialog(props: GroupFormDialogProps) {
     event.preventDefault();
     setError(undefined);
     setNameErrors(undefined);
+
+    const parsed = (
+      isEditing ? updateGroupSchema : createGroupSchema
+    ).safeParse(isEditing ? { id: props.group.id, name } : { name });
+    if (!parsed.success) {
+      setNameErrors(fieldErrors(parsed.error).name);
+      return;
+    }
 
     startTransition(async () => {
       const result = isEditing

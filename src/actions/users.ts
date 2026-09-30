@@ -7,18 +7,13 @@ import { mapApplicationErrorToActionResult } from "@/actions/application-error-r
 import { updateUserRole } from "@/lib/users";
 import type { ActionResult } from "@/types/actions";
 import type { UpdateUserRoleInput } from "@/types/users";
-
-const UUID_ERROR = "Selecciona una opción válida.";
-const uuidSchema = z.uuid({ error: UUID_ERROR });
-const updateUserRoleSchema = z.object({
-  userId: uuidSchema,
-  roleId: uuidSchema,
-});
+import { fieldErrors } from "@/validation/form-errors";
+import { updateUserRoleSchema } from "@/validation/users";
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
   success: false,
   error: "Revisa los campos marcados.",
-  fieldErrors: z.flattenError(error).fieldErrors,
+  fieldErrors: fieldErrors(error),
 });
 
 export const updateUserRoleAction = async (

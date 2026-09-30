@@ -11,34 +11,13 @@ import {
 import { loginUser, logoutUser, signupUser } from "@/lib/auth";
 import type { ActionResult } from "@/types/actions";
 import type { LoginInput, SignupInput } from "@/types/auth";
-
-const REQUIRED_ERROR = "Este campo es obligatorio.";
-const EMAIL_ERROR = "Introduce un email válido.";
-const emailSchema = z
-  .string({ error: REQUIRED_ERROR })
-  .trim()
-  .min(1, { error: REQUIRED_ERROR })
-  .pipe(z.email({ error: EMAIL_ERROR }));
-const requiredStringSchema = z
-  .string({ error: REQUIRED_ERROR })
-  .trim()
-  .min(1, { error: REQUIRED_ERROR });
-const passwordSchema = z
-  .string({ error: REQUIRED_ERROR })
-  .min(1, { error: REQUIRED_ERROR });
-const loginSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-});
-const signupSchema = loginSchema.extend({
-  displayName: requiredStringSchema,
-  schoolRole: requiredStringSchema,
-});
+import { loginSchema, signupSchema } from "@/validation/auth";
+import { fieldErrors } from "@/validation/form-errors";
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
   success: false,
   error: "Revisa los campos marcados.",
-  fieldErrors: z.flattenError(error).fieldErrors,
+  fieldErrors: fieldErrors(error),
 });
 
 const authFailed = (error: unknown): ActionResult => {

@@ -2,15 +2,15 @@
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- [Client-side form validation](features/client-side-validation.md)
 
 ## Notes
 
-<!-- Add notes here -->
+- TASK-005: share neutral Zod schemas with client forms while retaining authoritative Server Action validation.
 
 ## History
 

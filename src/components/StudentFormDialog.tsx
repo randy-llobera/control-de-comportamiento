@@ -15,6 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { StudentGroupOption, StudentListItem } from "@/types/students";
+import {
+  createStudentSchema,
+  updateStudentSchema,
+} from "@/validation/students";
+import { fieldErrors } from "@/validation/form-errors";
 
 type StudentFormDialogProps =
   | {
@@ -53,6 +58,18 @@ export function StudentFormDialog(props: StudentFormDialogProps) {
     setError(undefined);
     setNameErrors(undefined);
     setGroupErrors(undefined);
+
+    const parsed = (
+      isEditing ? updateStudentSchema : createStudentSchema
+    ).safeParse(
+      isEditing ? { id: props.student.id, name, groupId } : { name, groupId },
+    );
+    if (!parsed.success) {
+      const errors = fieldErrors(parsed.error);
+      setNameErrors(errors.name);
+      setGroupErrors(errors.groupId);
+      return;
+    }
 
     startTransition(async () => {
       const result = isEditing

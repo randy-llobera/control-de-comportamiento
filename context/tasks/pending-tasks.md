@@ -45,13 +45,6 @@ Internal backlog for improvements and product proposals. Follow the [documentati
 - **Evidence:** Login and signup currently share `/auth` and switch through client state, so neither state has its own addressable page. Logout is already a Server Action and does not require a page to clear the session.
 - **Action:** Define the desired public route contract, then give login and signup dedicated, linkable pages while reusing the existing forms and shared presentation. Keep logout as a Server Action unless a separate signed-out confirmation page is explicitly desired. Update Proxy public paths, redirects, metadata, and focused Auth tests together.
 
-### TASK-005 - Add richer client-side validation without weakening server validation
-
-- **Confirmed:** 2026-08-06
-- **Location:** Auth and CRUD form components under `src/components`, with authoritative schemas under `src/actions`
-- **Evidence:** Forms use native browser constraints such as `required` and `type="email"`, while complete Zod validation runs only in Server Actions. There is no shared client-side schema validation for immediate field feedback.
-- **Action:** Define which fields need validation before submission, move reusable environment-neutral Zod schemas outside `"use server"` modules, and import the same schema into the client form and its Server Action. Use `safeParse()` for immediate accessible field feedback and infer input types from the schema where useful. Keep every Server Action validation check authoritative so client validation improves feedback without becoming a security boundary or duplicating divergent rules.
-
 ### TASK-006 - Standardize transient operation feedback with the existing shadcn toast
 
 - **Confirmed:** 2026-08-06

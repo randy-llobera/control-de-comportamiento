@@ -1,9 +1,6 @@
-export type LoginInput = {
-  email: string;
-  password: string;
-};
+import type { z } from "zod";
 
-export type SignupInput = LoginInput & {
-  displayName: string;
-  schoolRole: string;
-};
+import type { loginSchema, signupSchema } from "@/validation/auth";
+
+export type LoginInput = z.output<typeof loginSchema>;
+export type SignupInput = z.output<typeof signupSchema>;

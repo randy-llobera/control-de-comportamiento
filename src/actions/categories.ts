@@ -14,24 +14,17 @@ import type {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "@/types/categories";
-
-const REQUIRED_ERROR = "Este campo es obligatorio.";
-const UUID_ERROR = "Selecciona una opción válida.";
-const nameSchema = z.string({ error: REQUIRED_ERROR }).trim().min(1, {
-  error: REQUIRED_ERROR,
-});
-const categoryIdSchema = z.uuid({ error: UUID_ERROR });
-const createCategorySchema = z.object({ name: nameSchema });
-const updateCategorySchema = z.object({
-  id: categoryIdSchema,
-  name: nameSchema,
-});
-const deleteCategorySchema = z.object({ id: categoryIdSchema });
+import {
+  createCategorySchema,
+  deleteCategorySchema,
+  updateCategorySchema,
+} from "@/validation/categories";
+import { fieldErrors } from "@/validation/form-errors";
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
   success: false,
   error: "Revisa los campos marcados.",
-  fieldErrors: z.flattenError(error).fieldErrors,
+  fieldErrors: fieldErrors(error),
 });
 
 const revalidateCategoryPaths = () => {

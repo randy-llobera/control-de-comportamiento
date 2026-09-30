@@ -1,12 +1,19 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import {
+  useActionState,
+  useEffect,
+  useState,
+  type SubmitEventHandler,
+} from "react";
 
 import { signupAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
+import { fieldErrors as flattenFieldErrors } from "@/validation/form-errors";
+import { signupSchema } from "@/validation/auth";
 
 type AuthSignupFormProps = {
   onShowLogin: () => void;
@@ -14,7 +21,24 @@ type AuthSignupFormProps = {
 
 export function AuthSignupForm({ onShowLogin }: AuthSignupFormProps) {
   const [state, formAction, isPending] = useActionState(signupAction, null);
-  const fieldErrors = state && !state.success ? state.fieldErrors : undefined;
+  const [clientFieldErrors, setClientFieldErrors] =
+    useState<Record<string, string[] | undefined>>();
+  const actionFieldErrors =
+    state && !state.success ? state.fieldErrors : undefined;
+  const fieldErrors = clientFieldErrors ?? actionFieldErrors;
+
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
+    const parsed = signupSchema.safeParse(
+      Object.fromEntries(new FormData(event.currentTarget)),
+    );
+    setClientFieldErrors(
+      parsed.success ? undefined : flattenFieldErrors(parsed.error),
+    );
+    if (!parsed.success) {
+      event.preventDefault();
+      return;
+    }
+  };
 
   useEffect(() => {
     if (!state) {
@@ -33,7 +57,12 @@ export function AuthSignupForm({ onShowLogin }: AuthSignupFormProps) {
   }, [state]);
 
   return (
-    <form className="space-y-6" action={formAction}>
+    <form
+      className="space-y-6"
+      action={formAction}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="signup-email">Email</Label>

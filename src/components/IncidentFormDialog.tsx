@@ -24,6 +24,11 @@ import type {
   IncidentListItem,
   IncidentSeverity,
 } from "@/types/incidents";
+import { fieldErrors as flattenFieldErrors } from "@/validation/form-errors";
+import {
+  createIncidentSchema,
+  updateIncidentSchema,
+} from "@/validation/incidents";
 
 type IncidentFormDialogProps =
   | {
@@ -115,6 +120,26 @@ export function IncidentFormDialog(props: IncidentFormDialogProps) {
 
     if (!isEditing && !groupId) {
       setFieldErrors({ groupId: ["Selecciona un grupo."] });
+      return;
+    }
+
+    const parsed = isEditing
+      ? updateIncidentSchema.safeParse({
+          id: props.incident.id,
+          categoryId,
+          severity,
+          description,
+          date,
+        })
+      : createIncidentSchema.safeParse({
+          studentId,
+          categoryId,
+          severity,
+          description,
+          date,
+        });
+    if (!parsed.success) {
+      setFieldErrors(flattenFieldErrors(parsed.error));
       return;
     }
 

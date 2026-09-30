@@ -4,11 +4,8 @@ export type GroupListItem = {
   createdByDisplayName: string;
 };
 
-export type CreateGroupInput = {
-  name: string;
-};
+export type CreateGroupInput = z.output<typeof createGroupSchema>;
+export type UpdateGroupInput = z.output<typeof updateGroupSchema>;
+import type { z } from "zod";
 
-export type UpdateGroupInput = {
-  id: string;
-  name: string;
-};
+import type { createGroupSchema, updateGroupSchema } from "@/validation/groups";
