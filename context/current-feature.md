@@ -2,15 +2,15 @@
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- [Signup Password Validation](features/fix-signup-password-validation.md)
 
 ## Notes
 
-<!-- Add notes here -->
+- Match the verified Supabase Email policy: six characters minimum; no character-class or leaked-password requirement.
 
 ## History
 

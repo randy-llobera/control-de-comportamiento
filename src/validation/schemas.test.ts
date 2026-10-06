@@ -27,6 +27,26 @@ describe("shared form schemas", () => {
     }
   });
 
+  it("requires the Supabase minimum length only when signing up", () => {
+    const parsed = signupSchema.safeParse({
+      email: "ada@example.com",
+      password: "short",
+      displayName: "Ada Lovelace",
+      schoolRole: "Tecnología",
+    });
+
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(fieldErrors(parsed.error)).toEqual({
+        password: ["La contraseña debe tener al menos 6 caracteres."],
+      });
+    }
+
+    expect(
+      loginSchema.parse({ email: "ada@example.com", password: "short" }),
+    ).toEqual({ email: "ada@example.com", password: "short" });
+  });
+
   it("normalizes valid auth and CRUD inputs", () => {
     expect(
       loginSchema.parse({ email: " Ada@example.com ", password: "secret" }),

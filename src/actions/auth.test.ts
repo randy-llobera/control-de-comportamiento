@@ -82,6 +82,27 @@ describe("Auth Actions", () => {
     expect(mocks.signupUser).not.toHaveBeenCalled();
   });
 
+  it("rejects a signup password shorter than the Supabase minimum", async () => {
+    await expect(
+      signupAction(
+        null,
+        createFormData({
+          displayName: "Ada Lovelace",
+          email: "ada@example.com",
+          password: "short",
+          schoolRole: "Tecnología",
+        }),
+      ),
+    ).resolves.toEqual({
+      success: false,
+      error: "Revisa los campos marcados.",
+      fieldErrors: {
+        password: ["La contraseña debe tener al menos 6 caracteres."],
+      },
+    });
+    expect(mocks.signupUser).not.toHaveBeenCalled();
+  });
+
   it("maps a known Auth failure to a generic safe error", async () => {
     mocks.loginUser.mockRejectedValue(new AuthApplicationError("auth-failed"));
 
