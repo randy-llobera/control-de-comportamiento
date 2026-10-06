@@ -2,20 +2,21 @@
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- [Signup Password Validation](features/fix-signup-password-validation.md)
+<!-- Add goals here -->
 
 ## Notes
 
-- Match the verified Supabase Email policy: six characters minimum; no character-class or leaked-password requirement.
+<!-- Add notes here -->
 
 ## History
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-10-06: Added Supabase-aligned six-character signup-password validation with Spanish client guidance, authoritative Server Action validation, focused coverage, and browser verification. [Record](features/fix-signup-password-validation.md).
 - 2026-09-30: Added shared environment-neutral Zod validation for client forms and authoritative Server Actions, with immediate accessible feedback for auth and CRUD create/edit forms. [Record](features/client-side-validation.md).
 - 2026-09-29: Consolidated project documentation around clear ownership; simplified the product, engineering, operational, recovery, feature, task, defect, skill, and reviewer records; added the documentation update matrix; and verified repository documentation checks. [Record](features/documentation-cleanup.md).
 - 2026-08-06: Established gated application and local-database checks, automatic staging and production migrations, ordered Vercel deployments, encrypted monthly production backups, and one verified initial schema baseline. [Record](features/ci-pipeline-and-database-baseline.md).
