@@ -16,6 +16,8 @@ Not Started
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-10-07: Resolved DEF-002 with safe unexpected CRUD feedback and a protected-page retry boundary, verified by focused tests, repository checks, and signed-in browser fault injection. [Record](features/fix-unexpected-crud-failure-feedback.md).
+
 - 2026-10-07: Completed the API Proxy JSON error contract, preserved session response propagation, and resolved DEF-003 with focused, integration, build, and runtime verification. [Record](features/fix-api-proxy-json-contract.md).
 
 - 2026-10-07: Recovered safely from deleted or invalid Supabase sessions by verifying the current Auth user at the Proxy, clearing confirmed stale sessions through Supabase's local sign-out, preserving valid refresh propagation, and adding focused regression coverage. [Record](features/fix-deleted-user-session.md).
