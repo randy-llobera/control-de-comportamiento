@@ -2,19 +2,21 @@
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Return the existing `/auth` interface to its login form after successful signup while preserving confirmation guidance and all existing Auth contracts. See [feature record](features/return-to-login-after-signup.md).
+<!-- Add goals here -->
 
 ## Notes
 
-- Branch: `feature/return-to-login-after-signup`.
+<!-- Add notes here -->
 
 ## History
 
 <!-- Keep this updated. Newest to oldest -->
+
+- 2026-10-07: Returned the existing `/auth` view to login after successful signup while preserving confirmation guidance and Auth contracts. [Record](features/return-to-login-after-signup.md).
 
 - 2026-10-07: Resolved DEF-002 with safe unexpected CRUD feedback and a protected-page retry boundary, verified by focused tests, repository checks, and signed-in browser fault injection. [Record](features/fix-unexpected-crud-failure-feedback.md).
 
