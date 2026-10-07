@@ -29,13 +29,6 @@ Internal backlog for improvements and product proposals. Follow the [documentati
 - **Evidence:** [The CI/baseline record](../features/ci-pipeline-and-database-baseline.md#evidence) owns successful rollout and backup-upload evidence. Full decryption and restoration into a usable replacement project remain unverified. Recovery was deferred by the user at P3.
 - **Action:** Rehearse the [recovery procedure](../../supabase/README.md) on an approved disposable target and record duration/results. Verify data, identity relationships, permissions, representative app behavior, and cutover. Evaluate target-friendly roles/schema/data exports, explicit grants, independent encrypted retention, Storage bytes, and external configuration recovery. Update the runbook only with the resulting procedure, retain execution evidence here or in its active feature, and clean up the approved resources.
 
-### TASK-003 - Retarget the auth-auditor agent to Supabase Auth
-
-- **Confirmed:** 2026-08-06
-- **Location:** `.codex/agents/auth-auditor.toml`
-- **Evidence:** The agent declares NextAuth v5 expertise, excludes protections attributed to NextAuth, and emphasizes application-owned password hashing and reset-token storage. This repository uses Supabase Auth, Supabase SSR clients, Next.js Proxy, Server Actions, Postgres grants, and RLS.
-- **Action:** Replace the NextAuth-specific scope with Supabase-owned versus application-owned controls. Cover request-scoped session validation, Proxy and protected layouts, authorization at feature and Server Action boundaries, signup metadata/profile creation, role escalation, RLS and grants, service-role key isolation, browser/server client separation, safe Auth errors, and hosted configuration assumptions. Keep findings evidence-based and require current Supabase documentation.
-
 ## P3 - Low
 
 ### TASK-004 - Split the combined authentication screen into dedicated routes
