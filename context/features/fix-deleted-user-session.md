@@ -6,7 +6,7 @@ Completed
 
 ## Scope and acceptance
 
-Fix [DEF-004](../defects/pending-defects.md#def-004---deleted-user-sessions-cause-a-500-instead-of-returning-to-login) so a browser session that refers to a deleted or otherwise invalid Supabase Auth session is treated as unauthenticated instead of producing a 500 response.
+Browser session that refers to a deleted or otherwise invalid Supabase Auth session is treated as unauthenticated instead of producing a 500 response.
 
 - Detect server-side session invalidation at the existing Proxy/session boundary.
 - Clear stale Supabase auth cookies when the invalid session is confirmed and the response is writable.

@@ -4,6 +4,14 @@ Internal backlog for improvements and product proposals. Follow the [documentati
 
 ## P1 - High
 
+### TASK-009 - Restrict direct user-profile reads to the current user and admins
+
+- **Confirmed:** 2026-10-07
+- **Location:** `supabase/migrations/20260805135713_initial_schema.sql` and `supabase/rls.integration.test.ts`
+- **Evidence:** The `users_authenticated_select` RLS policy grants every authenticated caller `SELECT` access with `using (true)`, and the `authenticated` role has table-level `SELECT` on `public.users`. Any signed-in user can therefore retrieve every profile through the public Supabase Data API, including other users’ IDs, display names, school-role descriptions, and role IDs. This conflicts with the product contract: only admins may view user management and assign roles, and permissions must be enforced in the database.
+- **Impact:** Teachers and coordinators can bypass the interface and access staff profile data that the application does not authorize them to view.
+- **Action:** Replace the broad direct-read policy with one that allows a user to read only their own profile and allows admins to read all profiles. Preserve the incident requirement to display the recording teacher through a minimal, narrowly permissioned read interface. Add local RLS integration assertions that non-admin users cannot directly read another profile or role while incident reads still return the required teacher display name.
+
 ### TASK-001 - Build database-backed incident reporting for the list, export, and dashboard
 
 - **Confirmed:** 2026-08-06
