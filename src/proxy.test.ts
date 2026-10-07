@@ -53,14 +53,38 @@ describe('proxy', () => {
     await expect(proxy(createRequest('/auth'))).resolves.toBe(response);
   });
 
-  it('preserves existing API redirect behavior for unauthenticated requests', async () => {
+  it('returns a JSON 401 for an unauthenticated API request while preserving the session response', async () => {
+    const response = createSessionResponse();
+    response.cookies.set('sb-project-auth-token', '', {
+      expires: new Date(0),
+      maxAge: 0,
+      path: '/',
+    });
     mocks.updateSession.mockResolvedValue({
       isAuthenticated: false,
-      response: createSessionResponse(),
+      response,
     });
 
     const result = await proxy(createRequest('/api/groups/example/students'));
 
-    expect(result.headers.get('location')).toBe('https://example.test/auth');
+    expect(result.status).toBe(401);
+    await expect(result.json()).resolves.toEqual({
+      error: 'Inicia sesión para continuar.',
+    });
+    expect(result.headers.get('location')).toBeNull();
+    expect(result.headers.get('x-supabase-auth')).toBe('refreshed');
+    expect(result.cookies.get('sb-project-auth-token')?.value).toBe('');
+  });
+
+  it('passes an authenticated API request through to the Route Handler', async () => {
+    const response = createSessionResponse();
+    mocks.updateSession.mockResolvedValue({
+      isAuthenticated: true,
+      response,
+    });
+
+    await expect(proxy(createRequest('/api/groups/example/students'))).resolves.toBe(
+      response,
+    );
   });
 });
