@@ -39,6 +39,12 @@ Internal backlog for improvements and product proposals. Follow the [documentati
 
 ## P3 - Low
 
+### TASK-007 - Verify end-to-end database backup and restore recovery
+
+- **Confirmed:** 2026-08-06; updated 2026-09-06
+- **Evidence:** [The CI/baseline record](../features/ci-pipeline-and-database-baseline.md#evidence) owns successful rollout and backup-upload evidence. Full decryption and restoration into a usable replacement project remain unverified. Recovery was deferred by the user at P3.
+- **Action:** Rehearse the [recovery procedure](../../supabase/README.md) on an approved disposable target and record duration/results. Verify data, identity relationships, permissions, representative app behavior, and cutover. Evaluate target-friendly roles/schema/data exports, explicit grants, independent encrypted retention, Storage bytes, and external configuration recovery. Update the runbook only with the resulting procedure, retain execution evidence here or in its active feature, and clean up the approved resources.
+
 ### TASK-004 - Split the combined authentication screen into dedicated routes
 
 - **Confirmed:** 2026-08-06
@@ -52,6 +58,12 @@ Internal backlog for improvements and product proposals. Follow the [documentati
 - **Location:** `src/components/ui/toast.tsx`, Auth/navigation components, and CRUD form/delete dialog components under `src/components`
 - **Evidence:** The root layout already mounts the shadcn/Base UI toaster, and Auth plus logout failures use it. CRUD dialogs instead render returned failures only as inline alerts and close silently after successful mutations, so operation feedback is inconsistent.
 - **Action:** Define a small notification policy and apply the existing toast to transient operation success and safe generic failure messages across CRUD flows. Keep field-level validation and actionable form errors inline and associated with their controls. Coordinate the generic failure path with `DEF-002` so unexpected rejected mutations can also produce a non-sensitive toast rather than leaving the user without feedback.
+
+### TASK-008 - Evaluate product extensions before committing implementation scope
+
+- **Source:** Future direction retained from the original project overview during documentation consolidation.
+- **Proposals:** Passwordless/Office 365 sign-in, multilingual UI, notifications, incident resolution status, multi-school support, advanced analytics, and a parent portal. Timeline reporting is covered by TASK-001 rather than a separate task.
+- **Action:** Confirm priorities, users, permission boundaries, and acceptance criteria before creating individual feature specs. Keep these as proposals, not claims of available functionality; choose integration libraries only after requirements are accepted.
 
 ### TASK-008 - Evaluate product extensions before committing implementation scope
 

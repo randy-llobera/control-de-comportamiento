@@ -1,5 +1,7 @@
 # Feature: Project Documentation Cleanup
 
+# Feature: Project Documentation Cleanup
+
 ## Status
 
 Complete
@@ -7,6 +9,25 @@ Complete
 ## Goal
 
 Give every retained document a clear owner and purpose, correct stale guidance, and make day-to-day documentation updates predictable without duplicating implementation details.
+
+## Scope and decisions
+
+- The user expanded the original README cleanup to all project documentation, local skills, and reviewer instructions.
+- Keep the ownership map and developer update matrix in [ai-interaction.md](../ai-interaction.md). Other documents link to their topic owners.
+- Product and operating guides describe intended behavior and supported procedures. Internal feature/task/defect records retain history, proposals, and incomplete verification.
+- Keep recovery commands only in [the recovery guide](../../supabase/README.md), replacing the original requirement to duplicate them in the root README.
+- Preserve distinct completed feature records as concise historical decisions/outcomes; use Git history for superseded plans. Retain the completion history.
+- Remove the completed refactoring roadmap and feature index after retaining their unique useful context.
+- Use existing files and folders. No documentation generator, dependencies, application changes, database operations, or deployment changes.
+
+## Plan
+
+1. Formalize document ownership and daily update scenarios; correct misleading agent entry points.
+2. Simplify README, product overview, coding standards, and recovery guidance around their assigned purposes.
+3. Reconcile historical feature statuses and preserve unique decisions and evidence without repeated plans or checklists.
+4. Align local skills and reviewers, and reconcile related internal tasks without duplicating them.
+5. Audit every retained file, links, source references, repeated material, and scope. Run repository checks and report the complete document inventory.
+   Give every retained document a clear owner and purpose, correct stale guidance, and make day-to-day documentation updates predictable without duplicating implementation details.
 
 ## Scope and decisions
 

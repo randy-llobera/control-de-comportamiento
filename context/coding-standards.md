@@ -15,17 +15,17 @@ These rules define how the application should be built. They are not an inventor
 
 ## Application boundaries
 
-| Location | Owns | Keep out |
-| --- | --- | --- |
-| `src/app` Server Pages | Initial reads through feature functions, composition, redirects, missing/empty states | Table queries and mutation/business logic |
-| `src/components` | Rendering, input, dialogs, and browser state | Supabase table queries and database contracts |
-| `src/actions` | UI mutation input validation, feature calls, safe results, refresh/invalidation | Table queries and core business rules |
-| `src/app/api` Route Handlers | Actual HTTP input, feature calls, status/header/JSON mapping | Duplicated feature logic |
-| `src/lib` feature modules | Request-scoped client, authentication, authorization, queries, business rules, result mapping | UI state or transport-specific response contracts |
-| Supabase client modules | Server/browser/Proxy client creation and session infrastructure | Feature-specific queries |
-| `src/types` | Neutral application contracts and generated database types | Runtime server/client dependencies |
-| `src/utils` | Pure deterministic transformations over neutral inputs | React, Next.js, Supabase, browser APIs, environment reads, logging, or side effects |
-| Postgres | Persistence, grants, RLS, and integrity constraints | UI validation and user feedback |
+| Location                     | Owns                                                                                          | Keep out                                                                            |
+| ---------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `src/app` Server Pages       | Initial reads through feature functions, composition, redirects, missing/empty states         | Table queries and mutation/business logic                                           |
+| `src/components`             | Rendering, input, dialogs, and browser state                                                  | Supabase table queries and database contracts                                       |
+| `src/actions`                | UI mutation input validation, feature calls, safe results, refresh/invalidation               | Table queries and core business rules                                               |
+| `src/app/api` Route Handlers | Actual HTTP input, feature calls, status/header/JSON mapping                                  | Duplicated feature logic                                                            |
+| `src/lib` feature modules    | Request-scoped client, authentication, authorization, queries, business rules, result mapping | UI state or transport-specific response contracts                                   |
+| Supabase client modules      | Server/browser/Proxy client creation and session infrastructure                               | Feature-specific queries                                                            |
+| `src/types`                  | Neutral application contracts and generated database types                                    | Runtime server/client dependencies                                                  |
+| `src/utils`                  | Pure deterministic transformations over neutral inputs                                        | React, Next.js, Supabase, browser APIs, environment reads, logging, or side effects |
+| Postgres                     | Persistence, grants, RLS, and integrity constraints                                           | UI validation and user feedback                                                     |
 
 Server Pages and Server Actions call `lib/<feature>.ts` directly. Add a Route Handler only for an actual browser, webhook, external, or other HTTP caller; server code must not fetch the app's own API. Server Actions are for mutations, not general-purpose reads. Reserve genuinely long-running work for an appropriate background mechanism.
 
@@ -33,7 +33,7 @@ Keep existing flat feature modules, components, utilities, and colocated tests w
 
 Current boundary examples to consult, rather than copy into docs:
 
-- [Incident page](../src/app/(protected)/incidentes/page.tsx), [Actions](../src/actions/incidents.ts), and [feature module](../src/lib/incidents.ts).
+- [Incident page](<../src/app/(protected)/incidentes/page.tsx>), [Actions](../src/actions/incidents.ts), and [feature module](../src/lib/incidents.ts).
 - [Group-students HTTP handler](../src/app/api/groups/[groupId]/students/route.ts) and [student feature module](../src/lib/students.ts).
 - [ActionResult](../src/types/actions.ts), [application errors](../src/lib/application-error.ts), and [error mapping](../src/actions/application-error-result.ts).
 

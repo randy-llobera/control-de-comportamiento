@@ -23,16 +23,16 @@ A user's school-role description is profile text, not an authorization role. Rol
 
 ## User workflows
 
-| Page           | Behavior                                                                                                                                                  |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`            | Introduces the app and links to authentication                                                                                                            |
+| Page           | Behavior                                                                                                                                                                                            |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`            | Introduces the app and links to authentication                                                                                                                                                      |
 | `/auth`        | Email/password login and registration; registration collects display name and school-role description, requires a password of at least six characters, and returns to login after successful signup |
-| `/incidentes`  | Landing page after login; create, review, filter, edit, delete, and export incidents according to permissions                                             |
-| `/estudiantes` | Create students in existing groups; admins also edit/delete records                                                                                       |
-| `/grupos`      | Manage student groups                                                                                                                                     |
-| `/categorias`  | Manage incident categories                                                                                                                                |
-| `/dashboard`   | Review incident totals, severity counts, category/group summaries, and recent incidents                                                                   |
-| `/usuarios`    | Assign existing user roles                                                                                                                                |
+| `/incidentes`  | Landing page after login; create, review, filter, edit, delete, and export incidents according to permissions                                                                                       |
+| `/estudiantes` | Create students in existing groups; admins also edit/delete records                                                                                                                                 |
+| `/grupos`      | Manage student groups                                                                                                                                                                               |
+| `/categorias`  | Manage incident categories                                                                                                                                                                          |
+| `/dashboard`   | Review incident totals, severity counts, category/group summaries, and recent incidents                                                                                                             |
+| `/usuarios`    | Assign existing user roles                                                                                                                                                                          |
 
 Navigation shows the pages available to the signed-in role. Signup follows the configured Auth email-confirmation policy. Logout ends the session and returns to authentication.
 
