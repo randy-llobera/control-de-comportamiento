@@ -167,7 +167,7 @@ describe("Auth Actions", () => {
     expect(mocks.redirect).toHaveBeenCalledWith("/incidentes");
   });
 
-  it("normalizes signup input and returns success", async () => {
+  it("normalizes signup input and returns success without navigating", async () => {
     await expect(
       signupAction(
         null,
@@ -188,6 +188,8 @@ describe("Auth Actions", () => {
       displayName: "Ada Lovelace",
       schoolRole: "Tecnología",
     });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+    expect(mocks.redirect).not.toHaveBeenCalled();
   });
 
   it("signs out, revalidates layouts, and redirects to Auth", async () => {

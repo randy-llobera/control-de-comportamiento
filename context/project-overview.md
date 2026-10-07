@@ -26,7 +26,7 @@ A user's school-role description is profile text, not an authorization role. Rol
 | Page           | Behavior                                                                                                                                                  |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/`            | Introduces the app and links to authentication                                                                                                            |
-| `/auth`        | Email/password login and registration; registration collects display name and school-role description, and requires a password of at least six characters |
+| `/auth`        | Email/password login and registration; registration collects display name and school-role description, requires a password of at least six characters, and returns to login after successful signup |
 | `/incidentes`  | Landing page after login; create, review, filter, edit, delete, and export incidents according to permissions                                             |
 | `/estudiantes` | Create students in existing groups; admins also edit/delete records                                                                                       |
 | `/grupos`      | Manage student groups                                                                                                                                     |

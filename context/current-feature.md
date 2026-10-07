@@ -2,15 +2,15 @@
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Return the existing `/auth` interface to its login form after successful signup while preserving confirmation guidance and all existing Auth contracts. See [feature record](features/return-to-login-after-signup.md).
 
 ## Notes
 
-<!-- Add notes here -->
+- Branch: `feature/return-to-login-after-signup`.
 
 ## History
 

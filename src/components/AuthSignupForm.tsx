@@ -50,11 +50,12 @@ export function AuthSignupForm({ onShowLogin }: AuthSignupFormProps) {
         title: 'Revisa tu email para confirmar tu cuenta.',
         type: 'success',
       });
+      onShowLogin();
       return;
     }
 
     toast.add({ title: state.error, type: 'error' });
-  }, [state]);
+  }, [onShowLogin, state]);
 
   return (
     <form
