@@ -16,6 +16,7 @@ Not Started
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-10-07: Narrowed hosted database and Vercel credential scope to the CI steps that consume them, preserved release behavior, removed the addressed PR findings record, and verified the repository checks. [Record](features/ci-secret-scope-hardening.md).
 - 2026-10-06: Added Supabase-aligned six-character signup-password validation with Spanish client guidance, authoritative Server Action validation, focused coverage, and browser verification. [Record](features/fix-signup-password-validation.md).
 - 2026-09-30: Added shared environment-neutral Zod validation for client forms and authoritative Server Actions, with immediate accessible feedback for auth and CRUD create/edit forms. [Record](features/client-side-validation.md).
 - 2026-09-29: Consolidated project documentation around clear ownership; simplified the product, engineering, operational, recovery, feature, task, defect, skill, and reviewer records; added the documentation update matrix; and verified repository documentation checks. [Record](features/documentation-cleanup.md).
