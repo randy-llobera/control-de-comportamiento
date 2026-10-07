@@ -2,7 +2,7 @@
 
 ## Status
 
-In Progress
+Complete
 
 ## Goal
 
@@ -61,5 +61,5 @@ Give every retained document a clear owner and purpose, correct stale guidance, 
 - The skill-creator validator passed for all four skills. All four reviewer TOML files parse, with model, reasoning effort, sandbox mode, and names unchanged.
 - Hash comparison confirms tracked application code, dependencies, migrations, and deployment configuration are unchanged. The only removed files are the two obsolete planning documents; no project files or folders were added.
 - Product direction was retained internally, recovery requirements were compared with the prior runbook and backup workflow, and historical source links resolve. Successful rollout/backup evidence remains in the CI feature record; pending recovery remains in its existing task.
-- Unit/integration suites and browser flows were not rerun for this documentation-only change. No database operations or deployment were performed. Changes remain uncommitted for review/completion.
+- Unit/integration suites and browser flows were not rerun for this documentation-only change. No database operations or deployment were performed. The documentation-cleanup changes were completed on 2026-09-29.
 - The final response provides the full retained-file inventory and consultation/update scenarios; the permanent owner/update matrix is in ai-interaction.
