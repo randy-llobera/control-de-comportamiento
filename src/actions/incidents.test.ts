@@ -5,6 +5,7 @@ import {
   deleteIncidentAction,
   updateIncidentAction,
 } from '@/actions/incidents';
+import { CRUD_ACTION_FAILURE_MESSAGE } from '@/actions/application-error-result';
 import { ApplicationError } from '@/lib/application-error';
 
 const mocks = vi.hoisted(() => ({
@@ -174,10 +175,13 @@ describe('incident Actions', () => {
     },
   );
 
-  it('rethrows unexpected feature failures', async () => {
+  it('returns a safe result for unexpected feature failures', async () => {
     const error = new Error('unexpected');
     mocks.createIncident.mockRejectedValue(error);
 
-    await expect(createIncidentAction(createInput)).rejects.toThrow(error);
+    await expect(createIncidentAction(createInput)).resolves.toEqual({
+      success: false,
+      error: CRUD_ACTION_FAILURE_MESSAGE,
+    });
   });
 });

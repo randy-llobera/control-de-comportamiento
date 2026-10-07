@@ -70,7 +70,7 @@ Migrations define the database; `src/types/supabase.ts` is generated and must no
 
 Feature modules detect query failures, map expected business failures to known application errors, and log/rethrow unexpected failures. Never expose raw provider messages to users.
 
-Actions return field errors, safe Spanish application errors, or the success contract defined by the real operation. Catch only errors that the boundary can map; do not silently convert every exception into a business failure. Unexpected failures should reach a safe framework error boundary after server-side logging.
+Actions return field errors, safe Spanish application errors, or the success contract defined by the real operation. CRUD Actions use the shared mapper to log unexpected mutation failures and return one non-sensitive Spanish fallback so the existing dialog can remain open with feedback. Other unexpected failures should reach the safe `src/app/error.tsx` framework boundary after server-side logging; that boundary handles uncaught page read/render failures and offers retry feedback without rendering exception details.
 
 Route Handlers map failures to HTTP semantics: 400 invalid input, 401 unauthenticated, 403 forbidden, 404 missing, 409 conflict, and 500 unexpected failure. Session infrastructure must preserve the intended HTTP contract. Pages handle redirects, missing records, empty data, and unexpected errors at the appropriate boundary.
 
