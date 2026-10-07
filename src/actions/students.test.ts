@@ -5,6 +5,7 @@ import {
   deleteStudentAction,
   updateStudentAction,
 } from '@/actions/students';
+import { CRUD_ACTION_FAILURE_MESSAGE } from '@/actions/application-error-result';
 import { ApplicationError } from '@/lib/application-error';
 
 const mocks = vi.hoisted(() => ({
@@ -96,13 +97,16 @@ describe('student Actions', () => {
     expect(mocks.deleteStudent).not.toHaveBeenCalled();
   });
 
-  it('rethrows unexpected feature failures', async () => {
+  it('returns a safe result for unexpected feature failures', async () => {
     const error = new Error('unexpected');
     mocks.createStudent.mockRejectedValue(error);
 
     await expect(
       createStudentAction({ name: 'Ada', groupId: GROUP_ID }),
-    ).rejects.toThrow(error);
+    ).resolves.toEqual({
+      success: false,
+      error: CRUD_ACTION_FAILURE_MESSAGE,
+    });
   });
 
   it.each([

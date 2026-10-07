@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthApiError, AuthSessionMissingError } from '@supabase/supabase-js';
 
 import {
   ApplicationError,
@@ -44,6 +45,7 @@ beforeEach(() => {
 
 type AuthTestOptions = {
   user: { id: string } | null;
+  authError?: Error | null;
   profile?: {
     id: string;
     display_name: string;
@@ -52,14 +54,18 @@ type AuthTestOptions = {
   } | null;
 };
 
-const createSupabase = ({ user, profile = null }: AuthTestOptions) => {
+const createSupabase = ({
+  user,
+  authError = null,
+  profile = null,
+}: AuthTestOptions) => {
   const maybeSingle = vi.fn().mockResolvedValue({ data: profile, error: null });
   const eq = vi.fn(() => ({ maybeSingle }));
   const select = vi.fn(() => ({ eq }));
   const from = vi.fn(() => ({ select }));
   const getUser = vi.fn().mockResolvedValue({
     data: { user },
-    error: null,
+    error: authError,
   });
 
   return {
@@ -202,6 +208,49 @@ describe('loadCurrentUserWithRole', () => {
       reason: 'missing-session',
     });
     expect(from).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    new AuthSessionMissingError(),
+    new AuthApiError('The user no longer exists', 404, 'user_not_found'),
+    new AuthApiError('The refresh session expired', 401, 'session_expired'),
+    new AuthApiError(
+      'The refresh token is no longer valid',
+      401,
+      'refresh_token_not_found',
+    ),
+    new AuthApiError(
+      'The refresh token was revoked',
+      401,
+      'refresh_token_already_used',
+    ),
+  ])('returns missing-session when Auth reports an invalid session', async (authError) => {
+    const { client, from } = createSupabase({ user: null, authError });
+
+    await expect(loadCurrentUserWithRole(client)).resolves.toEqual({
+      profile: null,
+      reason: 'missing-session',
+    });
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it('rethrows an unexpected Auth-provider failure', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    const authError = new AuthApiError(
+      'Auth service failed',
+      500,
+      'unexpected_failure',
+    );
+    const { client } = createSupabase({ user: null, authError });
+
+    await expect(loadCurrentUserWithRole(client)).rejects.toBe(authError);
+    expect(consoleError).toHaveBeenCalledWith(
+      'Failed to load the authenticated user:',
+      'Auth service failed',
+    );
+    consoleError.mockRestore();
   });
 
   it('rejects profiles with an unsupported role', async () => {

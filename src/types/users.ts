@@ -1,4 +1,4 @@
-export const USER_ROLE_NAMES = ['admin', 'coordinator', 'teacher'] as const;
+export const USER_ROLE_NAMES = ["admin", "coordinator", "teacher"] as const;
 
 export type UserRoleName = (typeof USER_ROLE_NAMES)[number];
 
@@ -29,7 +29,7 @@ export type UserPageData = {
   roles: RoleOption[];
 };
 
-export type UpdateUserRoleInput = {
-  userId: string;
-  roleId: string;
-};
+export type UpdateUserRoleInput = z.output<typeof updateUserRoleSchema>;
+import type { z } from "zod";
+
+import type { updateUserRoleSchema } from "@/validation/users";

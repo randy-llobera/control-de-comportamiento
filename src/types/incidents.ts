@@ -1,4 +1,13 @@
-export type IncidentSeverity = "low" | "medium" | "high";
+import type { z } from "zod";
+
+import type {
+  createIncidentSchema,
+  updateIncidentSchema,
+} from "@/validation/incidents";
+
+export const INCIDENT_SEVERITIES = ["low", "medium", "high"] as const;
+
+export type IncidentSeverity = (typeof INCIDENT_SEVERITIES)[number];
 
 export type IncidentGroupOption = {
   id: string;
@@ -48,17 +57,5 @@ export type IncidentFilterCriteria = {
   dateTo: string;
 };
 
-type IncidentEditableFields = {
-  categoryId: string;
-  severity: IncidentSeverity;
-  description: string;
-  date: string;
-};
-
-export type CreateIncidentInput = IncidentEditableFields & {
-  studentId: string;
-};
-
-export type UpdateIncidentInput = IncidentEditableFields & {
-  id: string;
-};
+export type CreateIncidentInput = z.output<typeof createIncidentSchema>;
+export type UpdateIncidentInput = z.output<typeof updateIncidentSchema>;

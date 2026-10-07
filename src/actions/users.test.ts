@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { updateUserRoleAction } from "@/actions/users";
+import { CRUD_ACTION_FAILURE_MESSAGE } from "@/actions/application-error-result";
 import { ApplicationError } from "@/lib/application-error";
 
 const mocks = vi.hoisted(() => ({
@@ -53,13 +54,16 @@ describe("updateUserRoleAction", () => {
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("rethrows unexpected feature failures", async () => {
+  it("returns a safe result for unexpected feature failures", async () => {
     const error = new Error("unexpected");
     mocks.updateUserRole.mockRejectedValue(error);
 
     await expect(
       updateUserRoleAction({ userId: USER_ID, roleId: ROLE_ID }),
-    ).rejects.toThrow(error);
+    ).resolves.toEqual({
+      success: false,
+      error: CRUD_ACTION_FAILURE_MESSAGE,
+    });
   });
 
   it("invalidates only the users route after a successful update", async () => {

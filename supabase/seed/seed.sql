@@ -19,7 +19,7 @@ with
     returning id, name
   ),
   seed_categories(name) as (
-    values ('Indisciplina en Clase'), ('Asistencia'), ('Dispositivos Electronicos')
+    values ('Indisciplina en Clase'), ('Asistencia'), ('Dispositivos Electrónicos')
   ),
   inserted_categories as (
     insert into public.categories (name, created_by)

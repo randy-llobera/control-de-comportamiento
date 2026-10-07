@@ -1,39 +1,27 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-import { mapApplicationErrorToActionResult } from '@/actions/application-error-result';
-import { createStudent, deleteStudent, updateStudent } from '@/lib/students';
-import type { ActionResult } from '@/types/actions';
-import type { CreateStudentInput, UpdateStudentInput } from '@/types/students';
-
-const REQUIRED_ERROR = 'Este campo es obligatorio.';
-const UUID_ERROR = 'Selecciona una opción válida.';
-const nameSchema = z.string({ error: REQUIRED_ERROR }).trim().min(1, {
-  error: REQUIRED_ERROR,
-});
-const studentIdSchema = z.uuid({ error: UUID_ERROR });
-const groupIdSchema = z.uuid({ error: UUID_ERROR });
-const createStudentSchema = z.object({
-  name: nameSchema,
-  groupId: groupIdSchema,
-});
-const updateStudentSchema = z.object({
-  id: studentIdSchema,
-  name: nameSchema,
-  groupId: groupIdSchema,
-});
-const deleteStudentSchema = z.object({ id: studentIdSchema });
+import { mapApplicationErrorToActionResult } from "@/actions/application-error-result";
+import { createStudent, deleteStudent, updateStudent } from "@/lib/students";
+import type { ActionResult } from "@/types/actions";
+import type { CreateStudentInput, UpdateStudentInput } from "@/types/students";
+import { fieldErrors } from "@/validation/form-errors";
+import {
+  createStudentSchema,
+  deleteStudentSchema,
+  updateStudentSchema,
+} from "@/validation/students";
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
   success: false,
-  error: 'Revisa los campos marcados.',
-  fieldErrors: z.flattenError(error).fieldErrors,
+  error: "Revisa los campos marcados.",
+  fieldErrors: fieldErrors(error),
 });
 
 const revalidateStudentPaths = () => {
-  ['/estudiantes', '/incidentes', '/dashboard'].forEach((path) =>
+  ["/estudiantes", "/incidentes", "/dashboard"].forEach((path) =>
     revalidatePath(path),
   );
 };

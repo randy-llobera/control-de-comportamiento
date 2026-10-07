@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { mapApplicationErrorToActionResult } from "@/actions/application-error-result";
+import {
+  CRUD_ACTION_FAILURE_MESSAGE,
+  mapApplicationErrorToActionResult,
+} from "@/actions/application-error-result";
 import {
   ApplicationError,
   type ApplicationErrorCode,
@@ -27,9 +30,22 @@ describe("mapApplicationErrorToActionResult", () => {
     },
   );
 
-  it("rethrows the original unknown error", () => {
+  it("returns a safe result and logs unknown errors", () => {
     const error = new Error("unexpected");
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
 
-    expect(() => mapApplicationErrorToActionResult(error)).toThrow(error);
+    expect(mapApplicationErrorToActionResult(error)).toEqual({
+      success: false,
+      error: CRUD_ACTION_FAILURE_MESSAGE,
+    });
+    expect(consoleError).toHaveBeenCalledWith(
+      "Unexpected CRUD Action failure:",
+      error,
+    );
+    expect(CRUD_ACTION_FAILURE_MESSAGE).not.toContain(error.message);
+
+    consoleError.mockRestore();
   });
 });

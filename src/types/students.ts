@@ -18,13 +18,11 @@ export type StudentPageData = {
   canManageStudents: boolean;
 };
 
-export type CreateStudentInput = {
-  name: string;
-  groupId: string;
-};
+export type CreateStudentInput = z.output<typeof createStudentSchema>;
+export type UpdateStudentInput = z.output<typeof updateStudentSchema>;
+import type { z } from "zod";
 
-export type UpdateStudentInput = {
-  id: string;
-  name: string;
-  groupId: string;
-};
+import type {
+  createStudentSchema,
+  updateStudentSchema,
+} from "@/validation/students";

@@ -15,17 +15,17 @@ These rules define how the application should be built. They are not an inventor
 
 ## Application boundaries
 
-| Location | Owns | Keep out |
-| --- | --- | --- |
-| `src/app` Server Pages | Initial reads through feature functions, composition, redirects, missing/empty states | Table queries and mutation/business logic |
-| `src/components` | Rendering, input, dialogs, and browser state | Supabase table queries and database contracts |
-| `src/actions` | UI mutation input validation, feature calls, safe results, refresh/invalidation | Table queries and core business rules |
-| `src/app/api` Route Handlers | Actual HTTP input, feature calls, status/header/JSON mapping | Duplicated feature logic |
-| `src/lib` feature modules | Request-scoped client, authentication, authorization, queries, business rules, result mapping | UI state or transport-specific response contracts |
-| Supabase client modules | Server/browser/Proxy client creation and session infrastructure | Feature-specific queries |
-| `src/types` | Neutral application contracts and generated database types | Runtime server/client dependencies |
-| `src/utils` | Pure deterministic transformations over neutral inputs | React, Next.js, Supabase, browser APIs, environment reads, logging, or side effects |
-| Postgres | Persistence, grants, RLS, and integrity constraints | UI validation and user feedback |
+| Location                     | Owns                                                                                          | Keep out                                                                            |
+| ---------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `src/app` Server Pages       | Initial reads through feature functions, composition, redirects, missing/empty states         | Table queries and mutation/business logic                                           |
+| `src/components`             | Rendering, input, dialogs, and browser state                                                  | Supabase table queries and database contracts                                       |
+| `src/actions`                | UI mutation input validation, feature calls, safe results, refresh/invalidation               | Table queries and core business rules                                               |
+| `src/app/api` Route Handlers | Actual HTTP input, feature calls, status/header/JSON mapping                                  | Duplicated feature logic                                                            |
+| `src/lib` feature modules    | Request-scoped client, authentication, authorization, queries, business rules, result mapping | UI state or transport-specific response contracts                                   |
+| Supabase client modules      | Server/browser/Proxy client creation and session infrastructure                               | Feature-specific queries                                                            |
+| `src/types`                  | Neutral application contracts and generated database types                                    | Runtime server/client dependencies                                                  |
+| `src/utils`                  | Pure deterministic transformations over neutral inputs                                        | React, Next.js, Supabase, browser APIs, environment reads, logging, or side effects |
+| Postgres                     | Persistence, grants, RLS, and integrity constraints                                           | UI validation and user feedback                                                     |
 
 Server Pages and Server Actions call `lib/<feature>.ts` directly. Add a Route Handler only for an actual browser, webhook, external, or other HTTP caller; server code must not fetch the app's own API. Server Actions are for mutations, not general-purpose reads. Reserve genuinely long-running work for an appropriate background mechanism.
 
@@ -33,7 +33,7 @@ Keep existing flat feature modules, components, utilities, and colocated tests w
 
 Current boundary examples to consult, rather than copy into docs:
 
-- [Incident page](../src/app/(protected)/incidentes/page.tsx), [Actions](../src/actions/incidents.ts), and [feature module](../src/lib/incidents.ts).
+- [Incident page](<../src/app/(protected)/incidentes/page.tsx>), [Actions](../src/actions/incidents.ts), and [feature module](../src/lib/incidents.ts).
 - [Group-students HTTP handler](../src/app/api/groups/[groupId]/students/route.ts) and [student feature module](../src/lib/students.ts).
 - [ActionResult](../src/types/actions.ts), [application errors](../src/lib/application-error.ts), and [error mapping](../src/actions/application-error-result.ts).
 
@@ -70,7 +70,7 @@ Migrations define the database; `src/types/supabase.ts` is generated and must no
 
 Feature modules detect query failures, map expected business failures to known application errors, and log/rethrow unexpected failures. Never expose raw provider messages to users.
 
-Actions return field errors, safe Spanish application errors, or the success contract defined by the real operation. Catch only errors that the boundary can map; do not silently convert every exception into a business failure. Unexpected failures should reach a safe framework error boundary after server-side logging.
+Actions return field errors, safe Spanish application errors, or the success contract defined by the real operation. CRUD Actions use the shared mapper to log unexpected mutation failures and return one non-sensitive Spanish fallback so the existing dialog can remain open with feedback. Other unexpected failures should reach the safe `src/app/error.tsx` framework boundary after server-side logging; that boundary handles uncaught page read/render failures and offers retry feedback without rendering exception details.
 
 Route Handlers map failures to HTTP semantics: 400 invalid input, 401 unauthenticated, 403 forbidden, 404 missing, 409 conflict, and 500 unexpected failure. Session infrastructure must preserve the intended HTTP contract. Pages handle redirects, missing records, empty data, and unexpected errors at the appropriate boundary.
 

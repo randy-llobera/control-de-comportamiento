@@ -5,6 +5,7 @@ import {
   deleteGroupAction,
   updateGroupAction,
 } from '@/actions/groups';
+import { CRUD_ACTION_FAILURE_MESSAGE } from '@/actions/application-error-result';
 import { ApplicationError } from '@/lib/application-error';
 
 const mocks = vi.hoisted(() => ({
@@ -77,11 +78,14 @@ describe('group Actions', () => {
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
-  it('rethrows unexpected feature failures', async () => {
+  it('returns a safe result for unexpected feature failures', async () => {
     const error = new Error('unexpected');
     mocks.deleteGroup.mockRejectedValue(error);
 
-    await expect(deleteGroupAction({ id: GROUP_ID })).rejects.toThrow(error);
+    await expect(deleteGroupAction({ id: GROUP_ID })).resolves.toEqual({
+      success: false,
+      error: CRUD_ACTION_FAILURE_MESSAGE,
+    });
   });
 
   it.each([

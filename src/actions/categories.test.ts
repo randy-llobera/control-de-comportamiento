@@ -5,6 +5,7 @@ import {
   deleteCategoryAction,
   updateCategoryAction,
 } from "@/actions/categories";
+import { CRUD_ACTION_FAILURE_MESSAGE } from "@/actions/application-error-result";
 import { ApplicationError } from "@/lib/application-error";
 
 const mocks = vi.hoisted(() => ({
@@ -77,13 +78,14 @@ describe("category Actions", () => {
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("rethrows unexpected feature failures", async () => {
+  it("returns a safe result for unexpected feature failures", async () => {
     const error = new Error("unexpected");
     mocks.deleteCategory.mockRejectedValue(error);
 
-    await expect(deleteCategoryAction({ id: CATEGORY_ID })).rejects.toThrow(
-      error,
-    );
+    await expect(deleteCategoryAction({ id: CATEGORY_ID })).resolves.toEqual({
+      success: false,
+      error: CRUD_ACTION_FAILURE_MESSAGE,
+    });
   });
 
   it.each([

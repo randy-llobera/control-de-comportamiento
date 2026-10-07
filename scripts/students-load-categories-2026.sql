@@ -25,8 +25,9 @@ create temporary table initial_category_load (
 
 insert into initial_student_load (group_name, name)
 values
-  -- Add here the list of student names
-    ('STUDENT_GROUP', 'STUDENT_NAME'),
+  -- Template: replace this sample locally with 158 students across 8 groups.
+  -- Set load_actor_id below; separate rows with commas and end the last with ;.
+    ('STUDENT_GROUP', 'STUDENT_NAME');
 
 insert into initial_category_load (name)
 values

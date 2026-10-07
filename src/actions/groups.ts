@@ -1,31 +1,27 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-import { mapApplicationErrorToActionResult } from '@/actions/application-error-result';
-import { createGroup, deleteGroup, updateGroup } from '@/lib/groups';
-import type { ActionResult } from '@/types/actions';
-import type { CreateGroupInput, UpdateGroupInput } from '@/types/groups';
-
-const REQUIRED_ERROR = 'Este campo es obligatorio.';
-const UUID_ERROR = 'Selecciona una opción válida.';
-const nameSchema = z.string({ error: REQUIRED_ERROR }).trim().min(1, {
-  error: REQUIRED_ERROR,
-});
-const groupIdSchema = z.uuid({ error: UUID_ERROR });
-const createGroupSchema = z.object({ name: nameSchema });
-const updateGroupSchema = z.object({ id: groupIdSchema, name: nameSchema });
-const deleteGroupSchema = z.object({ id: groupIdSchema });
+import { mapApplicationErrorToActionResult } from "@/actions/application-error-result";
+import { createGroup, deleteGroup, updateGroup } from "@/lib/groups";
+import type { ActionResult } from "@/types/actions";
+import type { CreateGroupInput, UpdateGroupInput } from "@/types/groups";
+import { fieldErrors } from "@/validation/form-errors";
+import {
+  createGroupSchema,
+  deleteGroupSchema,
+  updateGroupSchema,
+} from "@/validation/groups";
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
   success: false,
-  error: 'Revisa los campos marcados.',
-  fieldErrors: z.flattenError(error).fieldErrors,
+  error: "Revisa los campos marcados.",
+  fieldErrors: fieldErrors(error),
 });
 
 const revalidateGroupPaths = () => {
-  ['/grupos', '/estudiantes', '/incidentes', '/dashboard'].forEach((path) =>
+  ["/grupos", "/estudiantes", "/incidentes", "/dashboard"].forEach((path) =>
     revalidatePath(path),
   );
 };

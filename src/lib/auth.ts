@@ -1,9 +1,9 @@
 import { cache } from 'react';
-import { isAuthSessionMissingError } from '@supabase/supabase-js';
 import {
   ApplicationError,
   AuthApplicationError,
 } from '@/lib/application-error';
+import { isInvalidSessionError } from '@/lib/auth-session';
 import { createClient, type ServerSupabaseClient } from '@/lib/supabase-server';
 import type { LoginInput, SignupInput } from '@/types/auth';
 import { isValidRole } from '@/types/users';
@@ -87,7 +87,7 @@ export const loadCurrentUserWithRole = async (
     error: authError,
   } = await supabase.auth.getUser();
 
-  if (!isAuthSessionMissingError(authError) && authError) {
+  if (authError && !isInvalidSessionError(authError)) {
     console.error('Failed to load the authenticated user:', authError.message);
     throw authError;
   }

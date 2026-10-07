@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isInvalidSessionError } from "@/lib/auth-session";
 import type { Database } from "@/types/supabase";
 
 export const updateSession = async (request: NextRequest) => {
@@ -26,7 +27,26 @@ export const updateSession = async (request: NextRequest) => {
     },
   );
 
-  const { data } = await supabase.auth.getClaims();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  return { isAuthenticated: Boolean(data?.claims.sub), response };
+  if (error) {
+    if (!isInvalidSessionError(error)) {
+      throw error;
+    }
+
+    const { error: signOutError } = await supabase.auth.signOut({
+      scope: "local",
+    });
+
+    if (signOutError) {
+      throw signOutError;
+    }
+
+    return { isAuthenticated: false, response };
+  }
+
+  return { isAuthenticated: Boolean(user), response };
 };

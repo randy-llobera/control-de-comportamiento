@@ -4,11 +4,11 @@ export type CategoryListItem = {
   createdByDisplayName: string;
 };
 
-export type CreateCategoryInput = {
-  name: string;
-};
+export type CreateCategoryInput = z.output<typeof createCategorySchema>;
+export type UpdateCategoryInput = z.output<typeof updateCategorySchema>;
+import type { z } from "zod";
 
-export type UpdateCategoryInput = {
-  id: string;
-  name: string;
-};
+import type {
+  createCategorySchema,
+  updateCategorySchema,
+} from "@/validation/categories";

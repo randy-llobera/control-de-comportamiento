@@ -18,6 +18,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoryListItem } from "@/types/categories";
+import {
+  createCategorySchema,
+  updateCategorySchema,
+} from "@/validation/categories";
+import { fieldErrors } from "@/validation/form-errors";
 
 type CategoryFormDialogProps =
   | {
@@ -49,6 +54,14 @@ export function CategoryFormDialog(props: CategoryFormDialogProps) {
     event.preventDefault();
     setError(undefined);
     setNameErrors(undefined);
+
+    const parsed = (
+      isEditing ? updateCategorySchema : createCategorySchema
+    ).safeParse(isEditing ? { id: props.category.id, name } : { name });
+    if (!parsed.success) {
+      setNameErrors(fieldErrors(parsed.error).name);
+      return;
+    }
 
     startTransition(async () => {
       const result = isEditing

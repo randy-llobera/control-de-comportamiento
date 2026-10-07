@@ -16,6 +16,16 @@ Not Started
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-10-07: Returned the existing `/auth` view to login after successful signup while preserving confirmation guidance and Auth contracts. [Record](features/return-to-login-after-signup.md).
+
+- 2026-10-07: Resolved DEF-002 with safe unexpected CRUD feedback and a protected-page retry boundary, verified by focused tests, repository checks, and signed-in browser fault injection. [Record](features/fix-unexpected-crud-failure-feedback.md).
+
+- 2026-10-07: Completed the API Proxy JSON error contract, preserved session response propagation, and resolved DEF-003 with focused, integration, build, and runtime verification. [Record](features/fix-api-proxy-json-contract.md).
+
+- 2026-10-07: Recovered safely from deleted or invalid Supabase sessions by verifying the current Auth user at the Proxy, clearing confirmed stale sessions through Supabase's local sign-out, preserving valid refresh propagation, and adding focused regression coverage. [Record](features/fix-deleted-user-session.md).
+- 2026-10-07: Narrowed hosted database and Vercel credential scope to the CI steps that consume them, preserved release behavior, removed the addressed PR findings record, and verified the repository checks. [Record](features/ci-secret-scope-hardening.md).
+- 2026-10-06: Added Supabase-aligned six-character signup-password validation with Spanish client guidance, authoritative Server Action validation, focused coverage, and browser verification. [Record](features/fix-signup-password-validation.md).
+- 2026-09-30: Added shared environment-neutral Zod validation for client forms and authoritative Server Actions, with immediate accessible feedback for auth and CRUD create/edit forms. [Record](features/client-side-validation.md).
 - 2026-09-29: Consolidated project documentation around clear ownership; simplified the product, engineering, operational, recovery, feature, task, defect, skill, and reviewer records; added the documentation update matrix; and verified repository documentation checks. [Record](features/documentation-cleanup.md).
 - 2026-08-06: Established gated application and local-database checks, automatic staging and production migrations, ordered Vercel deployments, encrypted monthly production backups, and one verified initial schema baseline. [Record](features/ci-pipeline-and-database-baseline.md).
 - 2026-08-05: Added repeatable local-only Supabase integration coverage for the role and ownership matrix, cross-role incident/profile reads, database constraints, and reliable fixture cleanup; completed the final standards audit and documented when the feature workflow must run the integration suite. [Record](features/refactor-16-integration-coverage-audit.md).

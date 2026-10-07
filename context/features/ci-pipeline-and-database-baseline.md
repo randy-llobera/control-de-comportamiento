@@ -10,7 +10,7 @@ Replaced the old CI setup with gated application/local-database checks, hosted m
 
 The baseline was installed after explicitly approved resets of disposable hosted data, not as an upgrade over the old migration history. That one-time decision does not authorize future resets. Admin bootstrap remained an operator action because an Auth password must not be committed.
 
-The rollout fixed toolchain drift and missing configuration assumptions. It exercised hosted baseline migration as well as deployment, instead of relying only on no-pending-migration runs. Restore rehearsal was excluded from completion at the user's request and remains owned by [TASK-007](../tasks/pending-tasks.md#task-007---verify-end-to-end-database-backup-and-restore-recovery). The separately observed stale-session defect is [DEF-004](../defects/pending-defects.md#def-004---deleted-user-sessions-cause-a-500-instead-of-returning-to-login).
+The rollout fixed toolchain drift and missing configuration assumptions. It exercised hosted baseline migration as well as deployment, instead of relying only on no-pending-migration runs. Restore rehearsal was excluded from completion at the user's request and remains owned by [TASK-007](../tasks/pending-tasks.md#task-007---verify-end-to-end-database-backup-and-restore-recovery). The later stale-session defect was resolved in [Deleted-User Session Recovery](fix-deleted-user-session.md).
 
 ## Evidence
 

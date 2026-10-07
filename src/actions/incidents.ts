@@ -1,68 +1,34 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-import { mapApplicationErrorToActionResult } from '@/actions/application-error-result';
+import { mapApplicationErrorToActionResult } from "@/actions/application-error-result";
 import {
   createIncident,
   deleteIncident,
   updateIncident,
-} from '@/lib/incidents';
-import type { ActionResult } from '@/types/actions';
+} from "@/lib/incidents";
+import type { ActionResult } from "@/types/actions";
 import type {
   CreateIncidentInput,
   UpdateIncidentInput,
-} from '@/types/incidents';
-
-const UUID_ERROR = 'Selecciona una opción válida.';
-const REQUIRED_ERROR = 'Este campo es obligatorio.';
-const INVALID_DATE_ERROR = 'Introduce una fecha válida.';
-const uuidSchema = z.uuid({ error: UUID_ERROR });
-const dateSchema = z
-  .string({ error: INVALID_DATE_ERROR })
-  .trim()
-  .refine(
-    (value) => {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return false;
-      }
-
-      const date = new Date(`${value}T00:00:00.000Z`);
-      return (
-        !Number.isNaN(date.getTime()) &&
-        date.toISOString().slice(0, 10) === value
-      );
-    },
-    { error: INVALID_DATE_ERROR },
-  );
-const editableIncidentSchema = z.object({
-  categoryId: uuidSchema,
-  severity: z.enum(['low', 'medium', 'high'], {
-    error: 'Selecciona una gravedad válida.',
-  }),
-  description: z
-    .string({ error: REQUIRED_ERROR })
-    .trim()
-    .min(1, { error: REQUIRED_ERROR }),
-  date: dateSchema,
-});
-const createIncidentSchema = editableIncidentSchema.extend({
-  studentId: uuidSchema,
-});
-const updateIncidentSchema = editableIncidentSchema.extend({
-  id: uuidSchema,
-});
-const deleteIncidentSchema = z.object({ id: uuidSchema });
+} from "@/types/incidents";
+import { fieldErrors } from "@/validation/form-errors";
+import {
+  createIncidentSchema,
+  deleteIncidentSchema,
+  updateIncidentSchema,
+} from "@/validation/incidents";
 
 const validationFailed = (error: z.ZodError): ActionResult => ({
   success: false,
-  error: 'Revisa los campos marcados.',
-  fieldErrors: z.flattenError(error).fieldErrors,
+  error: "Revisa los campos marcados.",
+  fieldErrors: fieldErrors(error),
 });
 
 const revalidateIncidentPaths = () => {
-  ['/incidentes', '/dashboard'].forEach((path) => revalidatePath(path));
+  ["/incidentes", "/dashboard"].forEach((path) => revalidatePath(path));
 };
 
 export const createIncidentAction = async (
