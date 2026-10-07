@@ -2,20 +2,21 @@
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Recover safely from deleted or otherwise invalid Supabase sessions.
+<!-- Add goals here -->
 
 ## Notes
 
-- [Deleted-user session recovery](features/fix-deleted-user-session.md)
+<!-- Add notes here -->
 
 ## History
 
 <!-- Keep this updated. Newest to oldest -->
 
+- 2026-10-07: Recovered safely from deleted or invalid Supabase sessions by verifying the current Auth user at the Proxy, clearing confirmed stale sessions through Supabase's local sign-out, preserving valid refresh propagation, and adding focused regression coverage. [Record](features/fix-deleted-user-session.md).
 - 2026-10-07: Narrowed hosted database and Vercel credential scope to the CI steps that consume them, preserved release behavior, removed the addressed PR findings record, and verified the repository checks. [Record](features/ci-secret-scope-hardening.md).
 - 2026-10-06: Added Supabase-aligned six-character signup-password validation with Spanish client guidance, authoritative Server Action validation, focused coverage, and browser verification. [Record](features/fix-signup-password-validation.md).
 - 2026-09-30: Added shared environment-neutral Zod validation for client forms and authoritative Server Actions, with immediate accessible feedback for auth and CRUD create/edit forms. [Record](features/client-side-validation.md).
