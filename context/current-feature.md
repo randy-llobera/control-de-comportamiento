@@ -2,15 +2,15 @@
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Add goals here -->
+- Recover safely from deleted or otherwise invalid Supabase sessions.
 
 ## Notes
 
-<!-- Add notes here -->
+- [Deleted-user session recovery](features/fix-deleted-user-session.md)
 
 ## History
 
